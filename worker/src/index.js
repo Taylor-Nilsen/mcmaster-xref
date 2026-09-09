@@ -3,14 +3,19 @@
  *
  * POST /api/xref
  *   Body: { partNumber?: string, specs?: PartialSpecs }
- *   - If partNumber is given, best-effort fetch + parse of the McMaster
- *     product page (McMaster gates full spec data behind login/JS, so this
- *     is unreliable and expected to fail often — see README).
+ *   - If partNumber is given, renders the live McMaster product page with
+ *     a real headless Chrome instance (Cloudflare Browser Rendering) and
+ *     parses the fully-rendered text. McMaster is a JS-only SPA, so a
+ *     plain fetch() never sees real spec data -- this actually executes
+ *     the page's JS server-side instead. Runs fresh on every request, no
+ *     caching. Can't see anything McMaster gates behind account login (no
+ *     credentials are stored or used here) -- see README.
  *   - specs, if given, are merged on top of (and override) anything parsed
- *     from McMaster, so the UI's manual-entry fallback always works even
- *     when live scraping is blocked.
+ *     live, so manual entry always works as a fallback.
  *   Returns: { source: "mcmaster"|"manual"|"mcmaster+manual", specs, links }
  */
+
+import puppeteer from "@cloudflare/puppeteer";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +24,7 @@ const CORS_HEADERS = {
 };
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
@@ -27,7 +32,7 @@ export default {
     }
 
     if (url.pathname === "/api/xref" && request.method === "POST") {
-      return handleXref(request);
+      return handleXref(request, env);
     }
 
     if (url.pathname === "/" || url.pathname === "/api/health") {
@@ -38,7 +43,7 @@ export default {
   },
 };
 
-async function handleXref(request) {
+async function handleXref(request, env) {
   let body;
   try {
     body = await request.json();
@@ -54,7 +59,7 @@ async function handleXref(request) {
 
   if (partNumber) {
     try {
-      mcmasterSpecs = await fetchMcMasterSpecs(partNumber);
+      mcmasterSpecs = await fetchMcMasterSpecsLive(env, partNumber);
     } catch (err) {
       mcmasterError = err.message;
     }
@@ -82,55 +87,36 @@ async function handleXref(request) {
 }
 
 /**
- * Best-effort fetch + parse of a McMaster-Carr product page. McMaster
- * actively blocks scraping and renders most spec detail client-side, so
- * this only extracts what's present in <title>/<meta description> server
- * side. Throws on any failure — caller treats that as "unavailable, fall
- * back to manual entry", not a hard error.
+ * Renders the live McMaster product page in a real headless browser
+ * (Cloudflare Browser Rendering) and parses the fully-rendered text.
+ * No caching -- a fresh browser session runs on every call, so results
+ * always reflect the page as it is right now. Throws on any failure
+ * (page never settles, no usable text, etc.); caller treats that as
+ * "unavailable, fall back to manual entry", not a hard error.
  */
-async function fetchMcMasterSpecs(partNumber) {
+async function fetchMcMasterSpecsLive(env, partNumber) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  const res = await fetch(pageUrl, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml",
-    },
-    cf: { cacheTtl: 3600, cacheEverything: true },
-  });
+  const browser = await puppeteer.launch(env.MCMASTER_BROWSER);
+  try {
+    const page = await browser.newPage();
+    await page.goto(pageUrl, { waitUntil: "networkidle0", timeout: 30000 });
+    await page.waitForTimeout(1000); // let any late client-side render settle
 
-  if (!res.ok) {
-    throw new Error(`McMaster returned HTTP ${res.status}`);
+    const text = await page.evaluate(() => document.body.innerText);
+    if (!text || text.trim().length < 50) {
+      throw new Error("page rendered but had no usable text (likely blocked)");
+    }
+
+    return { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+  } finally {
+    await browser.close();
   }
-
-  const html = await res.text();
-  const title = firstMatch(html, /<title>([^<]*)<\/title>/i);
-  const description = firstMatch(
-    html,
-    /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i
-  );
-
-  const text = [title, description].filter(Boolean).join(". ");
-  if (!text) {
-    throw new Error("no usable metadata in McMaster response (likely blocked/JS-only)");
-  }
-
-  return parseSpecsFromText(text);
 }
 
 function firstMatch(str, re) {
   const m = str.match(re);
-  return m ? decodeHtmlEntities(m[1].trim()) : null;
-}
-
-function decodeHtmlEntities(str) {
-  return str
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+  return m ? m[1].trim() : null;
 }
 
 const MATERIALS = [
@@ -208,6 +194,42 @@ function parseSpecsFromText(text) {
   return specs;
 }
 
+const KEY_MAP = {
+  material: "material",
+  shape: "shape",
+  "thread size": "threadSize",
+  "thread pitch": "threadSize",
+  length: "length",
+  diameter: "diameter",
+  "outside diameter": "diameter",
+  od: "diameter",
+  thickness: "thickness",
+  width: "width",
+  "drive style": "driveType",
+  "drive type": "driveType",
+  "head type": "headType",
+  finish: "finish",
+  grade: "grade",
+  class: "grade",
+};
+
+/**
+ * Parses "Key: Value" / "Key - Value" lines -- the shape of McMaster's own
+ * spec table once it's actually rendered. Higher confidence than the fuzzy
+ * keyword matching in parseSpecsFromText, so callers should let this
+ * override it.
+ */
+function parseKeyValueText(text) {
+  const specs = {};
+  for (const line of text.split("\n")) {
+    const m = line.match(/^\s*([A-Za-z][A-Za-z /]{1,40}?)\s*[:\-]\s*(.{1,80}?)\s*$/);
+    if (!m) continue;
+    const key = KEY_MAP[m[1].trim().toLowerCase()];
+    if (key && !specs[key]) specs[key] = m[2].trim();
+  }
+  return specs;
+}
+
 function sanitizeSpecs(specs) {
   const allowed = [
     "material",
@@ -221,6 +243,7 @@ function sanitizeSpecs(specs) {
     "width",
     "grade",
     "category",
+    "headType",
   ];
   const out = {};
   for (const key of allowed) {
