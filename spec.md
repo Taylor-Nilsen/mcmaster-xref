@@ -8,7 +8,7 @@ All McMaster-Carr categories: raw stock (aluminum, brass, steel, carbon fiber tu
 
 ## Architecture
 - **Frontend:** Static site on GitHub Pages (input box for McMaster part number, results display). Free, matches existing GitHub Pro account.
-- **Backend:** Cloudflare Worker (free tier) handles the actual fetching/scraping and matching logic — needed because GitHub Pages can't do server-side requests or dodge CORS/bot-blocking on its own.
+- **Backend:** AWS Lambda (Always Free tier) handles the actual fetching/scraping and matching logic — needed because GitHub Pages can't do server-side requests, and McMaster's JS-rendered pages need a real headless browser to read, which requires a paid plan on Cloudflare's free-tier equivalent (Workers + Browser Rendering) but not on Lambda's.
 
 ## Workflow
 1. User submits a McMaster part number.

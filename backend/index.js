@@ -1,54 +1,50 @@
 /**
- * McMaster-Carr Cross-Reference Worker
+ * McMaster-Carr Cross-Reference backend (AWS Lambda, Function URL).
  *
- * POST /api/xref
+ * POST /  (the function URL root)
  *   Body: { partNumber?: string, specs?: PartialSpecs }
  *   - If partNumber is given, renders the live McMaster product page with
- *     a real headless Chrome instance (Cloudflare Browser Rendering) and
- *     parses the fully-rendered text. McMaster is a JS-only SPA, so a
- *     plain fetch() never sees real spec data -- this actually executes
- *     the page's JS server-side instead. Runs fresh on every request, no
- *     caching. Can't see anything McMaster gates behind account login (no
- *     credentials are stored or used here) -- see README.
- *   - specs, if given, are merged on top of (and override) anything parsed
- *     live, so manual entry always works as a fallback.
- *   Returns: { source: "mcmaster"|"manual"|"mcmaster+manual", specs, links }
+ *     a real headless Chrome instance and parses the fully-rendered text.
+ *     McMaster is a JS-only SPA, so a plain HTTP fetch never sees real
+ *     spec data -- this actually executes the page's JS. Runs fresh on
+ *     every request, no caching. Can't see anything McMaster gates behind
+ *     account login (no credentials are stored or used here) -- see
+ *     README.
+ *   - specs, if given, are merged on top of (and override) anything
+ *     parsed live, so manual entry always works as a fallback.
+ *   Returns: { source, specs, links }
+ *
+ * Runs on AWS Lambda's Always Free tier (1M requests + 400,000 GB-s
+ * compute per month, permanently, not a trial) -- see backend/README.md
+ * for deploy steps. Chosen over Cloudflare Workers because Browser
+ * Rendering (the only way to get headless Chrome there) requires the
+ * Workers Paid plan; this needs no paid plan on either platform.
  */
 
-import puppeteer from "@cloudflare/puppeteer";
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+exports.handler = async (event) => {
+  const method = event.requestContext?.http?.method || "GET";
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: CORS_HEADERS });
-    }
+  if (method === "OPTIONS") {
+    return { statusCode: 204, headers: CORS_HEADERS, body: "" };
+  }
+  if (method !== "POST") {
+    return respond(404, { error: "not found" });
+  }
 
-    if (url.pathname === "/api/xref" && request.method === "POST") {
-      return handleXref(request, env);
-    }
-
-    if (url.pathname === "/" || url.pathname === "/api/health") {
-      return json({ status: "ok" });
-    }
-
-    return json({ error: "not found" }, 404);
-  },
-};
-
-async function handleXref(request, env) {
   let body;
   try {
-    body = await request.json();
+    body = JSON.parse(event.body || "{}");
   } catch {
-    return json({ error: "invalid JSON body" }, 400);
+    return respond(400, { error: "invalid JSON body" });
   }
 
   const partNumber = (body.partNumber || "").trim();
@@ -59,7 +55,7 @@ async function handleXref(request, env) {
 
   if (partNumber) {
     try {
-      mcmasterSpecs = await fetchMcMasterSpecsLive(env, partNumber);
+      mcmasterSpecs = await fetchMcMasterSpecsLive(partNumber);
     } catch (err) {
       mcmasterError = err.message;
     }
@@ -75,33 +71,45 @@ async function handleXref(request, env) {
     source = "mcmaster";
   }
 
-  const links = hasAnySpec ? buildSupplierLinks(specs, partNumber) : [];
+  const links = hasAnySpec ? buildSupplierLinks(specs) : [];
 
-  return json({
+  return respond(200, {
     partNumber: partNumber || null,
     source,
     specs,
     mcmasterFetchError: mcmasterError,
     links,
   });
+};
+
+function respond(statusCode, data) {
+  return {
+    statusCode,
+    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    body: JSON.stringify(data),
+  };
 }
 
 /**
- * Renders the live McMaster product page in a real headless browser
- * (Cloudflare Browser Rendering) and parses the fully-rendered text.
- * No caching -- a fresh browser session runs on every call, so results
- * always reflect the page as it is right now. Throws on any failure
- * (page never settles, no usable text, etc.); caller treats that as
- * "unavailable, fall back to manual entry", not a hard error.
+ * Renders the live McMaster product page in a real headless browser and
+ * parses the fully-rendered text. No caching -- a fresh browser launches
+ * on every call. Throws on any failure (page never settles, no usable
+ * text, etc.); caller treats that as "unavailable, fall back to manual
+ * entry", not a hard error.
  */
-async function fetchMcMasterSpecsLive(env, partNumber) {
+async function fetchMcMasterSpecsLive(partNumber) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  const browser = await puppeteer.launch(env.MCMASTER_BROWSER);
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
+  });
+
   try {
     const page = await browser.newPage();
-    await page.goto(pageUrl, { waitUntil: "networkidle0", timeout: 30000 });
-    await page.waitForTimeout(1000); // let any late client-side render settle
+    await page.goto(pageUrl, { waitUntil: "networkidle0", timeout: 25000 });
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
 
     const text = await page.evaluate(() => document.body.innerText);
     if (!text || text.trim().length < 50) {
@@ -114,51 +122,14 @@ async function fetchMcMasterSpecsLive(env, partNumber) {
   }
 }
 
-function firstMatch(str, re) {
-  const m = str.match(re);
-  return m ? m[1].trim() : null;
-}
-
 const MATERIALS = [
-  "18-8 stainless steel",
-  "316 stainless steel",
-  "stainless steel",
-  "carbon fiber",
-  "aluminum",
-  "brass",
-  "bronze",
-  "copper",
-  "titanium",
-  "alloy steel",
-  "carbon steel",
-  "steel",
-  "nylon",
-  "polycarbonate",
-  "acetal",
-  "delrin",
-  "pvc",
-  "rubber",
+  "18-8 stainless steel", "316 stainless steel", "stainless steel",
+  "carbon fiber", "aluminum", "brass", "bronze", "copper", "titanium",
+  "alloy steel", "carbon steel", "steel", "nylon", "polycarbonate",
+  "acetal", "delrin", "pvc", "rubber",
 ];
-
-const DRIVE_TYPES = [
-  "hex",
-  "phillips",
-  "slotted",
-  "torx",
-  "socket",
-  "square",
-  "combination",
-];
-
-const FINISHES = [
-  "zinc plated",
-  "black oxide",
-  "galvanized",
-  "chrome plated",
-  "plain",
-  "anodized",
-  "powder coated",
-];
+const DRIVE_TYPES = ["hex", "phillips", "slotted", "torx", "socket", "square", "combination"];
+const FINISHES = ["zinc plated", "black oxide", "galvanized", "chrome plated", "plain", "anodized", "powder coated"];
 
 function parseSpecsFromText(text) {
   const lower = text.toLowerCase();
@@ -173,19 +144,13 @@ function parseSpecsFromText(text) {
   const finish = FINISHES.find((f) => lower.includes(f));
   if (finish) specs.finish = finish;
 
-  const thread = firstMatch(
-    text,
-    /(#\d{1,2}-\d{2,3}|\d{1,2}\/\d{1,2}"?-\d{1,2}|M\d{1,2}(?:\.\d)?\s*x\s*\d(?:\.\d+)?)/i
-  );
+  const thread = firstMatch(text, /(#\d{1,2}-\d{2,3}|\d{1,2}\/\d{1,2}"?-\d{1,2}|M\d{1,2}(?:\.\d)?\s*x\s*\d(?:\.\d+)?)/i);
   if (thread) specs.threadSize = thread.replace(/\s+/g, "");
 
   const length = firstMatch(text, /(\d+(?:\.\d+)?\s?(?:\/\s?\d+)?)"?\s*(?:long|length)/i);
   if (length) specs.length = `${length.trim()}"`;
 
-  const diameter = firstMatch(
-    text,
-    /(\d+(?:\.\d+)?(?:\/\d+)?)"?\s*(?:dia(?:meter)?|od|o\.d\.)/i
-  );
+  const diameter = firstMatch(text, /(\d+(?:\.\d+)?(?:\/\d+)?)"?\s*(?:dia(?:meter)?|od|o\.d\.)/i);
   if (diameter) specs.diameter = `${diameter.trim()}"`;
 
   const grade = firstMatch(text, /(grade\s?\d+|class\s?\d+(?:\.\d+)?)/i);
@@ -216,8 +181,8 @@ const KEY_MAP = {
 /**
  * Parses "Key: Value" / "Key - Value" lines -- the shape of McMaster's own
  * spec table once it's actually rendered. Higher confidence than the fuzzy
- * keyword matching in parseSpecsFromText, so callers should let this
- * override it.
+ * keyword matching in parseSpecsFromText, so the caller lets this override
+ * it.
  */
 function parseKeyValueText(text) {
   const specs = {};
@@ -230,20 +195,15 @@ function parseKeyValueText(text) {
   return specs;
 }
 
+function firstMatch(str, re) {
+  const m = str.match(re);
+  return m ? m[1].trim() : null;
+}
+
 function sanitizeSpecs(specs) {
   const allowed = [
-    "material",
-    "shape",
-    "driveType",
-    "finish",
-    "threadSize",
-    "length",
-    "diameter",
-    "thickness",
-    "width",
-    "grade",
-    "category",
-    "headType",
+    "material", "shape", "driveType", "finish", "threadSize", "length",
+    "diameter", "thickness", "width", "grade", "category", "headType",
   ];
   const out = {};
   for (const key of allowed) {
@@ -257,11 +217,11 @@ function sanitizeSpecs(specs) {
 /**
  * Builds direct search-results links on other suppliers' sites using the
  * extracted/entered specs as a query. This is deliberately NOT scraping
- * those sites (most block bots as aggressively as McMaster does) — it
+ * those sites (most block bots as aggressively as McMaster does) -- it
  * hands the user a pre-filled search so they can judge fit themselves,
  * per the spec's workflow step 5.
  */
-function buildSupplierLinks(specs, partNumber) {
+function buildSupplierLinks(specs) {
   const query = [specs.material, specs.shape, specs.threadSize, specs.diameter, specs.thickness, specs.width, specs.length, specs.driveType, specs.finish, specs.grade]
     .filter(Boolean)
     .join(" ");
@@ -275,7 +235,6 @@ function buildSupplierLinks(specs, partNumber) {
     { name: "MSC Direct", url: `https://www.mscdirect.com/search?q=${q}` },
     { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?q=${q}` },
   ];
-
   const fastenerSuppliers = [
     { name: "Fastenal", url: `https://www.fastenal.com/products/search?query=${q}` },
     { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
@@ -296,14 +255,4 @@ function buildSupplierLinks(specs, partNumber) {
   }
 
   return suppliers.map((s) => ({ ...s, query }));
-}
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      ...CORS_HEADERS,
-    },
-  });
 }

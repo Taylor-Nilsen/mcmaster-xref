@@ -46,9 +46,9 @@ async function runLookup() {
     return;
   }
 
-  if (typeof WORKER_URL !== "string" || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+  if (typeof BACKEND_URL !== "string" || BACKEND_URL.includes("YOUR-LAMBDA-ID")) {
     setStatus(
-      "Worker URL isn't configured yet. Edit frontend/config.js after deploying the worker (see README).",
+      "Backend URL isn't configured yet. Edit frontend/config.js after deploying the backend (see backend/README.md).",
       true
     );
     return;
@@ -58,14 +58,14 @@ async function runLookup() {
   resultsPanel.hidden = true;
 
   try {
-    const res = await fetch(`${WORKER_URL}/api/xref`, {
+    const res = await fetch(BACKEND_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ partNumber, specs }),
     });
 
     if (!res.ok) {
-      throw new Error(`Worker returned HTTP ${res.status}`);
+      throw new Error(`Backend returned HTTP ${res.status}`);
     }
 
     const data = await res.json();
