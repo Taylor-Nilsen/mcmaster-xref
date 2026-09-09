@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>McMaster-Carr Cross-Reference</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>McMaster-Carr Cross-Reference</h1>
+    <p class="subtitle">
+      Look up a McMaster part number and find candidate equivalent listings
+      at other suppliers. McMaster's price isn't shown — you already know it.
+    </p>
+
+    <div class="panel">
+      <div class="field">
+        <label for="partNumber">McMaster part number</label>
+        <input id="partNumber" placeholder="e.g. 91251A540" />
+      </div>
+      <button id="lookupBtn">Look up</button>
+      <button id="manualToggle" class="secondary" type="button">
+        Enter specs manually
+      </button>
+    </div>
+
+    <details id="manualPanel" class="panel" hidden>
+      <summary>Manual spec entry (use if auto-fetch fails or the part is unusual)</summary>
+      <div class="grid">
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="">Unspecified</option>
+            <option value="fastener">Fastener / hardware</option>
+            <option value="stock">Raw stock</option>
+            <option value="keystock">Keystock</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="material">Material</label>
+          <input id="material" placeholder="e.g. 18-8 stainless steel" />
+        </div>
+        <div class="field">
+          <label for="shape">Shape</label>
+          <input id="shape" placeholder="e.g. round bar, hex bar, sheet" />
+        </div>
+        <div class="field">
+          <label for="threadSize">Thread size</label>
+          <input id="threadSize" placeholder="e.g. 1/4-20" />
+        </div>
+        <div class="field">
+          <label for="diameter">Diameter</label>
+          <input id="diameter" placeholder='e.g. 1/2"' />
+        </div>
+        <div class="field">
+          <label for="thickness">Thickness</label>
+          <input id="thickness" placeholder='e.g. 0.125"' />
+        </div>
+        <div class="field">
+          <label for="width">Width</label>
+          <input id="width" placeholder='e.g. 1"' />
+        </div>
+        <div class="field">
+          <label for="length">Length</label>
+          <input id="length" placeholder='e.g. 2"' />
+        </div>
+        <div class="field">
+          <label for="driveType">Drive type</label>
+          <input id="driveType" placeholder="e.g. hex, phillips, torx" />
+        </div>
+        <div class="field">
+          <label for="finish">Finish</label>
+          <input id="finish" placeholder="e.g. zinc plated, black oxide" />
+        </div>
+        <div class="field">
+          <label for="grade">Grade / class</label>
+          <input id="grade" placeholder="e.g. grade 8, class 12.9" />
+        </div>
+      </div>
+    </details>
+
+    <p id="status"></p>
+
+    <div id="resultsPanel" class="panel" hidden>
+      <h2>Extracted specs</h2>
+      <div id="specsList"></div>
+
+      <h2>Candidate suppliers</h2>
+      <ul id="linksList" class="links"></ul>
+    </div>
+
+    <footer>
+      Static frontend + Cloudflare Worker backend. See
+      <a href="https://github.com/Taylor-Nilsen/mcmaster-xref" style="color:inherit">source</a>
+      for setup.
+    </footer>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
