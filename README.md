@@ -6,22 +6,11 @@ full design.
 
 ## Status
 
-McMaster is a JS-rendered SPA with active anti-bot protection, so a
-server-side fetch from the worker only ever sees `<title>`/meta description
-and will miss most of the time — that's not a bug to fix, it's how McMaster
-is built. Three lookup paths, in order of reliability:
-
-1. **Bookmarklet** (best) — the page renders a "Scrape this McMaster page"
-   link built from `frontend/bookmarklet.js`. Drag it to your bookmarks bar,
-   open the part on mcmaster.com, click it there. It reads the *rendered*
-   DOM in your own logged-in browser — not automation McMaster's bot
-   detection would flag, since it's a user script you trigger yourself —
-   and opens this app with the real specs pre-filled.
-2. **Paste specs** — copy the specifications block off the McMaster page
-   into the "Paste specs" box in manual entry; the worker parses `Key:
-   Value` lines directly.
-3. **Manual field entry** — always available, always wins (highest priority
-   in the merge: mcmaster fetch < pasted/scraped text < manual fields).
+McMaster gates most spec detail behind login/client-side rendering, so
+automatic parsing only works when the part's `<title>`/meta description
+happen to carry enough detail (fasteners and simple stock tend to; unusual
+parts often won't). Manual spec entry in the UI always works as a fallback
+and is merged on top of anything auto-parsed.
 
 Supplier "results" are pre-filled search links (Speedy Metals, MSC Direct,
 Online Metals, Fastenal, Grainger, Bolt Depot, Amazon, AliExpress,
