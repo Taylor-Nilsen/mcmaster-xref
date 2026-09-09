@@ -25,8 +25,25 @@
       </button>
     </div>
 
+    <div class="panel">
+      <p style="margin-top:0">
+        <strong>Best method:</strong> drag this to your bookmarks bar, open
+        the part on mcmaster.com, and click it there. It reads the specs off
+        the actual rendered page in your logged-in browser (which a server
+        can't do — McMaster blocks that) and opens results here automatically.
+      </p>
+      <a id="bookmarklet" href="#" style="display:inline-block;padding:0.5rem 0.9rem;border:1px solid var(--border);border-radius:6px;background:#10141a;color:var(--accent);text-decoration:none;">
+        📎 Scrape this McMaster page
+      </a>
+      <p id="bookmarkletStatus" style="color:var(--muted);font-size:0.85rem;margin-bottom:0"></p>
+    </div>
+
     <details id="manualPanel" class="panel" hidden>
-      <summary>Manual spec entry (use if auto-fetch fails or the part is unusual)</summary>
+      <summary>Manual spec entry (use if auto-fetch and the bookmarklet both fail)</summary>
+      <div class="field">
+        <label for="pastedText">Paste the specifications section from the McMaster page (optional)</label>
+        <textarea id="pastedText" rows="4" style="width:100%;background:#10141a;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.55rem 0.65rem;font-size:0.9rem;" placeholder="Material: 18-8 Stainless Steel&#10;Thread Size: 1/4&quot;-20&#10;Length: 1&quot;&#10;..."></textarea>
+      </div>
       <div class="grid">
         <div class="field">
           <label for="category">Category</label>

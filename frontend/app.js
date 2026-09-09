@@ -40,13 +40,14 @@ function readManualSpecs() {
 async function runLookup() {
   const partNumber = document.getElementById("partNumber").value.trim();
   const specs = readManualSpecs();
+  const scrapedText = document.getElementById("pastedText").value.trim();
 
-  if (!partNumber && Object.keys(specs).length === 0) {
-    setStatus("Enter a part number or fill in manual specs.", true);
+  if (!partNumber && Object.keys(specs).length === 0 && !scrapedText) {
+    setStatus("Enter a part number, paste specs, or fill in manual specs.", true);
     return;
   }
 
-  if (typeof WORKER_URL !== "string" || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+  if (!workerUrlConfigured()) {
     setStatus(
       "Worker URL isn't configured yet. Edit frontend/config.js after deploying the worker (see README).",
       true
@@ -61,7 +62,7 @@ async function runLookup() {
     const res = await fetch(`${WORKER_URL}/api/xref`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ partNumber, specs }),
+      body: JSON.stringify({ partNumber, specs, scrapedText }),
     });
 
     if (!res.ok) {
@@ -74,6 +75,52 @@ async function runLookup() {
     setStatus(`Lookup failed: ${err.message}`, true);
   }
 }
+
+function workerUrlConfigured() {
+  return typeof WORKER_URL === "string" && !WORKER_URL.includes("YOUR-SUBDOMAIN");
+}
+
+// Bookmarklet: build its javascript: URI from bookmarklet.js, substituting
+// this deployment's real worker/frontend URLs, so there's nothing for the
+// user to hand-edit.
+async function setUpBookmarklet() {
+  const link = document.getElementById("bookmarklet");
+  const status = document.getElementById("bookmarkletStatus");
+
+  if (!workerUrlConfigured()) {
+    status.textContent = "Configure frontend/config.js with your worker URL first.";
+    link.addEventListener("click", (e) => e.preventDefault());
+    return;
+  }
+
+  try {
+    const res = await fetch("bookmarklet.js");
+    let src = await res.text();
+    const frontendUrl = location.href.split("#")[0];
+    src = src.replace(/__WORKER_URL__/g, WORKER_URL).replace(/__FRONTEND_URL__/g, frontendUrl);
+    link.href = "javascript:" + encodeURIComponent(src);
+  } catch (err) {
+    status.textContent = `Couldn't build bookmarklet: ${err.message}`;
+  }
+}
+
+// If we were opened by the bookmarklet (frontendUrl#result=<base64 JSON>),
+// render that result immediately instead of requiring a manual lookup.
+function renderResultFromHash() {
+  if (!location.hash.startsWith("#result=")) return;
+  try {
+    const encoded = location.hash.slice("#result=".length);
+    const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    if (data.partNumber) document.getElementById("partNumber").value = data.partNumber;
+    renderResults(data);
+    history.replaceState(null, "", location.pathname + location.search);
+  } catch (err) {
+    setStatus(`Couldn't read bookmarklet result: ${err.message}`, true);
+  }
+}
+
+setUpBookmarklet();
+renderResultFromHash();
 
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
