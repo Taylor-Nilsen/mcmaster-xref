@@ -2,18 +2,14 @@
  * McMaster-Carr Cross-Reference Worker
  *
  * POST /api/xref
- *   Body: { partNumber?: string, scrapedText?: string, specs?: PartialSpecs }
- *   - partNumber: best-effort server-side fetch + parse of the McMaster
- *     product page. McMaster is a JS-rendered SPA with active anti-bot
- *     protection, so this only ever sees <title>/meta description and is
- *     expected to miss most of the time — see README.
- *   - scrapedText: raw text pulled from the *rendered* McMaster page by the
- *     bookmarklet (frontend/bookmarklet.js), running in the user's own
- *     logged-in browser. This is the reliable path — no bot detection
- *     applies to a real user's browser reading a page it's already loaded.
- *   - specs: manual field entries, highest priority.
- *   Priority (low to high): mcmaster fetch < scrapedText < manual specs.
- *   Returns: { source, specs, links }
+ *   Body: { partNumber?: string, specs?: PartialSpecs }
+ *   - If partNumber is given, best-effort fetch + parse of the McMaster
+ *     product page (McMaster gates full spec data behind login/JS, so this
+ *     is unreliable and expected to fail often — see README).
+ *   - specs, if given, are merged on top of (and override) anything parsed
+ *     from McMaster, so the UI's manual-entry fallback always works even
+ *     when live scraping is blocked.
+ *   Returns: { source: "mcmaster"|"manual"|"mcmaster+manual", specs, links }
  */
 
 const CORS_HEADERS = {
@@ -52,7 +48,6 @@ async function handleXref(request) {
 
   const partNumber = (body.partNumber || "").trim();
   const manualSpecs = sanitizeSpecs(body.specs || {});
-  const scrapedText = typeof body.scrapedText === "string" ? body.scrapedText.slice(0, 20000) : "";
 
   let mcmasterSpecs = {};
   let mcmasterError = null;
@@ -65,18 +60,15 @@ async function handleXref(request) {
     }
   }
 
-  const scrapedSpecs = scrapedText
-    ? { ...parseSpecsFromText(scrapedText), ...parseKeyValueText(scrapedText) }
-    : {};
-
-  const specs = { ...mcmasterSpecs, ...scrapedSpecs, ...manualSpecs };
+  const specs = { ...mcmasterSpecs, ...manualSpecs };
   const hasAnySpec = Object.keys(specs).length > 0;
 
-  const sourcesUsed = [];
-  if (Object.keys(mcmasterSpecs).length) sourcesUsed.push("mcmaster-fetch");
-  if (Object.keys(scrapedSpecs).length) sourcesUsed.push("bookmarklet-scrape");
-  if (Object.keys(manualSpecs).length) sourcesUsed.push("manual");
-  const source = sourcesUsed.length ? sourcesUsed.join("+") : "none";
+  let source = "manual";
+  if (Object.keys(mcmasterSpecs).length && Object.keys(manualSpecs).length) {
+    source = "mcmaster+manual";
+  } else if (Object.keys(mcmasterSpecs).length) {
+    source = "mcmaster";
+  }
 
   const links = hasAnySpec ? buildSupplierLinks(specs, partNumber) : [];
 
@@ -216,42 +208,6 @@ function parseSpecsFromText(text) {
   return specs;
 }
 
-const KEY_MAP = {
-  material: "material",
-  shape: "shape",
-  "thread size": "threadSize",
-  "thread pitch": "threadSize",
-  length: "length",
-  diameter: "diameter",
-  "outside diameter": "diameter",
-  od: "diameter",
-  thickness: "thickness",
-  width: "width",
-  "drive style": "driveType",
-  "drive type": "driveType",
-  "head type": "headType",
-  finish: "finish",
-  grade: "grade",
-  class: "grade",
-};
-
-/**
- * Parses "Key: Value" / "Key - Value" lines, the shape of McMaster's own
- * spec table when read from the rendered page (what the bookmarklet
- * scrapes). Much higher confidence than the fuzzy keyword matching in
- * parseSpecsFromText, so callers should let this override it.
- */
-function parseKeyValueText(text) {
-  const specs = {};
-  for (const line of text.split("\n")) {
-    const m = line.match(/^\s*([A-Za-z][A-Za-z /]{1,40}?)\s*[:\-]\s*(.{1,80}?)\s*$/);
-    if (!m) continue;
-    const key = KEY_MAP[m[1].trim().toLowerCase()];
-    if (key && !specs[key]) specs[key] = m[2].trim();
-  }
-  return specs;
-}
-
 function sanitizeSpecs(specs) {
   const allowed = [
     "material",
@@ -265,7 +221,6 @@ function sanitizeSpecs(specs) {
     "width",
     "grade",
     "category",
-    "headType",
   ];
   const out = {};
   for (const key of allowed) {
