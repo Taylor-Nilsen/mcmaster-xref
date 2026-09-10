@@ -74,9 +74,30 @@ app.post("/api/xref", async (req, res) => {
 async function fetchMcMasterSpecsLive(partNumber) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  const browser = await chromium.launch();
+  // McMaster is known to detect and block plain headless Chromium (see
+  // https://github.com/mjbraun/mcmaster-agent). These flags/patches mask the
+  // most common automation fingerprints without needing a full stealth lib
+  // (which sources say is no longer reliable in 2026 anyway) or a visible
+  // display. If this still gets blocked, the proven fix is a genuinely
+  // headed browser via a virtual display, which needs a Docker-based
+  // deploy -- see backend/README.md.
+  const browser = await chromium.launch({
+    args: ["--disable-blink-features=AutomationControlled"],
+  });
   try {
-    const page = await browser.newPage();
+    const context = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+      viewport: { width: 1280, height: 900 },
+      locale: "en-US",
+    });
+    await context.addInitScript(() => {
+      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+      window.chrome = { runtime: {} };
+      Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+      Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
+    });
+    const page = await context.newPage();
     const response = await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
     await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
 

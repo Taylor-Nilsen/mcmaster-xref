@@ -29,6 +29,43 @@ system packages as root via `su`, which Render's build container refuses
 browser binary, which is all that's needed; Render's Node image already
 has the shared libraries Chromium wants at runtime.
 
+## McMaster blocking headless Chrome
+
+McMaster is known to detect and block plain headless Chromium (confirmed
+by [mjbraun/mcmaster-agent](https://github.com/mjbraun/mcmaster-agent),
+which had to solve this exact problem). `server.js` currently tries the
+cheap fixes first: launch args and an init script that patch the common
+automation fingerprints (`navigator.webdriver`, missing `window.chrome`,
+etc.), no infra change needed.
+
+If that's not enough, the fix that's actually proven to work is a
+genuinely **headed** browser (not headless at all) via a virtual display
+(Xvfb) -- but installing Xvfb needs root at build time, which Render's
+native Node buildpack refuses (same wall as the `--with-deps` issue
+above). That means switching this service to a **Docker** deploy, since
+Docker builds run as root in your own image:
+
+1. Add a `backend/Dockerfile`:
+   ```dockerfile
+   FROM mcr.microsoft.com/playwright:v1.55.0-jammy
+   WORKDIR /app
+   COPY package*.json ./
+   RUN npm ci
+   COPY server.js ./
+   ENV PORT=3000
+   CMD ["xvfb-run", "--auto-servernum", "node", "server.js"]
+   ```
+   (pin the image tag to match whatever `playwright` version is in
+   `package.json` -- check with `npm ls playwright`)
+2. In `server.js`, change `chromium.launch({...})` to add `headless: false`.
+3. In the Render dashboard: New → Web Service → this repo → Render
+   auto-detects the Dockerfile. Same free plan, same repo, new service
+   (the existing Node-runtime service can't be converted in place).
+
+This is a real, if small, dashboard step -- flagging it here rather than
+doing it silently, since the current cheap-fix attempt might turn out to
+be enough on its own.
+
 ## Notes
 
 - **Cold starts**: the free tier sleeps after 15 minutes with no traffic
