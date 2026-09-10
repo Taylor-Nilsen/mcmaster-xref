@@ -1,54 +1,34 @@
 /**
- * McMaster-Carr Cross-Reference backend (AWS Lambda, Function URL).
+ * McMaster-Carr Cross-Reference: single service.
  *
- * POST /  (the function URL root)
+ * Serves the static frontend (public/) and handles POST /api/xref from
+ * the same origin -- no CORS setup, no separate backend URL to configure.
+ *
+ * POST /api/xref
  *   Body: { partNumber?: string, specs?: PartialSpecs }
  *   - If partNumber is given, renders the live McMaster product page with
- *     a real headless Chrome instance and parses the fully-rendered text.
- *     McMaster is a JS-only SPA, so a plain HTTP fetch never sees real
- *     spec data -- this actually executes the page's JS. Runs fresh on
- *     every request, no caching. Can't see anything McMaster gates behind
- *     account login (no credentials are stored or used here) -- see
- *     README.
+ *     a real headless Chrome instance (Playwright) and parses the fully-
+ *     rendered text. McMaster is a JS-only SPA, so a plain HTTP fetch
+ *     never sees real spec data -- this actually executes the page's JS.
+ *     Runs fresh on every request, no caching. Can't see anything
+ *     McMaster gates behind account login (no credentials are stored or
+ *     used here) -- see README.
  *   - specs, if given, are merged on top of (and override) anything
  *     parsed live, so manual entry always works as a fallback.
  *   Returns: { source, specs, links }
- *
- * Runs on AWS Lambda's Always Free tier (1M requests + 400,000 GB-s
- * compute per month, permanently, not a trial) -- see backend/README.md
- * for deploy steps. Chosen over Cloudflare Workers because Browser
- * Rendering (the only way to get headless Chrome there) requires the
- * Workers Paid plan; this needs no paid plan on either platform.
  */
 
-const chromium = require("@sparticuz/chromium");
-const puppeteer = require("puppeteer-core");
+const express = require("express");
+const path = require("path");
+const { chromium } = require("playwright");
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
 
-exports.handler = async (event) => {
-  const method = event.requestContext?.http?.method || "GET";
-
-  if (method === "OPTIONS") {
-    return { statusCode: 204, headers: CORS_HEADERS, body: "" };
-  }
-  if (method !== "POST") {
-    return respond(404, { error: "not found" });
-  }
-
-  let body;
-  try {
-    body = JSON.parse(event.body || "{}");
-  } catch {
-    return respond(400, { error: "invalid JSON body" });
-  }
-
-  const partNumber = (body.partNumber || "").trim();
-  const manualSpecs = sanitizeSpecs(body.specs || {});
+app.post("/api/xref", async (req, res) => {
+  const partNumber = (req.body.partNumber || "").trim();
+  const manualSpecs = sanitizeSpecs(req.body.specs || {});
 
   let mcmasterSpecs = {};
   let mcmasterError = null;
@@ -73,22 +53,14 @@ exports.handler = async (event) => {
 
   const links = hasAnySpec ? buildSupplierLinks(specs) : [];
 
-  return respond(200, {
+  res.json({
     partNumber: partNumber || null,
     source,
     specs,
     mcmasterFetchError: mcmasterError,
     links,
   });
-};
-
-function respond(statusCode, data) {
-  return {
-    statusCode,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
-    body: JSON.stringify(data),
-  };
-}
+});
 
 /**
  * Renders the live McMaster product page in a real headless browser and
@@ -100,15 +72,10 @@ function respond(statusCode, data) {
 async function fetchMcMasterSpecsLive(partNumber) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-  });
-
+  const browser = await chromium.launch();
   try {
     const page = await browser.newPage();
-    await page.goto(pageUrl, { waitUntil: "networkidle0", timeout: 25000 });
+    await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
     await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
 
     const text = await page.evaluate(() => document.body.innerText);
@@ -256,3 +223,6 @@ function buildSupplierLinks(specs) {
 
   return suppliers.map((s) => ({ ...s, query }));
 }
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`mcmaster-xref listening on ${port}`));

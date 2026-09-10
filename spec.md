@@ -7,8 +7,7 @@ Given a McMaster-Carr part number, extract its specs and find equivalent parts o
 All McMaster-Carr categories: raw stock (aluminum, brass, steel, carbon fiber tube/sheet, hex bar, round bar, tube stock), fasteners (bolts, nuts, screws, ball plungers, quarter-turn fasteners), keys and keystock, and any other category as it comes up. No category is out of scope — matching logic just needs to be robust enough to degrade gracefully on non-standardized items (e.g., PPE, branded parts).
 
 ## Architecture
-- **Frontend:** Static site on GitHub Pages (input box for McMaster part number, results display). Free, matches existing GitHub Pro account.
-- **Backend:** AWS Lambda (Always Free tier) handles the actual fetching/scraping and matching logic — needed because GitHub Pages can't do server-side requests, and McMaster's JS-rendered pages need a real headless browser to read, which requires a paid plan on Cloudflare's free-tier equivalent (Workers + Browser Rendering) but not on Lambda's.
+- **One service** (`app/`), deployed on Render's free tier: a Node app that serves the static frontend and handles the fetching/matching logic from the same origin. A pure client-side (browser-only) version isn't possible — a browser blocks cross-origin responses via CORS unless the target server opts in, and McMaster doesn't, so no frontend-only JS can read McMaster's page directly. Some server-side piece is unavoidable; keeping it in the same service as the frontend (rather than a separately-deployed backend) avoids a second deploy, a config file, and CORS setup.
 
 ## Workflow
 1. User submits a McMaster part number.
