@@ -127,6 +127,28 @@ async function fetchMcMasterSpecsLive(partNumber) {
     return cached;
   }
 
+  // The gate is intermittent rather than absolute: in one verification run
+  // of three parts, spaced 20s apart, the middle one came back with all 8
+  // fields while the other two were gated. A second attempt with a fresh
+  // browser and a short pause is therefore worth real success rate, and
+  // costs nothing when the first attempt works.
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    if (attempt > 1) await new Promise((r) => setTimeout(r, 4000));
+    try {
+      const specs = await renderMcMasterPage(partNumber, attempt);
+      specCache.set(partNumber, specs);
+      return specs;
+    } catch (err) {
+      lastError = err;
+      if (err.code !== "LOGIN_WALL") throw err;
+      console.log(`[xref] part=${partNumber} attempt ${attempt} gated`);
+    }
+  }
+  throw lastError;
+}
+
+async function renderMcMasterPage(partNumber, attempt) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
   // These flags/patches mask the usual automation fingerprints. Worth
@@ -152,7 +174,7 @@ async function fetchMcMasterSpecsLive(partNumber) {
 
     const text = await page.evaluate(() => document.body.innerText);
     console.log(
-      `[xref] part=${partNumber} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
+      `[xref] part=${partNumber} attempt=${attempt} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
     );
 
     if (LOGIN_WALL_RE.test(text || "")) {
@@ -179,7 +201,6 @@ async function fetchMcMasterSpecsLive(partNumber) {
       throw new Error("the page loaded but no recognizable specs were on it -- this part may not exist, or its page is laid out differently");
     }
 
-    specCache.set(partNumber, specs);
     return specs;
   } finally {
     await browser.close();
@@ -406,41 +427,56 @@ function buildQuery(rawSpecs) {
     .trim();
 }
 
-/**
- * Search links on other suppliers, using each site's own search URL rather
- * than a site-scoped Google search. Every pattern here was taken from a
- * real indexed results URL on that supplier, and each one is re-checked
- * against a live response by the verification sweep -- the previous round
- * of "verification" passed anything whose body didn't match a short
- * no-results regex, which a Google consent page clears trivially, so four
- * of six links were unexamined Google searches.
- */
+// Each supplier's own search URL, taken from a real indexed results URL on
+// that site. {q} is the percent-encoded query, {plus} the +-separated form.
+//
+// These cannot be verified from here, and that is a finding rather than an
+// omission: every one of these sites refuses this server. Fastenal answers
+// 403, MSC serves "Pardon Our Interruption", Bolt Depot a Cloudflare
+// challenge, Amazon 503, and Grainger returns a byte-identical 18,269-byte
+// "Whoops, we couldn't find that." page for nine different queries
+// including a bare "socket head cap screw" -- so its no-results page is a
+// bot wall too, not a verdict on the query. The links open in a real
+// browser on a normal connection, where these sites behave normally, so a
+// datacenter fetch tests the wrong thing. Hence the editable query in the
+// UI: the person looking at the results is the only one positioned to
+// judge them, so they get the controls rather than a claim.
+const RAW_STOCK_SUPPLIERS = [
+  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?text={q}" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
+  { name: "Speedy Metals", urlTemplate: "https://www.speedymetals.com/Search?searchTerm={q}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+];
+
+const FASTENER_SUPPLIERS = [
+  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+  { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
+];
+
+function applyTemplate(urlTemplate, query) {
+  return urlTemplate
+    .replace("{plus}", encodeURIComponent(query).replace(/%20/g, "+"))
+    .replace("{q}", encodeURIComponent(query));
+}
+
 function buildSupplierLinks(rawSpecs) {
   const specs = normalizeSpecs(rawSpecs);
   const query = buildQuery(rawSpecs);
   if (!query) return [];
 
-  const q = encodeURIComponent(query);
-  const plus = encodeURIComponent(query).replace(/%20/g, "+");
+  const suppliers = isFastener(specs) ? [...FASTENER_SUPPLIERS] : [...RAW_STOCK_SUPPLIERS];
 
-  const rawStockSuppliers = [
-    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?text=${q}` },
-    { name: "MSC Direct", url: `https://www.mscdirect.com/browse/tn?searchterm=${plus}` },
-    { name: "Speedy Metals", url: `https://www.speedymetals.com/Search?searchTerm=${q}` },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
-  ];
+  // Bolt Depot has no free-text search, so its link is a filtered category
+  // browse built from the specs directly -- it doesn't follow the query and
+  // stays put when the query is edited.
+  if (isFastener(specs)) {
+    suppliers.splice(3, 0, { name: "Bolt Depot", urlTemplate: boltDepotUrl(specs) });
+  }
 
-  const fastenerSuppliers = [
-    { name: "Fastenal", url: `https://www.fastenal.com/product?query=${plus}` },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
-    { name: "MSC Direct", url: `https://www.mscdirect.com/browse/tn?searchterm=${plus}` },
-    { name: "Bolt Depot", url: boltDepotUrl(specs) },
-    { name: "Amazon", url: `https://www.amazon.com/s?k=${plus}` },
-    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${plus}` },
-  ];
-
-  const suppliers = isFastener(specs) ? fastenerSuppliers : rawStockSuppliers;
-  return suppliers.map((s) => ({ ...s, query }));
+  return suppliers.map((s) => ({ ...s, url: applyTemplate(s.urlTemplate, query), query }));
 }
 
 // Bolt Depot has no free-text search, only a filtered category browse
@@ -643,8 +679,14 @@ async function checkSupplierLink(name, url, specs) {
       return { ok: null, detail: `${detail} <- blocked from this server, not judgeable here` };
     }
     if (res.status >= 400) return { ok: false, detail };
+    // Grainger's "Whoops, we couldn't find that." reads like a verdict on
+    // the query but isn't one: nine different queries -- down to a bare
+    // "socket head cap screw", which has thousands of matches there --
+    // all returned it with a byte-identical 18,269-byte body. It never ran
+    // the search. Treating it as a no-result would blame the query for a
+    // block, and send the next fix off in the wrong direction again.
     if (/we couldn.?t find|couldn.?t find that|no results (were )?found|did not match any/i.test(head)) {
-      return { ok: false, detail: `${detail} <- genuine no-results page` };
+      return { ok: null, detail: `${detail} <- served regardless of query; a block, not a verdict` };
     }
 
     // The defining term of the search should appear in the results. For a
