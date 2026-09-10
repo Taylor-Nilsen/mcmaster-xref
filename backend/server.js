@@ -168,11 +168,15 @@ async function fetchMcMasterSpecsLive(partNumber) {
     console.log(`[xref] extractedSpecs: ${JSON.stringify(specs)}`);
 
     if (Object.keys(specs).length === 0) {
-      // A real page that parses to nothing is a different failure from a
-      // gated one, and the raw text is the only way to tell them apart --
-      // so log it here, where it's rare, rather than on every request.
       console.log(`[xref] part=${partNumber} parsed nothing. text=${JSON.stringify((text || "").slice(0, 1500))}`);
-      throw new Error("page loaded but no recognizable specs were on it (part may not exist)");
+      // Gating shows up in two shapes: an explicit "please log in" page, and
+      // a product page whose chrome renders (Forward / Print / Find
+      // alternative products) while the product data never arrives. Both
+      // leave a page under ~1500 chars. Calling that "part may not exist"
+      // blames the user for a typo they didn't make, so only a page with
+      // real content on it gets that verdict.
+      if (text.trim().length < 1500) throw new LoginWallError();
+      throw new Error("the page loaded but no recognizable specs were on it -- this part may not exist, or its page is laid out differently");
     }
 
     specCache.set(partNumber, specs);
@@ -430,7 +434,7 @@ function buildSupplierLinks(rawSpecs) {
     { name: "Fastenal", url: `https://www.fastenal.com/product?query=${plus}` },
     { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
     { name: "MSC Direct", url: `https://www.mscdirect.com/browse/tn?searchterm=${plus}` },
-    { name: "Bolt Depot", url: boltDepotUrl(specs, q) },
+    { name: "Bolt Depot", url: boltDepotUrl(specs) },
     { name: "Amazon", url: `https://www.amazon.com/s?k=${plus}` },
     { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${plus}` },
   ];
@@ -445,7 +449,7 @@ function buildSupplierLinks(rawSpecs) {
 // Filters only get applied when the size parses cleanly; otherwise this
 // falls back to the category landing page rather than emitting a URL with
 // half-filled filters that returns nothing.
-function boltDepotUrl(specs, q) {
+function boltDepotUrl(specs) {
   const head = (specs.headType || "").toLowerCase();
   const category = /socket|button|flat/.test(head)
     ? "Socket_screws"
@@ -478,7 +482,62 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
   if (process.env.RUN_VERIFY === "1") runVerification();
+  if (process.env.RUN_QUERYLAB === "1") runQueryLab();
 });
+
+/**
+ * Env-gated (RUN_QUERYLAB=1). Finds the query *shape* suppliers actually
+ * match on, instead of assuming one.
+ *
+ * Of the six suppliers, five answer this server with a bot wall (Fastenal
+ * 403, MSC "Pardon Our Interruption", Bolt Depot "Just a moment...",
+ * Amazon 503) or a body too JS-heavy to judge, so they can tell us nothing
+ * -- those links are opened from a real browser on a normal connection,
+ * where they work. Grainger is the exception: it answers with a real page
+ * and says plainly when a query matched nothing, which makes it the one
+ * usable oracle for query wording. So: hold the part fixed, vary only the
+ * phrasing, and see which shapes come back with results.
+ */
+const QUERY_LAB_PART = { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' };
+
+async function runQueryLab() {
+  const variants = [
+    ["current (built)", buildQuery(QUERY_LAB_PART)],
+    ["no material/finish", '1/4"-20 x 3/4" socket head cap screw'],
+    ["no inch marks", "1/4-20 x 3/4 socket head cap screw alloy steel black oxide"],
+    ["no inch marks, no material", "1/4-20 x 3/4 socket head cap screw"],
+    ["noun first", "socket head cap screw 1/4-20 x 3/4"],
+    ["noun + size, no x", "socket head cap screw 1/4-20 3/4"],
+    ["thread only", "socket head cap screw 1/4-20"],
+    ["noun only", "socket head cap screw"],
+    ["noun + finish", "black oxide socket head cap screw 1/4-20"],
+  ];
+
+  console.log("[qlab] START");
+  for (const [label, query] of variants) {
+    const url = `https://www.grainger.com/search?searchQuery=${encodeURIComponent(query)}`;
+    try {
+      const res = await fetch(url, {
+        redirect: "follow",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      const body = await res.text();
+      const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim();
+      const noResults = /couldn.?t find that/i.test(title) || /couldn.?t find that/i.test(body.slice(0, 4000));
+      // Grainger puts a result count in the page when there are hits.
+      const count = (body.match(/([\d,]+)\s*(?:products?|results?)\s*(?:found|match)/i) || [])[1] || "";
+      console.log(`[qlab] ${noResults ? "NONE" : "HITS"} ${JSON.stringify(label)} q=${JSON.stringify(query)} status=${res.status} len=${body.length} count=${count} title=${JSON.stringify(title.slice(0, 70))}`);
+    } catch (err) {
+      console.log(`[qlab] ERR  ${JSON.stringify(label)} -- ${err.message}`);
+    }
+    await new Promise((r) => setTimeout(r, 1200));
+  }
+  console.log("[qlab] DONE");
+}
 
 /**
  * Env-gated (RUN_VERIFY=1) verification of the two things that can only be
@@ -533,18 +592,23 @@ async function runVerification() {
 
   let ok = 0;
   let bad = 0;
+  let blocked = 0;
   for (const { part, specs } of cases) {
     const query = buildQuery(specs);
     console.log(`[verify] links for ${part}: query=${JSON.stringify(query)}`);
     for (const { name, url } of buildSupplierLinks(specs)) {
       const verdict = await checkSupplierLink(name, url, specs);
-      if (verdict.ok) ok++;
+      const label = verdict.ok === null ? "BLOCKED" : verdict.ok ? "PASS" : "FAIL";
+      if (verdict.ok === null) blocked++;
+      else if (verdict.ok) ok++;
       else bad++;
-      console.log(`[verify]   ${verdict.ok ? "PASS" : "FAIL"} ${name}: ${verdict.detail}`);
+      console.log(`[verify]   ${label} ${name}: ${verdict.detail}`);
     }
   }
 
-  console.log(`[verify] DONE in ${Math.round((Date.now() - started) / 1000)}s -- links ${ok} pass / ${bad} fail across ${cases.length} parts`);
+  console.log(
+    `[verify] DONE in ${Math.round((Date.now() - started) / 1000)}s -- links ${ok} pass / ${bad} fail / ${blocked} not judgeable from this server, across ${cases.length} parts`
+  );
 }
 
 /**
@@ -566,13 +630,21 @@ async function checkSupplierLink(name, url, specs) {
     const body = await res.text();
     const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim().slice(0, 90);
     const detail = `status=${res.status} len=${body.length} title=${JSON.stringify(title)}`;
+    // Only the top of the page and the title get scanned for verdict
+    // phrases. Searching a 700KB body for "no results" hits the string
+    // inside bundled JS and fails a page that did return products.
+    const head = `${title}\n${body.slice(0, 4000)}`;
 
-    if (res.status >= 400) return { ok: false, detail };
-    if (/we couldn.?t find|no results (were )?found|0 results|did not match any/i.test(body)) {
-      return { ok: false, detail: `${detail} <- no-results page` };
+    // A bot wall says nothing about whether the link is any good -- these
+    // links are opened from a real browser on a home connection, not from
+    // this datacenter. Reporting them as failures would be a lie in the
+    // safe direction, which is still a lie.
+    if (/pardon our interruption|just a moment|access denied|unusual traffic|are you a robot|before you continue|consent\.google|something went wrong/i.test(head) || res.status === 403 || res.status === 503) {
+      return { ok: null, detail: `${detail} <- blocked from this server, not judgeable here` };
     }
-    if (/unusual traffic|before you continue|consent\.google|are you a robot|just a moment|access denied/i.test(body)) {
-      return { ok: false, detail: `${detail} <- bot/consent wall` };
+    if (res.status >= 400) return { ok: false, detail };
+    if (/we couldn.?t find|couldn.?t find that|no results (were )?found|did not match any/i.test(head)) {
+      return { ok: false, detail: `${detail} <- genuine no-results page` };
     }
 
     // The defining term of the search should appear in the results. For a
