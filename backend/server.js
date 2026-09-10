@@ -595,7 +595,14 @@ async function runQueryLab() {
  * pass, which is how four unexamined Google searches and a Grainger page
  * reading "Whoops, we couldn't find that." were all counted as working.
  */
-const VERIFY_PARTS = ["91251A051", "91251A540", "92196A106"];
+// Overridable so a specific part can be checked against a known-good one
+// without a code change -- the question "is this part gated, or is the
+// whole allowance spent?" comes up whenever a lookup fails, and it can
+// only be answered by rendering both and comparing.
+const VERIFY_PARTS = (process.env.VERIFY_PARTS || "91251A051,91251A540,92196A106")
+  .split(",")
+  .map((p) => p.trim())
+  .filter(Boolean);
 const RENDER_SPACING_MS = 20000;
 
 async function runVerification() {
