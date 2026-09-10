@@ -9,13 +9,16 @@
  *   - If partNumber is given, renders the live McMaster product page with
  *     a real headless Chrome instance (Playwright) and parses the fully-
  *     rendered text. McMaster is a JS-only SPA, so a plain HTTP fetch
- *     never sees real spec data -- this actually executes the page's JS.
- *     Runs fresh on every request, no caching. Can't see anything
- *     McMaster gates behind account login (no credentials are stored or
- *     used here) -- see README.
+ *     never sees real spec data -- confirmed directly: fetching a product
+ *     URL returns 200 and ~151KB that contains the Angular shell and not
+ *     one spec value. Results are cached per part number, because
+ *     McMaster allows only a limited number of anonymous views before it
+ *     serves a login wall instead (no credentials are stored or used
+ *     here) -- see README.
  *   - specs, if given, are merged on top of (and override) anything
  *     parsed live, so manual entry always works as a fallback.
- *   Returns: { source, specs, links }
+ *   Returns: { source, specs, query, links, mcmasterFetchError,
+ *     mcmasterErrorCode }
  */
 
 const express = require("express");
@@ -34,12 +37,14 @@ app.post("/api/xref", async (req, res) => {
 
   let mcmasterSpecs = {};
   let mcmasterError = null;
+  let mcmasterErrorCode = null;
 
   if (partNumber) {
     try {
       mcmasterSpecs = await fetchMcMasterSpecsLive(partNumber);
     } catch (err) {
       mcmasterError = err.message;
+      mcmasterErrorCode = err.code || "FETCH_FAILED";
     }
   }
 
@@ -59,7 +64,9 @@ app.post("/api/xref", async (req, res) => {
     partNumber: partNumber || null,
     source,
     specs,
+    query: hasAnySpec ? buildQuery(specs) : null,
     mcmasterFetchError: mcmasterError,
+    mcmasterErrorCode,
     links,
   });
 });
@@ -80,23 +87,52 @@ async function newStealthContext(browser) {
   return context;
 }
 
+// What McMaster serves instead of a product page once this server has spent
+// its anonymous-view allowance. Diagnosed from the rendered text itself:
+// every URL -- product pages and category pages alike -- came back as the
+// same 776-char page reading "To continue browsing, please log in." Two
+// earlier rounds of timeout tuning were chasing this as if it were a slow
+// render, because only the text *length* was ever logged.
+const LOGIN_WALL_RE = /to continue browsing,?\s*please log in|please log in to continue/i;
+
+class LoginWallError extends Error {
+  constructor() {
+    super(
+      "McMaster is requiring a login for this server right now (it allows a limited number of anonymous page views). Specs can't be read automatically until that lifts -- enter them below and the supplier links still work."
+    );
+    this.code = "LOGIN_WALL";
+  }
+}
+
+/**
+ * Resolved specs, keyed by part number. McMaster's anonymous-view budget is
+ * the scarcest resource this app has -- exhausting it is what takes the
+ * whole feature down -- so a part is rendered once and then answered from
+ * memory. Cleared when the instance restarts, which on a free tier happens
+ * often; that's a cold-start cost, not a correctness problem.
+ */
+const specCache = new Map();
+
 /**
  * Renders the live McMaster product page in a real headless browser and
- * parses the fully-rendered text. No caching -- a fresh browser launches
- * on every call. Throws on any failure (page never settles, no usable
- * text, etc.); caller treats that as "unavailable, fall back to manual
- * entry", not a hard error.
+ * parses the fully-rendered text. Throws LoginWallError when McMaster is
+ * gating this server, and a plain Error on any other failure; the caller
+ * treats both as "unavailable, fall back to manual entry" but reports them
+ * differently, since one is temporary and not the user's fault.
  */
 async function fetchMcMasterSpecsLive(partNumber) {
+  const cached = specCache.get(partNumber);
+  if (cached) {
+    console.log(`[xref] part=${partNumber} served from cache`);
+    return cached;
+  }
+
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  // McMaster is known to detect and block plain headless Chromium (see
-  // https://github.com/mjbraun/mcmaster-agent). These flags/patches mask the
-  // most common automation fingerprints without needing a full stealth lib
-  // (which sources say is no longer reliable in 2026 anyway) or a visible
-  // display. If this still gets blocked, the proven fix is a genuinely
-  // headed browser via a virtual display, which needs a Docker-based
-  // deploy -- see backend/README.md.
+  // These flags/patches mask the usual automation fingerprints. Worth
+  // keeping, but note they were never the blocker: the page renders fine
+  // for this exact browser setup until the view allowance runs out, and no
+  // amount of fingerprint masking buys more views.
   const browser = await chromium.launch({
     args: ["--disable-blink-features=AutomationControlled"],
   });
@@ -105,30 +141,41 @@ async function fetchMcMasterSpecsLive(partNumber) {
     const page = await context.newPage();
     const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
 
-    // networkidle + a flat delay wasn't enough -- a first real test showed
-    // the page settling into "idle" with only nav/footer chrome rendered
-    // (714 chars, no product content), meaning McMaster's Angular app
-    // fetches the actual product data on a separate call that hadn't
-    // resolved yet. Actively wait for real content instead of a fixed
-    // network-quiet signal.
+    // McMaster's Angular app fetches product data on a separate call after
+    // load, so waiting for network-quiet returns nav/footer chrome only.
+    // Wait for real content to appear instead.
     try {
       await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 15000 });
     } catch {
-      // proceed with whatever rendered -- logged below either way
+      // proceed with whatever rendered -- classified below
     }
 
     const text = await page.evaluate(() => document.body.innerText);
     console.log(
       `[xref] part=${partNumber} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
     );
-    console.log(`[xref] fullText: ${JSON.stringify((text || "").slice(0, 3000))}`);
+
+    if (LOGIN_WALL_RE.test(text || "")) {
+      console.log(`[xref] part=${partNumber} LOGIN_WALL`);
+      throw new LoginWallError();
+    }
 
     if (!text || text.trim().length < 50) {
-      throw new Error("page rendered but had no usable text (likely blocked)");
+      throw new Error("page rendered but had no usable text");
     }
 
     const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
     console.log(`[xref] extractedSpecs: ${JSON.stringify(specs)}`);
+
+    if (Object.keys(specs).length === 0) {
+      // A real page that parses to nothing is a different failure from a
+      // gated one, and the raw text is the only way to tell them apart --
+      // so log it here, where it's rare, rather than on every request.
+      console.log(`[xref] part=${partNumber} parsed nothing. text=${JSON.stringify((text || "").slice(0, 1500))}`);
+      throw new Error("page loaded but no recognizable specs were on it (part may not exist)");
+    }
+
+    specCache.set(partNumber, specs);
     return specs;
   } finally {
     await browser.close();
@@ -253,442 +300,290 @@ function sanitizeSpecs(specs) {
   return out;
 }
 
-/**
- * Builds direct search-results links on other suppliers' sites using the
- * extracted/entered specs as a query. This is deliberately NOT scraping
- * those sites (most block bots as aggressively as McMaster does) -- it
- * hands the user a pre-filled search so they can judge fit themselves,
- * per the spec's workflow step 5.
- *
- * Link patterns below were verified with a live diagnostic (checkSupplierUrls)
- * that hit each one directly and logged the real response -- most of the
- * originally-guessed internal search URLs turned out wrong (404s, or a
- * wrong query param landing on a "no results" page). Only Grainger (its
- * param confirmed against a real indexed example URL), AliExpress, and
- * Banggood get a direct site search link now; everything else routes
- * through a site-scoped Google search instead of guessing an undocumented
- * internal URL scheme that can silently break on the next site redesign.
- */
-function buildSupplierLinks(specs) {
-  const query = [specs.material, specs.shape, specs.threadSize, specs.diameter, specs.thickness, specs.width, specs.length, specs.driveType, specs.finish, specs.grade]
-    .filter(Boolean)
-    .join(" ");
+// McMaster folds the finish into the material ("Black-Oxide Alloy Steel");
+// suppliers index the two separately, so split them apart.
+const FINISH_PREFIXES = [
+  "black-oxide", "black oxide", "zinc yellow-chromate plated",
+  "yellow-chromate plated", "zinc-plated", "zinc plated",
+  "hot-dipped galvanized", "galvanized", "chrome-plated", "chrome plated",
+  "nickel-plated", "nickel plated", "passivated", "anodized",
+  "powder-coated", "powder coated", "phosphate", "cadmium-plated",
+];
 
+/**
+ * "Class 1/2/3" (with or without an A/B suffix) is a thread *fit* class --
+ * a tolerance band, not a strength rating -- and McMaster reports it in the
+ * same field as real strength ratings. Searching a supplier for "Class 3"
+ * returns noise, so only genuine ratings ("Grade 8", metric property
+ * classes like "Class 10.9") survive into a query.
+ */
+function strengthGrade(value) {
+  if (!value) return null;
+  const v = String(value).trim();
+  if (/^class\s*\d\s*[ab]?$/i.test(v)) return null;
+  return v;
+}
+
+/**
+ * Reshapes raw parsed McMaster fields into what a supplier's search box
+ * actually expects. Two fields actively mislead if passed through as-is:
+ * the finish hides inside `material`, and on a threaded fastener
+ * `diameter` is the *head* diameter -- searching "1/4-20 ... 3/8"" reads
+ * as a 3/8" screw, which is a different part.
+ */
+function normalizeSpecs(specs) {
+  const out = { ...specs };
+
+  if (out.material) {
+    const lower = out.material.toLowerCase();
+    const hit = FINISH_PREFIXES.find((f) => lower.startsWith(f));
+    if (hit) {
+      out.material = out.material.slice(hit.length).trim();
+      if (!out.finish) out.finish = specs.material.slice(0, hit.length).trim();
+    }
+  }
+
+  if (out.threadSize && out.diameter) delete out.diameter;
+
+  const grade = strengthGrade(out.grade);
+  if (grade) out.grade = grade;
+  else delete out.grade;
+
+  return out;
+}
+
+// Trade names, in the order a supplier's catalog uses them. Checked most
+// specific first: a "Hex" *head* is an external hex bolt, but a hex *drive*
+// on a flat or button head is a socket cap screw, which is a different
+// aisle.
+function fastenerNoun(specs) {
+  const head = (specs.headType || "").toLowerCase();
+  const drive = (specs.driveType || "").toLowerCase();
+  const socketDrive = /hex|socket|torx/.test(drive);
+
+  if (/socket/.test(head)) return "socket head cap screw";
+  if (/button/.test(head)) return socketDrive ? "button head socket cap screw" : "button head screw";
+  if (/flat|countersunk/.test(head)) return socketDrive ? "flat head socket cap screw" : "flat head screw";
+  if (/pan/.test(head)) return "pan head screw";
+  if (/truss/.test(head)) return "truss head screw";
+  if (/cheese/.test(head)) return "cheese head screw";
+  if (/round/.test(head)) return "round head screw";
+  if (/hex/.test(head)) return "hex head cap screw";
+  if (/set screw/.test(head)) return "set screw";
+  return specs.threadSize ? "machine screw" : null;
+}
+
+function isFastener(specs) {
+  return Boolean(specs.threadSize || specs.headType || (specs.category || "").toLowerCase().includes("fastener"));
+}
+
+/**
+ * Builds the phrase a person would actually type into a supplier's search
+ * box -- "1/4"-20 x 3/4" socket head cap screw alloy steel black oxide" --
+ * rather than concatenating every parsed field in schema order. The old
+ * version produced "Alloy Steel 1/4"-20 3/8" Hex Black Oxide": head
+ * diameter and thread class in, the words "socket head cap screw" missing
+ * entirely, which is why Grainger answered "Whoops, we couldn't find that."
+ */
+function buildQuery(rawSpecs) {
+  const specs = normalizeSpecs(rawSpecs);
+
+  if (isFastener(specs)) {
+    const size = [specs.threadSize, specs.length].filter(Boolean).join(" x ");
+    return [size, fastenerNoun(specs), specs.material, specs.finish, specs.grade]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+  }
+
+  return [specs.material, specs.shape, specs.diameter, specs.thickness, specs.width, specs.length, specs.finish]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
+/**
+ * Search links on other suppliers, using each site's own search URL rather
+ * than a site-scoped Google search. Every pattern here was taken from a
+ * real indexed results URL on that supplier, and each one is re-checked
+ * against a live response by the verification sweep -- the previous round
+ * of "verification" passed anything whose body didn't match a short
+ * no-results regex, which a Google consent page clears trivially, so four
+ * of six links were unexamined Google searches.
+ */
+function buildSupplierLinks(rawSpecs) {
+  const specs = normalizeSpecs(rawSpecs);
+  const query = buildQuery(rawSpecs);
   if (!query) return [];
 
   const q = encodeURIComponent(query);
-  const googleSiteSearch = (domain) => `https://www.google.com/search?q=${encodeURIComponent(`site:${domain} ${query}`)}`;
+  const plus = encodeURIComponent(query).replace(/%20/g, "+");
 
   const rawStockSuppliers = [
-    { name: "Speedy Metals", url: googleSiteSearch("speedymetals.com") },
-    { name: "MSC Direct", url: googleSiteSearch("mscdirect.com") },
-    { name: "Online Metals", url: googleSiteSearch("onlinemetals.com") },
+    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?text=${q}` },
+    { name: "MSC Direct", url: `https://www.mscdirect.com/browse/tn?searchterm=${plus}` },
+    { name: "Speedy Metals", url: `https://www.speedymetals.com/Search?searchTerm=${q}` },
+    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
   ];
+
   const fastenerSuppliers = [
-    { name: "Fastenal", url: googleSiteSearch("fastenal.com") },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}&searchBar=true` },
-    { name: "Bolt Depot", url: googleSiteSearch("boltdepot.com") },
-    { name: "Amazon", url: googleSiteSearch("amazon.com") },
-    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${q}` },
-    { name: "Banggood", url: `https://www.banggood.com/search/${q}-products.html` },
+    { name: "Fastenal", url: `https://www.fastenal.com/product?query=${plus}` },
+    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
+    { name: "MSC Direct", url: `https://www.mscdirect.com/browse/tn?searchterm=${plus}` },
+    { name: "Bolt Depot", url: boltDepotUrl(specs, q) },
+    { name: "Amazon", url: `https://www.amazon.com/s?k=${plus}` },
+    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${plus}` },
   ];
 
-  const category = (specs.category || "").toLowerCase();
-  let suppliers;
-  if (category.includes("fastener") || specs.threadSize || specs.driveType) {
-    suppliers = fastenerSuppliers;
-  } else if (category.includes("stock") || specs.shape) {
-    suppliers = rawStockSuppliers;
-  } else {
-    suppliers = [...rawStockSuppliers, ...fastenerSuppliers];
-  }
-
+  const suppliers = isFastener(specs) ? fastenerSuppliers : rawStockSuppliers;
   return suppliers.map((s) => ({ ...s, query }));
 }
 
-/**
- * TEMPORARY diagnostic: hits each supplier search URL pattern directly
- * (with a sample query) and logs status/final-URL/a body snippet, so the
- * actual URL patterns can be verified against real responses instead of
- * guessed -- same reason the McMaster render/parse issues could only be
- * fixed once real page content was visible via logs. No outbound network
- * access to these sites is available from wherever this gets
- * developed/debugged.
- */
-async function checkSupplierUrls() {
-  // Reuses the real buildSupplierLinks() so this diagnostic can never drift
-  // out of sync with what the app actually generates.
-  const rawStockLinks = buildSupplierLinks({ material: "18-8 stainless steel", shape: "round bar", diameter: '3/8"' });
-  const fastenerLinks = buildSupplierLinks({ material: "18-8 stainless steel", threadSize: "1/4-20", driveType: "hex" });
-  const urls = [...rawStockLinks, ...fastenerLinks];
+// Bolt Depot has no free-text search, only a filtered category browse
+// (pattern taken from real indexed URLs, e.g.
+// /Browse?Category=Hex_bolts&F_Diameter=3%2F8%22&F_Length=1%22&Units=US).
+// Filters only get applied when the size parses cleanly; otherwise this
+// falls back to the category landing page rather than emitting a URL with
+// half-filled filters that returns nothing.
+function boltDepotUrl(specs, q) {
+  const head = (specs.headType || "").toLowerCase();
+  const category = /socket|button|flat/.test(head)
+    ? "Socket_screws"
+    : /hex/.test(head)
+      ? "Hex_bolts"
+      : null;
+  if (!category) return `https://boltdepot.com/Catalog-Tabs`;
 
-  for (const { name, url } of urls) {
-    try {
-      const res = await fetch(url, {
-        redirect: "follow",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        },
-        signal: AbortSignal.timeout(10000),
-      });
-      const body = await res.text();
-      console.log(
-        `[urlcheck] ${name}: status=${res.status} finalUrl=${res.url} bodyLen=${body.length} title=${JSON.stringify((body.match(/<title>([^<]*)<\/title>/i) || [])[1] || "")}`
-      );
-    } catch (err) {
-      console.log(`[urlcheck] ${name}: FETCH FAILED -- ${err.message}`);
-    }
+  const params = new URLSearchParams({ Category: category, Units: "US" });
+  // Only fractional-inch diameters get filtered. Bolt Depot writes gauge
+  // sizes as "#4", and a bare F_Diameter=4 (which is what splitting "4-40"
+  // gives) silently matches nothing -- an unfiltered category page is a
+  // better landing spot than a filter that returns an empty grid.
+  const dia = (specs.threadSize || "").split("-")[0].trim();
+  if (dia && /["\/]/.test(dia)) {
+    params.set("F_Diameter", dia);
+    if (specs.length) params.set("F_Length", specs.length);
   }
+  return `https://boltdepot.com/Browse?${params.toString()}`;
 }
+
+
+// Exported so the pure parsing/query logic can be tested directly against
+// real captured McMaster output, without a network round trip or a server.
+module.exports = { parseKeyValueText, parseSpecsFromText, normalizeSpecs, buildQuery, buildSupplierLinks };
+
+if (require.main !== module) return;
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
-  if (process.env.RUN_DIAG === "1") {
-    runDiagnostics();
-  } else if (process.env.RUN_TEST_SWEEP === "1") {
-    runTestSweep();
-  } else {
-    runStartupSelfTest();
-    checkSupplierUrls();
-  }
+  if (process.env.RUN_VERIFY === "1") runVerification();
 });
 
 /**
- * TEMPORARY, env-gated (RUN_DIAG=1). Round 1 established that McMaster
- * serves this server a login wall ("To continue browsing, please log in.",
- * 776 rendered chars) for every product URL, while a plain HTTP fetch of
- * the same URL returns 200 with 151,630 bytes. That gap is the whole
- * question: if the spec data is already in that HTML, or reachable through
- * the JSON endpoints the page's own scripts call, then driving a browser
- * per request -- the thing that trips the view quota in the first place --
- * is unnecessary.
+ * Env-gated (RUN_VERIFY=1) verification of the two things that can only be
+ * checked against live responses.
  *
- * None of this is checkable from the machine this is written on (its
- * egress proxy blocks mcmaster.com and every supplier domain), so each
- * probe logs its own raw evidence.
+ * Deliberately small on the McMaster side. The previous version rendered
+ * 100 part pages back to back, and that is what took the app down: McMaster
+ * allows a limited number of anonymous views per client, the sweep spent
+ * them all, and every lookup afterwards -- including real ones from the
+ * actual UI -- got the login wall instead of a product page. A test that
+ * destroys the thing it is testing is worse than no test, so this renders
+ * three parts, spaced out, and reports the wall as a distinct outcome
+ * rather than as a mysterious empty page.
+ *
+ * The supplier links get the opposite treatment: those sites have no such
+ * budget, every generated URL is fetched for real, and a link only passes
+ * if the response actually looks like a results page for the query. The
+ * old check called anything that didn't match a short "no results" regex a
+ * pass, which is how four unexamined Google searches and a Grainger page
+ * reading "Whoops, we couldn't find that." were all counted as working.
  */
-async function runDiagnostics() {
-  const UA =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
-  const PART = "91251A540";
-  const log = (...a) => console.log("[diag]", ...a);
-  const stripTags = (html) =>
-    html
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/&nbsp;/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+const VERIFY_PARTS = ["91251A051", "91251A540", "92196A106"];
+const RENDER_SPACING_MS = 20000;
 
-  const get = async (url, timeout = 20000) => {
+async function runVerification() {
+  const started = Date.now();
+  console.log("[verify] START");
+
+  const resolved = [];
+  for (const [i, part] of VERIFY_PARTS.entries()) {
+    if (i > 0) await new Promise((r) => setTimeout(r, RENDER_SPACING_MS));
+    try {
+      const specs = await fetchMcMasterSpecsLive(part);
+      resolved.push({ part, specs });
+      console.log(`[verify] render ${part}: OK (${Object.keys(specs).length} fields) query=${JSON.stringify(buildQuery(specs))}`);
+    } catch (err) {
+      console.log(`[verify] render ${part}: ${err.code === "LOGIN_WALL" ? "LOGIN_WALL" : "FAILED"} -- ${err.message}`);
+    }
+  }
+
+  // Link checking must not depend on McMaster being reachable, or a walled
+  // run would silently verify nothing at all -- which is exactly what the
+  // last sweep did (0 parts discovered, "0 ok, 0 bad", reported as a run).
+  const cases = resolved.length
+    ? resolved
+    : [
+        { part: "91251A540(known)", specs: { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' } },
+        { part: "92196A106(known)", specs: { material: "18-8 Stainless Steel", driveType: "Hex", threadSize: "4-40", length: '1/4"', headType: "Socket" } },
+        { part: "raw-stock(known)", specs: { material: "6061 Aluminum", shape: "Round Bar", diameter: '3/8"' } },
+      ];
+  if (!resolved.length) console.log("[verify] no live renders available; checking links against known-good specs instead");
+
+  let ok = 0;
+  let bad = 0;
+  for (const { part, specs } of cases) {
+    const query = buildQuery(specs);
+    console.log(`[verify] links for ${part}: query=${JSON.stringify(query)}`);
+    for (const { name, url } of buildSupplierLinks(specs)) {
+      const verdict = await checkSupplierLink(name, url, specs);
+      if (verdict.ok) ok++;
+      else bad++;
+      console.log(`[verify]   ${verdict.ok ? "PASS" : "FAIL"} ${name}: ${verdict.detail}`);
+    }
+  }
+
+  console.log(`[verify] DONE in ${Math.round((Date.now() - started) / 1000)}s -- links ${ok} pass / ${bad} fail across ${cases.length} parts`);
+}
+
+/**
+ * A link passes only if the response is a results page that actually
+ * mentions the part's defining terms. Checking for a 200 is not enough:
+ * bot walls, consent interstitials and empty-result pages all return 200,
+ * and that is precisely what the previous check scored as success.
+ */
+async function checkSupplierLink(name, url, specs) {
+  try {
     const res = await fetch(url, {
+      redirect: "follow",
       headers: {
-        "User-Agent": UA,
-        Accept: "text/html,application/xhtml+xml,application/json,*/*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
       },
-      redirect: "follow",
-      signal: AbortSignal.timeout(timeout),
+      signal: AbortSignal.timeout(20000),
     });
-    return { res, body: await res.text() };
-  };
+    const body = await res.text();
+    const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim().slice(0, 90);
+    const detail = `status=${res.status} len=${body.length} title=${JSON.stringify(title)}`;
 
-  // E. Does the raw HTML already carry the specs, or is it only the shell?
-  //    Round 1 logged just the first 700 bytes of 151,630, which showed the
-  //    Angular shell and settled nothing.
-  try {
-    const { res, body } = await get(`https://www.mcmaster.com/${PART}/`);
-    const markers = {};
-    for (const m of ["please log in", "Thread Size", "Socket Head", "Black-Oxide", '1/4"-20', "PrsnlDtl", "__INITIAL", "WebSrchEng", "Fastener Head Type"]) {
-      markers[m] = body.includes(m);
+    if (res.status >= 400) return { ok: false, detail };
+    if (/we couldn.?t find|no results (were )?found|0 results|did not match any/i.test(body)) {
+      return { ok: false, detail: `${detail} <- no-results page` };
     }
-    log(`E raw-html: status=${res.status} len=${body.length} markers=${JSON.stringify(markers)}`);
-    for (const needle of ["Thread Size", "Black-Oxide", "Fastener Head Type"]) {
-      const i = body.indexOf(needle);
-      if (i !== -1) log(`E raw-html around ${JSON.stringify(needle)}: ${JSON.stringify(stripTags(body.slice(Math.max(0, i - 500), i + 700)).slice(0, 800))}`);
+    if (/unusual traffic|before you continue|consent\.google|are you a robot|just a moment|access denied/i.test(body)) {
+      return { ok: false, detail: `${detail} <- bot/consent wall` };
     }
-    // The versioned /mvNNNNNNNNNN/ path prefix the page's own scripts use is
-    // in the HTML -- grab it rather than hardcoding a value that rotates.
-    const mv = (body.match(/\/(mv\d{6,})\//) || [])[1];
-    log(`E versioned path prefix found in html: ${mv || "NONE"}`);
+
+    // The defining term of the search should appear in the results. For a
+    // fastener that's the thread size; for raw stock, the shape.
+    const marker = specs.threadSize || specs.shape || specs.material;
+    const normalize = (s) => s.toLowerCase().replace(/["”]/g, "").replace(/\s+/g, " ");
+    if (marker && !normalize(body).includes(normalize(marker))) {
+      return { ok: false, detail: `${detail} <- no mention of ${JSON.stringify(marker)}` };
+    }
+    return { ok: true, detail };
   } catch (err) {
-    log(`E raw-html FAILED: ${err.message}`);
-  }
-
-  // F. The JSON endpoints the page itself calls. These returned 200
-  //    application/json even while the rendered page was login-walled, so
-  //    what they actually contain is the open question.
-  const jsonProbes = [
-    ["WebSrchEng", `https://www.mcmaster.com/mv1788977805/Search/WebSrchEng.aspx?inpArgTxt=${PART}&ignoreTranslationTooLong=true&useComponentPNSearch=true&usePNDescSearch=true`],
-    ["PartNumberNavigateEligibility", `https://www.mcmaster.com/mv1788977805/WebParts/Navigate/PartNumberNavigateEligibility.aspx?searchedPartNumber=${PART}&features=enablemnitpns`],
-  ];
-  for (const [name, url] of jsonProbes) {
-    try {
-      const { res, body } = await get(url);
-      log(`F ${name}: status=${res.status} ct=${res.headers.get("content-type")} len=${body.length}`);
-      log(`F ${name} body[0:1400]=${JSON.stringify(body.slice(0, 1400))}`);
-    } catch (err) {
-      log(`F ${name} FAILED: ${err.message}`);
-    }
-  }
-
-  // G. If McMaster stays shut, a part number still has to resolve to specs
-  //    somehow. Round 1 showed Bing and MROSupply answer this server and
-  //    mention the part number; the question now is whether the text around
-  //    it is an actual spec description worth parsing.
-  const textProbes = [
-    ["bing", `https://www.bing.com/search?q=${encodeURIComponent(`McMaster-Carr ${PART}`)}`],
-    ["mrosupply", `https://www.mrosupply.com/search/?q=${encodeURIComponent(PART)}`],
-    ["googleshopping-html", `https://www.google.com/search?q=${encodeURIComponent(`McMaster ${PART}`)}`],
-  ];
-  for (const [name, url] of textProbes) {
-    try {
-      const { res, body } = await get(url, 15000);
-      const text = stripTags(body);
-      const i = text.toUpperCase().indexOf(PART);
-      log(`G ${name}: status=${res.status} len=${body.length} textLen=${text.length} foundPart=${i !== -1}`);
-      if (i !== -1) log(`G ${name} text=${JSON.stringify(text.slice(Math.max(0, i - 250), i + 450))}`);
-    } catch (err) {
-      log(`G ${name} FAILED: ${err.message}`);
-    }
-  }
-
-  log("DIAGNOSTICS COMPLETE");
-}
-
-/**
- * TEMPORARY, env-gated (RUN_TEST_SWEEP=1): a real end-to-end verification
- * sweep, not a guess dressed up as a test. Three phases, each logged
- * incrementally so partial progress survives a free-tier idle sleep:
- *
- *  1. Discovery -- harvests real part numbers directly from McMaster's own
- *     category pages (not invented), starting from a known-good product
- *     page's own links so category URLs are real, not guessed.
- *  2. Render sweep -- runs fetchMcMasterSpecsLive-equivalent logic against
- *     up to 100 of those real parts, one shared browser instance (not one
- *     per part -- launch overhead would dominate), tallies success/empty/
- *     login-wall/error.
- *  3. Supplier link verification -- for a diverse 20 of the successful
- *     parts, fetches every generated supplier link for real and checks it
- *     returns substantive content. This proves the link resolves to a
- *     real, relevant results page -- it cannot prove "perfect drop-in
- *     replacement" for a hardware part, which needs engineering judgment
- *     (tolerances, thread fit class, load rating) no scraper can certify.
- */
-async function runTestSweep() {
-  const startedAt = Date.now();
-  console.log("[sweep] START");
-
-  const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
-  const context = await newStealthContext(browser);
-  const page = await context.newPage();
-
-  async function renderText(url, timeout = 30000) {
-    await page.goto(url, { waitUntil: "load", timeout });
-    await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 18000 }).catch(() => {});
-    return page.evaluate(() => document.body.innerText);
-  }
-
-  // ---------- Phase 1: discovery ----------
-  // Real McMaster part-page URLs end in a part number, e.g.
-  // /91251A051/ or /products/6384K49/ -- both confirmed live.
-  const partNumberRe = /\/(\d{2,6}[A-Z]\d{2,4})\/?(?:$|\?)/;
-  // Real category/family URLs are /products/<slug>/ (confirmed live via
-  // search, e.g. mcmaster.com/products/socket-head-screws/) -- a single
-  // path segment after the domain is always static nav chrome (orders,
-  // contact, login, ...), never a catalog page.
-  const productPathRe = /mcmaster\.com\/products\/[a-z0-9-]+\/?(?:$|\?)/i;
-  const parts = new Set();
-
-  // Verified-real category pages (via live search, not guessed), spread
-  // across distinct catalog areas so the resulting parts span different
-  // categories: fasteners, bearings, tools, material handling, electrical,
-  // pipe/tube fittings.
-  const CATEGORY_SEEDS = [
-    "https://www.mcmaster.com/products/machine-screws/",
-    "https://www.mcmaster.com/products/socket-head-screws/",
-    "https://www.mcmaster.com/products/specialty-fasteners/",
-    "https://www.mcmaster.com/products/screw-sets/",
-    "https://www.mcmaster.com/products/shaft-bearings/",
-    "https://www.mcmaster.com/products/bearing-housings/",
-    "https://www.mcmaster.com/products/self-lubricating-bearings/",
-    "https://www.mcmaster.com/products/steel-bearings/",
-    "https://www.mcmaster.com/products/hand-tools/",
-    "https://www.mcmaster.com/products/power-tools/",
-    "https://www.mcmaster.com/products/material-handling/",
-    "https://www.mcmaster.com/products/cable-connectors/",
-    "https://www.mcmaster.com/products/electrical-connectors/",
-    "https://www.mcmaster.com/products/steel-pipe-fittings/",
-    "https://www.mcmaster.com/products/steel-pipe-couplings/",
-    "https://www.mcmaster.com/products/copper-pipe-fittings/",
-  ];
-
-  // Harvests direct part links from whatever page is currently loaded,
-  // and separately any /products/<slug>/ links (candidate sub-families) --
-  // category pages sometimes link straight to parts, sometimes one level
-  // down to families, so both need to be checked.
-  async function harvestCurrentPage() {
-    const hrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
-    let found = 0;
-    const subLinks = new Set();
-    for (const href of hrefs) {
-      const m = href.match(partNumberRe);
-      if (m) {
-        if (!parts.has(m[1])) found++;
-        parts.add(m[1]);
-      } else if (productPathRe.test(href)) {
-        subLinks.add(href);
-      }
-    }
-    return { found, subLinks: [...subLinks] };
-  }
-
-  try {
-    let seedText = await renderText("https://www.mcmaster.com/91251A051/");
-    if (seedText.length < 1500) {
-      console.log(`[sweep] seed page short (${seedText.length} chars), retrying once...`);
-      seedText = await renderText("https://www.mcmaster.com/91251A051/", 35000);
-    }
-    const { found } = await harvestCurrentPage();
-    console.log(`[sweep] seed page rendered, ${seedText.length} chars, +${found} direct parts`);
-  } catch (err) {
-    console.log(`[sweep] discovery seed FAILED: ${err.message}`);
-  }
-
-  for (const catUrl of CATEGORY_SEEDS) {
-    if (parts.size >= 130) break;
-    try {
-      const text = await renderText(catUrl, 30000);
-      if (text.length < 1500) {
-        console.log(`[sweep] category ${catUrl}: short render (${text.length} chars), skipping`);
-        continue;
-      }
-      const { found, subLinks } = await harvestCurrentPage();
-      console.log(`[sweep] category ${catUrl}: +${found} direct parts (total ${parts.size}), ${subLinks.length} sub-family links, textLen=${text.length}`);
-
-      if (found === 0 && subLinks.length > 0) {
-        for (const subUrl of subLinks.slice(0, 3)) {
-          try {
-            const subText = await renderText(subUrl, 30000);
-            if (subText.length < 1500) continue;
-            const sub = await harvestCurrentPage();
-            console.log(`[sweep]   sub-family ${subUrl}: +${sub.found} parts (total ${parts.size})`);
-          } catch (err) {
-            console.log(`[sweep]   sub-family ${subUrl} FAILED: ${err.message}`);
-          }
-        }
-      }
-    } catch (err) {
-      console.log(`[sweep] category ${catUrl} FAILED: ${err.message}`);
-    }
-  }
-
-  const allParts = [...parts].slice(0, 100);
-  console.log(`[sweep] DISCOVERY DONE: ${parts.size} unique real part numbers found, testing ${allParts.length}`);
-
-  // ---------- Phase 2: render + parse sweep ----------
-  let ok = 0, empty = 0, loginWall = 0, error = 0;
-  const successfulSpecs = [];
-
-  for (let i = 0; i < allParts.length; i++) {
-    const pn = allParts[i];
-    try {
-      const text = await renderText(`https://www.mcmaster.com/${pn}/`);
-      if (/please log in/i.test(text)) {
-        loginWall++;
-        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: LOGIN_WALL`);
-        continue;
-      }
-      const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
-      const count = Object.keys(specs).length;
-      if (count > 0) {
-        ok++;
-        successfulSpecs.push({ pn, specs });
-        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: OK (${count} fields)`);
-      } else {
-        empty++;
-        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: EMPTY`);
-      }
-    } catch (err) {
-      error++;
-      console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: ERROR -- ${err.message}`);
-    }
-  }
-
-  console.log(
-    `[sweep] RENDER SWEEP DONE: ${allParts.length} tested -- OK=${ok} EMPTY=${empty} LOGIN_WALL=${loginWall} ERROR=${error}`
-  );
-
-  await browser.close();
-
-  // ---------- Phase 3: supplier link verification ----------
-  // Spread picks across the successful set rather than the first 20, for
-  // category diversity (discovery order roughly tracks category order).
-  const sampleCount = Math.min(20, successfulSpecs.length);
-  const step = Math.max(1, Math.floor(successfulSpecs.length / sampleCount));
-  const sample = [];
-  for (let i = 0; i < successfulSpecs.length && sample.length < sampleCount; i += step) {
-    sample.push(successfulSpecs[i]);
-  }
-
-  console.log(`[sweep] LINK VERIFICATION START: ${sample.length} parts`);
-
-  let linkOk = 0, linkBad = 0;
-  for (const { pn, specs } of sample) {
-    const links = buildSupplierLinks(specs);
-    for (const { name, url } of links) {
-      try {
-        const res = await fetch(url, {
-          redirect: "follow",
-          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" },
-          signal: AbortSignal.timeout(10000),
-        });
-        const body = await res.text();
-        const bad = res.status >= 400 || /couldn.?t find|no results|access denied|just a moment/i.test(body.slice(0, 2000));
-        if (bad) {
-          linkBad++;
-          console.log(`[sweep] link ${pn}/${name}: BAD status=${res.status} len=${body.length}`);
-        } else {
-          linkOk++;
-          console.log(`[sweep] link ${pn}/${name}: OK status=${res.status} len=${body.length}`);
-        }
-      } catch (err) {
-        linkBad++;
-        console.log(`[sweep] link ${pn}/${name}: FAILED -- ${err.message}`);
-      }
-    }
-  }
-
-  console.log(`[sweep] LINK VERIFICATION DONE: ${linkOk} ok, ${linkBad} bad, out of ${linkOk + linkBad} checks across ${sample.length} parts`);
-  console.log(`[sweep] COMPLETE in ${Math.round((Date.now() - startedAt) / 1000)}s`);
-}
-
-/**
- * Renders a handful of real parts on every startup (including free-tier
- * cold-start wakes) and logs each result. Lets this get verified by
- * reading Render's logs directly -- no outbound network access to the
- * deployed URL is available from wherever this gets developed/debugged,
- * so this is the only way to see whether live rendering actually works,
- * and across more than one part, without asking the user to test it by
- * hand each time. Run sequentially, not in parallel, so the free-tier
- * instance isn't launching several Chromium processes at once.
- */
-const SELFTEST_PARTS = [
-  "91251A051", // socket head screw -- known-good baseline
-];
-
-async function runStartupSelfTest() {
-  for (const testPart of SELFTEST_PARTS) {
-    console.log(`[selftest] rendering ${testPart}...`);
-    try {
-      const specs = await fetchMcMasterSpecsLive(testPart);
-      const count = Object.keys(specs).length;
-      console.log(`[selftest] ${testPart}: ${count ? "OK" : "EMPTY"} (${count} fields) -- ${JSON.stringify(specs)}`);
-    } catch (err) {
-      console.log(`[selftest] ${testPart}: FAILED -- ${err.message}`);
-    }
+    return { ok: false, detail: `fetch failed -- ${err.message}` };
   }
 }

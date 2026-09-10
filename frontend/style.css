@@ -133,6 +133,20 @@ details summary {
   text-decoration: underline;
 }
 
+.links .query-note {
+  list-style: none;
+  margin: 0 0 0.75rem -1.2rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.links .query-note code {
+  color: var(--text);
+  background: rgba(127, 127, 127, 0.15);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
 footer {
   color: var(--muted);
   font-size: 0.8rem;

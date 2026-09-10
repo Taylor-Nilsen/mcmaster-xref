@@ -84,18 +84,17 @@ function renderResults(data) {
   const specEntries = Object.entries(data.specs || {});
 
   if (specEntries.length === 0) {
-    setStatus(
-      data.mcmasterFetchError
-        ? `Couldn't extract specs (${data.mcmasterFetchError}). Try manual entry.`
-        : "No specs found. Try manual entry.",
-      true
-    );
+    setStatus(data.mcmasterFetchError || "No specs found. Try manual entry.", true);
+    // Nothing came back, so the only way forward is manual entry -- open it
+    // rather than leaving the user to find the toggle.
+    manualPanel.hidden = false;
+    manualPanel.open = true;
     return;
   }
 
   let statusMsg = `Specs sourced from: ${data.source}.`;
   if (data.mcmasterFetchError) {
-    statusMsg += ` (McMaster auto-fetch failed: ${data.mcmasterFetchError})`;
+    statusMsg += ` (${data.mcmasterFetchError})`;
   }
   setStatus(statusMsg);
 
@@ -106,12 +105,21 @@ function renderResults(data) {
     )
     .join("");
 
-  linksList.innerHTML = (data.links || [])
-    .map(
-      (link) =>
-        `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.name)}</a></li>`
-    )
-    .join("") || "<li>No supplier links generated.</li>";
+  // Show the phrase being searched. It's built from the specs rather than
+  // typed, so seeing it is the fastest way to tell a bad match from a bad
+  // query.
+  const queryNote = data.query
+    ? `<li class="query-note">Searching for: <code>${escapeHtml(data.query)}</code></li>`
+    : "";
+
+  linksList.innerHTML =
+    queryNote +
+      (data.links || [])
+        .map(
+          (link) =>
+            `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.name)}</a></li>`
+        )
+        .join("") || "<li>No supplier links generated.</li>";
 
   resultsPanel.hidden = false;
 }
