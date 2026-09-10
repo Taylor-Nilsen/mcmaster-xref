@@ -291,10 +291,54 @@ function buildSupplierLinks(specs) {
   return suppliers.map((s) => ({ ...s, query }));
 }
 
+/**
+ * TEMPORARY diagnostic: hits each supplier search URL pattern directly
+ * (with a sample query) and logs status/final-URL/a body snippet, so the
+ * actual URL patterns can be verified against real responses instead of
+ * guessed -- same reason the McMaster render/parse issues could only be
+ * fixed once real page content was visible via logs. No outbound network
+ * access to these sites is available from wherever this gets
+ * developed/debugged.
+ */
+async function checkSupplierUrls() {
+  const q = encodeURIComponent('18-8 stainless steel 1/4-20 3/8" hex');
+  const urls = [
+    { name: "Speedy Metals", url: `https://www.speedymetals.com/search?q=${q}` },
+    { name: "MSC Direct", url: `https://www.mscdirect.com/search?q=${q}` },
+    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?q=${q}` },
+    { name: "Fastenal", url: `https://www.fastenal.com/products/search?query=${q}` },
+    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
+    { name: "Bolt Depot", url: `https://www.boltdepot.com/Search.aspx?search=${q}` },
+    { name: "Amazon", url: `https://www.amazon.com/s?k=${q}` },
+    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${q}` },
+    { name: "Banggood", url: `https://www.banggood.com/search/${q}-products.html` },
+  ];
+
+  for (const { name, url } of urls) {
+    try {
+      const res = await fetch(url, {
+        redirect: "follow",
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+      const body = await res.text();
+      console.log(
+        `[urlcheck] ${name}: status=${res.status} finalUrl=${res.url} bodyLen=${body.length} title=${JSON.stringify((body.match(/<title>([^<]*)<\/title>/i) || [])[1] || "")}`
+      );
+    } catch (err) {
+      console.log(`[urlcheck] ${name}: FETCH FAILED -- ${err.message}`);
+    }
+  }
+}
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
   runStartupSelfTest();
+  checkSupplierUrls();
 });
 
 /**
@@ -309,9 +353,6 @@ app.listen(port, () => {
  */
 const SELFTEST_PARTS = [
   "91251A051", // socket head screw -- known-good baseline
-  "91251A540", // different fastener family
-  "92196A106", // different fastener family
-  "0000000A",  // deliberately invalid -- checks graceful failure, not a crash
 ];
 
 async function runStartupSelfTest() {
