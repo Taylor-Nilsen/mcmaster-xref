@@ -356,120 +356,103 @@ app.listen(port, () => {
 });
 
 /**
- * TEMPORARY, env-gated (RUN_DIAG=1). Answers, with real responses rather
- * than inference, why live rendering went from reliably returning 8 parsed
- * fields (three different real parts, repeatedly, through 19:10) to
- * returning an identical ~849-char page for every McMaster URL from 19:18
- * on. The parser didn't change in between, so the question is purely what
- * McMaster is now serving this server, and what still works.
+ * TEMPORARY, env-gated (RUN_DIAG=1). Round 1 established that McMaster
+ * serves this server a login wall ("To continue browsing, please log in.",
+ * 776 rendered chars) for every product URL, while a plain HTTP fetch of
+ * the same URL returns 200 with 151,630 bytes. That gap is the whole
+ * question: if the spec data is already in that HTML, or reachable through
+ * the JSON endpoints the page's own scripts call, then driving a browser
+ * per request -- the thing that trips the view quota in the first place --
+ * is unnecessary.
  *
- * Nothing here can be checked from the machine this is written on -- its
- * egress proxy blocks mcmaster.com and every supplier domain -- so each
- * probe logs its own raw evidence and they all run in one deploy.
+ * None of this is checkable from the machine this is written on (its
+ * egress proxy blocks mcmaster.com and every supplier domain), so each
+ * probe logs its own raw evidence.
  */
 async function runDiagnostics() {
   const UA =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
   const PART = "91251A540";
-  const partUrl = `https://www.mcmaster.com/${PART}/`;
   const log = (...a) => console.log("[diag]", ...a);
+  const stripTags = (html) =>
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
-  // A. Plain fetch, no browser at all. Distinguishes an IP/edge block
-  //    (403/429, Cloudflare) from a client-side rendering problem.
+  const get = async (url, timeout = 20000) => {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": UA,
+        Accept: "text/html,application/xhtml+xml,application/json,*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      redirect: "follow",
+      signal: AbortSignal.timeout(timeout),
+    });
+    return { res, body: await res.text() };
+  };
+
+  // E. Does the raw HTML already carry the specs, or is it only the shell?
+  //    Round 1 logged just the first 700 bytes of 151,630, which showed the
+  //    Angular shell and settled nothing.
   try {
-    const res = await fetch(partUrl, { headers: { "User-Agent": UA }, redirect: "follow", signal: AbortSignal.timeout(20000) });
-    const body = await res.text();
-    const interesting = {};
-    for (const h of ["server", "cf-ray", "cf-mitigated", "x-cache", "retry-after", "content-type", "set-cookie"]) {
-      const v = res.headers.get(h);
-      if (v) interesting[h] = v.slice(0, 200);
+    const { res, body } = await get(`https://www.mcmaster.com/${PART}/`);
+    const markers = {};
+    for (const m of ["please log in", "Thread Size", "Socket Head", "Black-Oxide", '1/4"-20', "PrsnlDtl", "__INITIAL", "WebSrchEng", "Fastener Head Type"]) {
+      markers[m] = body.includes(m);
     }
-    log(`A plain-fetch: status=${res.status} finalUrl=${res.url} len=${body.length} headers=${JSON.stringify(interesting)}`);
-    log(`A plain-fetch body[0:700]=${JSON.stringify(body.slice(0, 700))}`);
+    log(`E raw-html: status=${res.status} len=${body.length} markers=${JSON.stringify(markers)}`);
+    for (const needle of ["Thread Size", "Black-Oxide", "Fastener Head Type"]) {
+      const i = body.indexOf(needle);
+      if (i !== -1) log(`E raw-html around ${JSON.stringify(needle)}: ${JSON.stringify(stripTags(body.slice(Math.max(0, i - 500), i + 700)).slice(0, 800))}`);
+    }
+    // The versioned /mvNNNNNNNNNN/ path prefix the page's own scripts use is
+    // in the HTML -- grab it rather than hardcoding a value that rotates.
+    const mv = (body.match(/\/(mv\d{6,})\//) || [])[1];
+    log(`E versioned path prefix found in html: ${mv || "NONE"}`);
   } catch (err) {
-    log(`A plain-fetch FAILED: ${err.message}`);
+    log(`E raw-html FAILED: ${err.message}`);
   }
 
-  // B. Fresh browser, one page -- exactly what the live endpoint does, and
-  //    exactly what worked repeatedly earlier. Logs the actual rendered
-  //    text, which the sweep never did (it only logged a length, which is
-  //    why an identical 849-char block page went unrecognized for so long).
-  //    Also sniffs the XHRs the Angular app makes: if the product data
-  //    arrives as JSON from an internal endpoint, calling that directly
-  //    beats driving a browser on every request.
-  for (const attempt of [1, 2]) {
-    const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
-    try {
-      const context = await newStealthContext(browser);
-      const page = await context.newPage();
-      const xhrs = [];
-      page.on("response", (r) => {
-        const u = r.url();
-        const ct = r.headers()["content-type"] || "";
-        if (ct.includes("json") || /\/(api|service|graphql|data)\//i.test(u)) {
-          xhrs.push(`${r.status()} ${ct.split(";")[0]} ${u.slice(0, 180)}`);
-        }
-      });
-      const response = await page.goto(partUrl, { waitUntil: "load", timeout: 30000 });
-      await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 15000 }).catch(() => {});
-      const text = await page.evaluate(() => document.body.innerText);
-      log(`B${attempt} browser: status=${response && response.status()} finalUrl=${page.url()} len=${text.length}`);
-      log(`B${attempt} text[0:900]=${JSON.stringify(text.slice(0, 900))}`);
-      log(`B${attempt} json/api responses seen (${xhrs.length}): ${JSON.stringify(xhrs.slice(0, 25), null, 0)}`);
-    } catch (err) {
-      log(`B${attempt} browser FAILED: ${err.message}`);
-    } finally {
-      await browser.close();
-    }
-  }
-
-  // C. Do supplier search URLs actually return product results from this
-  //    server? The earlier check called anything not matching a short
-  //    "no results" regex a pass, which a Google consent interstitial or a
-  //    bot-check page sails straight through -- so it proved nothing.
-  //    Log title + length + a body snippet and judge from the real thing.
-  const linkProbes = buildSupplierLinks({
-    material: "Alloy Steel",
-    threadSize: '1/4"-20',
-    length: '3/4"',
-    driveType: "Hex",
-    headType: "Socket",
-    finish: "Black Oxide",
-  });
-  log(`C supplier links generated: ${JSON.stringify(linkProbes.map((l) => l.url))}`);
-  for (const { name, url } of linkProbes) {
-    try {
-      const res = await fetch(url, { headers: { "User-Agent": UA }, redirect: "follow", signal: AbortSignal.timeout(15000) });
-      const body = await res.text();
-      const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim();
-      log(`C ${name}: status=${res.status} len=${body.length} title=${JSON.stringify(title.slice(0, 120))} finalUrl=${res.url.slice(0, 140)}`);
-    } catch (err) {
-      log(`C ${name}: FAILED -- ${err.message}`);
-    }
-  }
-
-  // D. Are third-party sites that index McMaster part numbers reachable
-  //    from here? If McMaster itself stays blocked, resolving a part
-  //    number through one of these is the fallback that keeps the app
-  //    working -- but only if they answer this server at all.
-  const thirdParty = [
-    ["duckduckgo-html", `https://html.duckduckgo.com/html/?q=${encodeURIComponent(`McMaster-Carr ${PART}`)}`],
-    ["bing", `https://www.bing.com/search?q=${encodeURIComponent(`McMaster-Carr ${PART}`)}`],
-    ["mpparts", `https://mpparts.com/search?q=${encodeURIComponent(PART)}`],
-    ["mrosupply", `https://www.mrosupply.com/search/?q=${encodeURIComponent(PART)}`],
+  // F. The JSON endpoints the page itself calls. These returned 200
+  //    application/json even while the rendered page was login-walled, so
+  //    what they actually contain is the open question.
+  const jsonProbes = [
+    ["WebSrchEng", `https://www.mcmaster.com/mv1788977805/Search/WebSrchEng.aspx?inpArgTxt=${PART}&ignoreTranslationTooLong=true&useComponentPNSearch=true&usePNDescSearch=true`],
+    ["PartNumberNavigateEligibility", `https://www.mcmaster.com/mv1788977805/WebParts/Navigate/PartNumberNavigateEligibility.aspx?searchedPartNumber=${PART}&features=enablemnitpns`],
   ];
-  for (const [name, url] of thirdParty) {
+  for (const [name, url] of jsonProbes) {
     try {
-      const res = await fetch(url, { headers: { "User-Agent": UA }, redirect: "follow", signal: AbortSignal.timeout(15000) });
-      const body = await res.text();
-      const hasPart = body.toUpperCase().includes(PART);
-      log(`D ${name}: status=${res.status} len=${body.length} mentionsPart=${hasPart} finalUrl=${res.url.slice(0, 140)}`);
-      if (hasPart) {
-        const idx = body.toUpperCase().indexOf(PART);
-        log(`D ${name} context=${JSON.stringify(body.slice(Math.max(0, idx - 300), idx + 300))}`);
-      }
+      const { res, body } = await get(url);
+      log(`F ${name}: status=${res.status} ct=${res.headers.get("content-type")} len=${body.length}`);
+      log(`F ${name} body[0:1400]=${JSON.stringify(body.slice(0, 1400))}`);
     } catch (err) {
-      log(`D ${name}: FAILED -- ${err.message}`);
+      log(`F ${name} FAILED: ${err.message}`);
+    }
+  }
+
+  // G. If McMaster stays shut, a part number still has to resolve to specs
+  //    somehow. Round 1 showed Bing and MROSupply answer this server and
+  //    mention the part number; the question now is whether the text around
+  //    it is an actual spec description worth parsing.
+  const textProbes = [
+    ["bing", `https://www.bing.com/search?q=${encodeURIComponent(`McMaster-Carr ${PART}`)}`],
+    ["mrosupply", `https://www.mrosupply.com/search/?q=${encodeURIComponent(PART)}`],
+    ["googleshopping-html", `https://www.google.com/search?q=${encodeURIComponent(`McMaster ${PART}`)}`],
+  ];
+  for (const [name, url] of textProbes) {
+    try {
+      const { res, body } = await get(url, 15000);
+      const text = stripTags(body);
+      const i = text.toUpperCase().indexOf(PART);
+      log(`G ${name}: status=${res.status} len=${body.length} textLen=${text.length} foundPart=${i !== -1}`);
+      if (i !== -1) log(`G ${name} text=${JSON.stringify(text.slice(Math.max(0, i - 250), i + 450))}`);
+    } catch (err) {
+      log(`G ${name} FAILED: ${err.message}`);
     }
   }
 
