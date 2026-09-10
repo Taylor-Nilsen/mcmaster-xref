@@ -46,23 +46,12 @@ own machine instead -- see `scripts/README.md`.
 
 ## Setup
 
-### 1. Deploy the backend
+The backend is already deployed and wired up:
+`frontend/config.js` points at `https://mcmaster-xref-api.onrender.com`
+(see [backend/README.md](backend/README.md) for details, or to redeploy
+elsewhere). Only thing left:
 
-See [backend/README.md](backend/README.md) -- connect the repo on Render
-(one Blueprint apply via `render.yaml`, or a few manual fields) and get a
-public URL back.
-
-### 2. Point the frontend at it
-
-Edit `frontend/config.js`:
-
-```js
-const BACKEND_URL = "https://mcmaster-xref-backend.onrender.com";
-```
-
-Commit and push.
-
-### 3. Enable GitHub Pages
+### Enable GitHub Pages
 
 Repo Settings -> Pages -> Source: **GitHub Actions**. The included workflow
 (`.github/workflows/deploy-pages.yml`) publishes `frontend/` on every push

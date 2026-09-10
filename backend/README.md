@@ -5,39 +5,29 @@ every request -- no caching. Separate from the frontend because GitHub
 Pages (static-only) can't run this; the frontend calls it cross-origin
 (CORS is handled in `server.js`).
 
+**Live at: `https://mcmaster-xref-api.onrender.com`** -- already deployed,
+already wired up in `frontend/config.js`. Nothing left to do here unless
+you're redeploying after a code change (pushing to this branch does that
+automatically) or setting it up fresh elsewhere.
+
 Runs on [Render](https://render.com)'s free Web Service tier: no credit
 card required to create one, so there's no way to rack up a surprise bill
 even if the URL gets hit by something other than you -- worst case Render
 just throttles or sleeps it.
 
-## Deploy
-
-**Easiest**: connect this repo in the Render dashboard and use the
-included `render.yaml` (repo root) -- Render reads it as a Blueprint and
-sets everything up in one go. New → Blueprint → pick this repo → Apply.
-
-**If the Blueprint doesn't pick up cleanly**, set these manually when
-creating the Web Service instead:
+## Deploy (only needed for a fresh setup)
 
 - Root directory: `backend`
 - Environment: **Node**
-- Build command: `npm install && npx playwright install --with-deps chromium`
+- Build command: `npm install && npx playwright install chromium`
 - Start command: `node server.js`
 - Instance type: **Free**
 
-Render gives you a public URL (e.g.
-`https://mcmaster-xref-backend.onrender.com`) -- copy it.
-
-## Point the frontend at it
-
-Edit `frontend/config.js`:
-
-```js
-const BACKEND_URL = "https://mcmaster-xref-backend.onrender.com";
-```
-
-Commit and push -- the GitHub Pages workflow picks it up automatically
-(see main [README](../README.md)).
+Don't add `--with-deps` to the build command -- it tries to `apt-get`
+system packages as root via `su`, which Render's build container refuses
+("Authentication failure"). Plain `chromium` (no flag) just downloads the
+browser binary, which is all that's needed; Render's Node image already
+has the shared libraries Chromium wants at runtime.
 
 ## Notes
 
@@ -47,4 +37,8 @@ Commit and push -- the GitHub Pages workflow picks it up automatically
   not instant if it's been idle.
 - **Redeploying after code changes**: push to the connected branch --
   Render rebuilds and redeploys automatically.
-- **Local run**: `cd backend && npm install && npx playwright install --with-deps chromium && npm start`, then it's listening on `http://localhost:3000`.
+- **Local run**: `cd backend && npm install && npx playwright install chromium && npm start`, then it's listening on `http://localhost:3000`.
+- There's a second, broken Render service left over from getting this
+  working (`mcmaster-xref-backend`, the one with `--with-deps` in its
+  build command). It's inert and free -- safe to delete whenever you're in
+  the Render dashboard for something else, no rush.
