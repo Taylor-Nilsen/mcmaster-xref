@@ -255,4 +255,27 @@ function buildSupplierLinks(specs) {
 }
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`mcmaster-xref listening on ${port}`));
+app.listen(port, () => {
+  console.log(`mcmaster-xref listening on ${port}`);
+  runStartupSelfTest();
+});
+
+/**
+ * Renders one real part on every startup (including free-tier cold-start
+ * wakes) and logs the result. Lets this get verified by reading Render's
+ * logs directly -- no outbound network access to the deployed URL is
+ * available from wherever this gets developed/debugged, so this is the
+ * only way to see whether a live render actually works without asking
+ * the user to test it by hand each time.
+ */
+async function runStartupSelfTest() {
+  const testPart = "91251A051";
+  console.log(`[selftest] rendering ${testPart}...`);
+  try {
+    const specs = await fetchMcMasterSpecsLive(testPart);
+    const count = Object.keys(specs).length;
+    console.log(`[selftest] ${count ? "OK" : "EMPTY"} -- specs: ${JSON.stringify(specs)}`);
+  } catch (err) {
+    console.log(`[selftest] FAILED: ${err.message}`);
+  }
+}
