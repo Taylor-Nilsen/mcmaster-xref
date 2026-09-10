@@ -7,6 +7,10 @@ const SPEC_FIELD_IDS = [
   "thickness",
   "width",
   "length",
+  // Head type drives the product noun in the supplier query ("socket head
+  // cap screw" vs "flat head screw"), so it has to be enterable by hand --
+  // manual entry is exactly what gets used when McMaster won't answer.
+  "headType",
   "driveType",
   "finish",
   "grade",
@@ -84,18 +88,17 @@ function renderResults(data) {
   const specEntries = Object.entries(data.specs || {});
 
   if (specEntries.length === 0) {
-    setStatus(
-      data.mcmasterFetchError
-        ? `Couldn't extract specs (${data.mcmasterFetchError}). Try manual entry.`
-        : "No specs found. Try manual entry.",
-      true
-    );
+    setStatus(data.mcmasterFetchError || "No specs found. Try manual entry.", true);
+    // Nothing came back, so the only way forward is manual entry -- open it
+    // rather than leaving the user to find the toggle.
+    manualPanel.hidden = false;
+    manualPanel.open = true;
     return;
   }
 
   let statusMsg = `Specs sourced from: ${data.source}.`;
   if (data.mcmasterFetchError) {
-    statusMsg += ` (McMaster auto-fetch failed: ${data.mcmasterFetchError})`;
+    statusMsg += ` (${data.mcmasterFetchError})`;
   }
   setStatus(statusMsg);
 
@@ -106,14 +109,53 @@ function renderResults(data) {
     )
     .join("");
 
-  linksList.innerHTML = (data.links || [])
-    .map(
-      (link) =>
-        `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.name)}</a></li>`
-    )
-    .join("") || "<li>No supplier links generated.</li>";
+  renderLinks(data);
 
   resultsPanel.hidden = false;
+}
+
+/**
+ * Renders the supplier links along with the search phrase, kept editable.
+ *
+ * These are search links on sites that all refuse automated checking, so
+ * nothing here can promise the results are any good -- the person reading
+ * them is the only one who can see them. Rather than hand over a fixed
+ * guess, the query it was built from is shown and can be changed: edit the
+ * wording and every link below repoints at the new phrase.
+ */
+function renderLinks(data) {
+  const links = data.links || [];
+  if (!links.length) {
+    linksList.innerHTML = "<li>No supplier links generated.</li>";
+    return;
+  }
+
+  linksList.innerHTML = `
+    <li class="query-note">
+      <label for="queryEdit">Searching for</label>
+      <input id="queryEdit" value="${escapeHtml(data.query || "")}" />
+      <span class="hint">Edit to refine — the links below follow.</span>
+    </li>
+  ` + links
+    .map(
+      (link, i) =>
+        `<li><a id="supplierLink${i}" href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.name)}</a></li>`
+    )
+    .join("");
+
+  const queryEdit = document.getElementById("queryEdit");
+  queryEdit.addEventListener("input", () => {
+    const q = queryEdit.value.trim();
+    links.forEach((link, i) => {
+      const a = document.getElementById(`supplierLink${i}`);
+      // A supplier without a placeholder (Bolt Depot browses by filter, not
+      // by text) has nothing to substitute, so its link is left alone.
+      if (!a || !link.urlTemplate || !/\{q\}|\{plus\}/.test(link.urlTemplate)) return;
+      a.href = link.urlTemplate
+        .replace("{plus}", encodeURIComponent(q).replace(/%20/g, "+"))
+        .replace("{q}", encodeURIComponent(q));
+    });
+  });
 }
 
 function escapeHtml(str) {

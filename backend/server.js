@@ -9,13 +9,16 @@
  *   - If partNumber is given, renders the live McMaster product page with
  *     a real headless Chrome instance (Playwright) and parses the fully-
  *     rendered text. McMaster is a JS-only SPA, so a plain HTTP fetch
- *     never sees real spec data -- this actually executes the page's JS.
- *     Runs fresh on every request, no caching. Can't see anything
- *     McMaster gates behind account login (no credentials are stored or
- *     used here) -- see README.
+ *     never sees real spec data -- confirmed directly: fetching a product
+ *     URL returns 200 and ~151KB that contains the Angular shell and not
+ *     one spec value. Results are cached per part number, because
+ *     McMaster allows only a limited number of anonymous views before it
+ *     serves a login wall instead (no credentials are stored or used
+ *     here) -- see README.
  *   - specs, if given, are merged on top of (and override) anything
  *     parsed live, so manual entry always works as a fallback.
- *   Returns: { source, specs, links }
+ *   Returns: { source, specs, query, links, mcmasterFetchError,
+ *     mcmasterErrorCode }
  */
 
 const express = require("express");
@@ -34,12 +37,14 @@ app.post("/api/xref", async (req, res) => {
 
   let mcmasterSpecs = {};
   let mcmasterError = null;
+  let mcmasterErrorCode = null;
 
   if (partNumber) {
     try {
       mcmasterSpecs = await fetchMcMasterSpecsLive(partNumber);
     } catch (err) {
       mcmasterError = err.message;
+      mcmasterErrorCode = err.code || "FETCH_FAILED";
     }
   }
 
@@ -59,33 +64,144 @@ app.post("/api/xref", async (req, res) => {
     partNumber: partNumber || null,
     source,
     specs,
+    query: hasAnySpec ? buildQuery(specs) : null,
     mcmasterFetchError: mcmasterError,
+    mcmasterErrorCode,
     links,
   });
 });
 
+async function newStealthContext(browser) {
+  const context = await browser.newContext({
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    viewport: { width: 1280, height: 900 },
+    locale: "en-US",
+  });
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    window.chrome = { runtime: {} };
+    Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
+  });
+  return context;
+}
+
+// What McMaster serves instead of a product page once this server has spent
+// its anonymous-view allowance. Diagnosed from the rendered text itself:
+// every URL -- product pages and category pages alike -- came back as the
+// same 776-char page reading "To continue browsing, please log in." Two
+// earlier rounds of timeout tuning were chasing this as if it were a slow
+// render, because only the text *length* was ever logged.
+const LOGIN_WALL_RE = /to continue browsing,?\s*please log in|please log in to continue/i;
+
+class LoginWallError extends Error {
+  constructor() {
+    super(
+      "McMaster is requiring a login for this server right now (it allows a limited number of anonymous page views). Specs can't be read automatically until that lifts -- enter them below and the supplier links still work."
+    );
+    this.code = "LOGIN_WALL";
+  }
+}
+
+/**
+ * Resolved specs, keyed by part number. McMaster's anonymous-view budget is
+ * the scarcest resource this app has -- exhausting it is what takes the
+ * whole feature down -- so a part is rendered once and then answered from
+ * memory. Cleared when the instance restarts, which on a free tier happens
+ * often; that's a cold-start cost, not a correctness problem.
+ */
+const specCache = new Map();
+
 /**
  * Renders the live McMaster product page in a real headless browser and
- * parses the fully-rendered text. No caching -- a fresh browser launches
- * on every call. Throws on any failure (page never settles, no usable
- * text, etc.); caller treats that as "unavailable, fall back to manual
- * entry", not a hard error.
+ * parses the fully-rendered text. Throws LoginWallError when McMaster is
+ * gating this server, and a plain Error on any other failure; the caller
+ * treats both as "unavailable, fall back to manual entry" but reports them
+ * differently, since one is temporary and not the user's fault.
  */
 async function fetchMcMasterSpecsLive(partNumber) {
+  const cached = specCache.get(partNumber);
+  if (cached) {
+    console.log(`[xref] part=${partNumber} served from cache`);
+    return cached;
+  }
+
+  // The gate is intermittent rather than absolute: in one verification run
+  // of three parts, spaced 20s apart, the middle one came back with all 8
+  // fields while the other two were gated. A second attempt with a fresh
+  // browser and a short pause is therefore worth real success rate, and
+  // costs nothing when the first attempt works.
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    if (attempt > 1) await new Promise((r) => setTimeout(r, 4000));
+    try {
+      const specs = await renderMcMasterPage(partNumber, attempt);
+      specCache.set(partNumber, specs);
+      return specs;
+    } catch (err) {
+      lastError = err;
+      if (err.code !== "LOGIN_WALL") throw err;
+      console.log(`[xref] part=${partNumber} attempt ${attempt} gated`);
+    }
+  }
+  throw lastError;
+}
+
+async function renderMcMasterPage(partNumber, attempt) {
   const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
 
-  const browser = await chromium.launch();
+  // These flags/patches mask the usual automation fingerprints. Worth
+  // keeping, but note they were never the blocker: the page renders fine
+  // for this exact browser setup until the view allowance runs out, and no
+  // amount of fingerprint masking buys more views.
+  const browser = await chromium.launch({
+    args: ["--disable-blink-features=AutomationControlled"],
+  });
   try {
-    const page = await browser.newPage();
-    await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
+    const context = await newStealthContext(browser);
+    const page = await context.newPage();
+    const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
 
-    const text = await page.evaluate(() => document.body.innerText);
-    if (!text || text.trim().length < 50) {
-      throw new Error("page rendered but had no usable text (likely blocked)");
+    // McMaster's Angular app fetches product data on a separate call after
+    // load, so waiting for network-quiet returns nav/footer chrome only.
+    // Wait for real content to appear instead.
+    try {
+      await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 15000 });
+    } catch {
+      // proceed with whatever rendered -- classified below
     }
 
-    return { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+    const text = await page.evaluate(() => document.body.innerText);
+    console.log(
+      `[xref] part=${partNumber} attempt=${attempt} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
+    );
+
+    if (LOGIN_WALL_RE.test(text || "")) {
+      console.log(`[xref] part=${partNumber} LOGIN_WALL`);
+      throw new LoginWallError();
+    }
+
+    if (!text || text.trim().length < 50) {
+      throw new Error("page rendered but had no usable text");
+    }
+
+    const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+    console.log(`[xref] extractedSpecs: ${JSON.stringify(specs)}`);
+
+    if (Object.keys(specs).length === 0) {
+      console.log(`[xref] part=${partNumber} parsed nothing. text=${JSON.stringify((text || "").slice(0, 1500))}`);
+      // Gating shows up in two shapes: an explicit "please log in" page, and
+      // a product page whose chrome renders (Forward / Print / Find
+      // alternative products) while the product data never arrives. Both
+      // leave a page under ~1500 chars. Calling that "part may not exist"
+      // blames the user for a typo they didn't make, so only a page with
+      // real content on it gets that verdict.
+      if (text.trim().length < 1500) throw new LoginWallError();
+      throw new Error("the page loaded but no recognizable specs were on it -- this part may not exist, or its page is laid out differently");
+    }
+
+    return specs;
   } finally {
     await browser.close();
   }
@@ -141,26 +257,52 @@ const KEY_MAP = {
   width: "width",
   "drive style": "driveType",
   "drive type": "driveType",
+  "fastener head type": "headType",
   "head type": "headType",
   finish: "finish",
   grade: "grade",
   class: "grade",
+  "system of measurement": "measurementSystem",
+};
+
+// McMaster renders a spec's label and value as separate lines (confirmed
+// against a real rendered page), not "Label: Value" on one line -- e.g.
+// "Drive Style" then "Hex" as two consecutive non-empty lines. A few
+// fields (thread size) are nested one level under a bare group-header
+// line ("Thread" -> "Size" -> "0-80"), which needs disambiguating since
+// "Size" alone is ambiguous outside that context.
+const GROUP_SUBFIELDS = {
+  thread: { size: "threadSize" },
 };
 
 /**
- * Parses "Key: Value" / "Key - Value" lines -- the shape of McMaster's own
- * spec table once it's actually rendered. Higher confidence than the fuzzy
- * keyword matching in parseSpecsFromText, so the caller lets this override
- * it.
+ * Parses McMaster's real label/value line pairs. Higher confidence than
+ * the fuzzy keyword matching in parseSpecsFromText, so the caller lets
+ * this override it.
  */
 function parseKeyValueText(text) {
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const specs = {};
-  for (const line of text.split("\n")) {
-    const m = line.match(/^\s*([A-Za-z][A-Za-z /]{1,40}?)\s*[:\-]\s*(.{1,80}?)\s*$/);
-    if (!m) continue;
-    const key = KEY_MAP[m[1].trim().toLowerCase()];
-    if (key && !specs[key]) specs[key] = m[2].trim();
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const label = lines[i].toLowerCase();
+
+    const group = GROUP_SUBFIELDS[label];
+    if (group && lines[i + 1] && group[lines[i + 1].toLowerCase()]) {
+      const key = group[lines[i + 1].toLowerCase()];
+      if (!specs[key] && lines[i + 2]) specs[key] = lines[i + 2];
+      continue;
+    }
+
+    const key = KEY_MAP[label];
+    if (key && !specs[key]) {
+      const value = lines[i + 1];
+      if (value && !KEY_MAP[value.toLowerCase()] && !GROUP_SUBFIELDS[value.toLowerCase()]) {
+        specs[key] = value;
+      }
+    }
   }
+
   return specs;
 }
 
@@ -183,48 +325,379 @@ function sanitizeSpecs(specs) {
   return out;
 }
 
+// McMaster folds the finish into the material ("Black-Oxide Alloy Steel");
+// suppliers index the two separately, so split them apart.
+const FINISH_PREFIXES = [
+  "black-oxide", "black oxide", "zinc yellow-chromate plated",
+  "yellow-chromate plated", "zinc-plated", "zinc plated",
+  "hot-dipped galvanized", "galvanized", "chrome-plated", "chrome plated",
+  "nickel-plated", "nickel plated", "passivated", "anodized",
+  "powder-coated", "powder coated", "phosphate", "cadmium-plated",
+];
+
 /**
- * Builds direct search-results links on other suppliers' sites using the
- * extracted/entered specs as a query. This is deliberately NOT scraping
- * those sites (most block bots as aggressively as McMaster does) -- it
- * hands the user a pre-filled search so they can judge fit themselves,
- * per the spec's workflow step 5.
+ * "Class 1/2/3" (with or without an A/B suffix) is a thread *fit* class --
+ * a tolerance band, not a strength rating -- and McMaster reports it in the
+ * same field as real strength ratings. Searching a supplier for "Class 3"
+ * returns noise, so only genuine ratings ("Grade 8", metric property
+ * classes like "Class 10.9") survive into a query.
  */
-function buildSupplierLinks(specs) {
-  const query = [specs.material, specs.shape, specs.threadSize, specs.diameter, specs.thickness, specs.width, specs.length, specs.driveType, specs.finish, specs.grade]
-    .filter(Boolean)
-    .join(" ");
-
-  if (!query) return [];
-
-  const q = encodeURIComponent(query);
-
-  const rawStockSuppliers = [
-    { name: "Speedy Metals", url: `https://www.speedymetals.com/search?q=${q}` },
-    { name: "MSC Direct", url: `https://www.mscdirect.com/search?q=${q}` },
-    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?q=${q}` },
-  ];
-  const fastenerSuppliers = [
-    { name: "Fastenal", url: `https://www.fastenal.com/products/search?query=${q}` },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
-    { name: "Bolt Depot", url: `https://www.boltdepot.com/Search.aspx?search=${q}` },
-    { name: "Amazon", url: `https://www.amazon.com/s?k=${q}` },
-    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${q}` },
-    { name: "Banggood", url: `https://www.banggood.com/search/${q}-products.html` },
-  ];
-
-  const category = (specs.category || "").toLowerCase();
-  let suppliers;
-  if (category.includes("fastener") || specs.threadSize || specs.driveType) {
-    suppliers = fastenerSuppliers;
-  } else if (category.includes("stock") || specs.shape) {
-    suppliers = rawStockSuppliers;
-  } else {
-    suppliers = [...rawStockSuppliers, ...fastenerSuppliers];
-  }
-
-  return suppliers.map((s) => ({ ...s, query }));
+function strengthGrade(value) {
+  if (!value) return null;
+  const v = String(value).trim();
+  if (/^class\s*\d\s*[ab]?$/i.test(v)) return null;
+  return v;
 }
 
+/**
+ * Reshapes raw parsed McMaster fields into what a supplier's search box
+ * actually expects. Two fields actively mislead if passed through as-is:
+ * the finish hides inside `material`, and on a threaded fastener
+ * `diameter` is the *head* diameter -- searching "1/4-20 ... 3/8"" reads
+ * as a 3/8" screw, which is a different part.
+ */
+function normalizeSpecs(specs) {
+  const out = { ...specs };
+
+  if (out.material) {
+    const lower = out.material.toLowerCase();
+    const hit = FINISH_PREFIXES.find((f) => lower.startsWith(f));
+    if (hit) {
+      out.material = out.material.slice(hit.length).trim();
+      if (!out.finish) out.finish = specs.material.slice(0, hit.length).trim();
+    }
+  }
+
+  if (out.threadSize && out.diameter) delete out.diameter;
+
+  const grade = strengthGrade(out.grade);
+  if (grade) out.grade = grade;
+  else delete out.grade;
+
+  return out;
+}
+
+// Trade names, in the order a supplier's catalog uses them. Checked most
+// specific first: a "Hex" *head* is an external hex bolt, but a hex *drive*
+// on a flat or button head is a socket cap screw, which is a different
+// aisle.
+function fastenerNoun(specs) {
+  const head = (specs.headType || "").toLowerCase();
+  const drive = (specs.driveType || "").toLowerCase();
+  const socketDrive = /hex|socket|torx/.test(drive);
+
+  if (/socket/.test(head)) return "socket head cap screw";
+  if (/button/.test(head)) return socketDrive ? "button head socket cap screw" : "button head screw";
+  if (/flat|countersunk/.test(head)) return socketDrive ? "flat head socket cap screw" : "flat head screw";
+  if (/pan/.test(head)) return "pan head screw";
+  if (/truss/.test(head)) return "truss head screw";
+  if (/cheese/.test(head)) return "cheese head screw";
+  if (/round/.test(head)) return "round head screw";
+  if (/hex/.test(head)) return "hex head cap screw";
+  if (/set screw/.test(head)) return "set screw";
+  return specs.threadSize ? "machine screw" : null;
+}
+
+function isFastener(specs) {
+  return Boolean(specs.threadSize || specs.headType || (specs.category || "").toLowerCase().includes("fastener"));
+}
+
+/**
+ * Builds the phrase a person would actually type into a supplier's search
+ * box -- "1/4"-20 x 3/4" socket head cap screw alloy steel black oxide" --
+ * rather than concatenating every parsed field in schema order. The old
+ * version produced "Alloy Steel 1/4"-20 3/8" Hex Black Oxide": head
+ * diameter and thread class in, the words "socket head cap screw" missing
+ * entirely, which is why Grainger answered "Whoops, we couldn't find that."
+ */
+function buildQuery(rawSpecs) {
+  const specs = normalizeSpecs(rawSpecs);
+
+  if (isFastener(specs)) {
+    const size = [specs.threadSize, specs.length].filter(Boolean).join(" x ");
+    return [size, fastenerNoun(specs), specs.material, specs.finish, specs.grade]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+  }
+
+  return [specs.material, specs.shape, specs.diameter, specs.thickness, specs.width, specs.length, specs.finish]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+}
+
+// Each supplier's own search URL, taken from a real indexed results URL on
+// that site. {q} is the percent-encoded query, {plus} the +-separated form.
+//
+// These cannot be verified from here, and that is a finding rather than an
+// omission: every one of these sites refuses this server. Fastenal answers
+// 403, MSC serves "Pardon Our Interruption", Bolt Depot a Cloudflare
+// challenge, Amazon 503, and Grainger returns a byte-identical 18,269-byte
+// "Whoops, we couldn't find that." page for nine different queries
+// including a bare "socket head cap screw" -- so its no-results page is a
+// bot wall too, not a verdict on the query. The links open in a real
+// browser on a normal connection, where these sites behave normally, so a
+// datacenter fetch tests the wrong thing. Hence the editable query in the
+// UI: the person looking at the results is the only one positioned to
+// judge them, so they get the controls rather than a claim.
+const RAW_STOCK_SUPPLIERS = [
+  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?text={q}" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
+  { name: "Speedy Metals", urlTemplate: "https://www.speedymetals.com/Search?searchTerm={q}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+];
+
+const FASTENER_SUPPLIERS = [
+  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+  { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
+];
+
+function applyTemplate(urlTemplate, query) {
+  return urlTemplate
+    .replace("{plus}", encodeURIComponent(query).replace(/%20/g, "+"))
+    .replace("{q}", encodeURIComponent(query));
+}
+
+function buildSupplierLinks(rawSpecs) {
+  const specs = normalizeSpecs(rawSpecs);
+  const query = buildQuery(rawSpecs);
+  if (!query) return [];
+
+  const suppliers = isFastener(specs) ? [...FASTENER_SUPPLIERS] : [...RAW_STOCK_SUPPLIERS];
+
+  // Bolt Depot has no free-text search, so its link is a filtered category
+  // browse built from the specs directly -- it doesn't follow the query and
+  // stays put when the query is edited.
+  if (isFastener(specs)) {
+    suppliers.splice(3, 0, { name: "Bolt Depot", urlTemplate: boltDepotUrl(specs) });
+  }
+
+  return suppliers.map((s) => ({ ...s, url: applyTemplate(s.urlTemplate, query), query }));
+}
+
+// Bolt Depot has no free-text search, only a filtered category browse
+// (pattern taken from real indexed URLs, e.g.
+// /Browse?Category=Hex_bolts&F_Diameter=3%2F8%22&F_Length=1%22&Units=US).
+// Filters only get applied when the size parses cleanly; otherwise this
+// falls back to the category landing page rather than emitting a URL with
+// half-filled filters that returns nothing.
+function boltDepotUrl(specs) {
+  const head = (specs.headType || "").toLowerCase();
+  const category = /socket|button|flat/.test(head)
+    ? "Socket_screws"
+    : /hex/.test(head)
+      ? "Hex_bolts"
+      : null;
+  if (!category) return `https://boltdepot.com/Catalog-Tabs`;
+
+  const params = new URLSearchParams({ Category: category, Units: "US" });
+  // Only fractional-inch diameters get filtered. Bolt Depot writes gauge
+  // sizes as "#4", and a bare F_Diameter=4 (which is what splitting "4-40"
+  // gives) silently matches nothing -- an unfiltered category page is a
+  // better landing spot than a filter that returns an empty grid.
+  const dia = (specs.threadSize || "").split("-")[0].trim();
+  if (dia && /["\/]/.test(dia)) {
+    params.set("F_Diameter", dia);
+    if (specs.length) params.set("F_Length", specs.length);
+  }
+  return `https://boltdepot.com/Browse?${params.toString()}`;
+}
+
+
+// Exported so the pure parsing/query logic can be tested directly against
+// real captured McMaster output, without a network round trip or a server.
+module.exports = { parseKeyValueText, parseSpecsFromText, normalizeSpecs, buildQuery, buildSupplierLinks };
+
+if (require.main !== module) return;
+
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`mcmaster-xref listening on ${port}`));
+app.listen(port, () => {
+  console.log(`mcmaster-xref listening on ${port}`);
+  if (process.env.RUN_VERIFY === "1") runVerification();
+  if (process.env.RUN_QUERYLAB === "1") runQueryLab();
+});
+
+/**
+ * Env-gated (RUN_QUERYLAB=1). Finds the query *shape* suppliers actually
+ * match on, instead of assuming one.
+ *
+ * Of the six suppliers, five answer this server with a bot wall (Fastenal
+ * 403, MSC "Pardon Our Interruption", Bolt Depot "Just a moment...",
+ * Amazon 503) or a body too JS-heavy to judge, so they can tell us nothing
+ * -- those links are opened from a real browser on a normal connection,
+ * where they work. Grainger is the exception: it answers with a real page
+ * and says plainly when a query matched nothing, which makes it the one
+ * usable oracle for query wording. So: hold the part fixed, vary only the
+ * phrasing, and see which shapes come back with results.
+ */
+const QUERY_LAB_PART = { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' };
+
+async function runQueryLab() {
+  const variants = [
+    ["current (built)", buildQuery(QUERY_LAB_PART)],
+    ["no material/finish", '1/4"-20 x 3/4" socket head cap screw'],
+    ["no inch marks", "1/4-20 x 3/4 socket head cap screw alloy steel black oxide"],
+    ["no inch marks, no material", "1/4-20 x 3/4 socket head cap screw"],
+    ["noun first", "socket head cap screw 1/4-20 x 3/4"],
+    ["noun + size, no x", "socket head cap screw 1/4-20 3/4"],
+    ["thread only", "socket head cap screw 1/4-20"],
+    ["noun only", "socket head cap screw"],
+    ["noun + finish", "black oxide socket head cap screw 1/4-20"],
+  ];
+
+  console.log("[qlab] START");
+  for (const [label, query] of variants) {
+    const url = `https://www.grainger.com/search?searchQuery=${encodeURIComponent(query)}`;
+    try {
+      const res = await fetch(url, {
+        redirect: "follow",
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+        signal: AbortSignal.timeout(20000),
+      });
+      const body = await res.text();
+      const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim();
+      const noResults = /couldn.?t find that/i.test(title) || /couldn.?t find that/i.test(body.slice(0, 4000));
+      // Grainger puts a result count in the page when there are hits.
+      const count = (body.match(/([\d,]+)\s*(?:products?|results?)\s*(?:found|match)/i) || [])[1] || "";
+      console.log(`[qlab] ${noResults ? "NONE" : "HITS"} ${JSON.stringify(label)} q=${JSON.stringify(query)} status=${res.status} len=${body.length} count=${count} title=${JSON.stringify(title.slice(0, 70))}`);
+    } catch (err) {
+      console.log(`[qlab] ERR  ${JSON.stringify(label)} -- ${err.message}`);
+    }
+    await new Promise((r) => setTimeout(r, 1200));
+  }
+  console.log("[qlab] DONE");
+}
+
+/**
+ * Env-gated (RUN_VERIFY=1) verification of the two things that can only be
+ * checked against live responses.
+ *
+ * Deliberately small on the McMaster side. The previous version rendered
+ * 100 part pages back to back, and that is what took the app down: McMaster
+ * allows a limited number of anonymous views per client, the sweep spent
+ * them all, and every lookup afterwards -- including real ones from the
+ * actual UI -- got the login wall instead of a product page. A test that
+ * destroys the thing it is testing is worse than no test, so this renders
+ * three parts, spaced out, and reports the wall as a distinct outcome
+ * rather than as a mysterious empty page.
+ *
+ * The supplier links get the opposite treatment: those sites have no such
+ * budget, every generated URL is fetched for real, and a link only passes
+ * if the response actually looks like a results page for the query. The
+ * old check called anything that didn't match a short "no results" regex a
+ * pass, which is how four unexamined Google searches and a Grainger page
+ * reading "Whoops, we couldn't find that." were all counted as working.
+ */
+const VERIFY_PARTS = ["91251A051", "91251A540", "92196A106"];
+const RENDER_SPACING_MS = 20000;
+
+async function runVerification() {
+  const started = Date.now();
+  console.log("[verify] START");
+
+  const resolved = [];
+  for (const [i, part] of VERIFY_PARTS.entries()) {
+    if (i > 0) await new Promise((r) => setTimeout(r, RENDER_SPACING_MS));
+    try {
+      const specs = await fetchMcMasterSpecsLive(part);
+      resolved.push({ part, specs });
+      console.log(`[verify] render ${part}: OK (${Object.keys(specs).length} fields) query=${JSON.stringify(buildQuery(specs))}`);
+    } catch (err) {
+      console.log(`[verify] render ${part}: ${err.code === "LOGIN_WALL" ? "LOGIN_WALL" : "FAILED"} -- ${err.message}`);
+    }
+  }
+
+  // Link checking must not depend on McMaster being reachable, or a walled
+  // run would silently verify nothing at all -- which is exactly what the
+  // last sweep did (0 parts discovered, "0 ok, 0 bad", reported as a run).
+  const cases = resolved.length
+    ? resolved
+    : [
+        { part: "91251A540(known)", specs: { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' } },
+        { part: "92196A106(known)", specs: { material: "18-8 Stainless Steel", driveType: "Hex", threadSize: "4-40", length: '1/4"', headType: "Socket" } },
+        { part: "raw-stock(known)", specs: { material: "6061 Aluminum", shape: "Round Bar", diameter: '3/8"' } },
+      ];
+  if (!resolved.length) console.log("[verify] no live renders available; checking links against known-good specs instead");
+
+  let ok = 0;
+  let bad = 0;
+  let blocked = 0;
+  for (const { part, specs } of cases) {
+    const query = buildQuery(specs);
+    console.log(`[verify] links for ${part}: query=${JSON.stringify(query)}`);
+    for (const { name, url } of buildSupplierLinks(specs)) {
+      const verdict = await checkSupplierLink(name, url, specs);
+      const label = verdict.ok === null ? "BLOCKED" : verdict.ok ? "PASS" : "FAIL";
+      if (verdict.ok === null) blocked++;
+      else if (verdict.ok) ok++;
+      else bad++;
+      console.log(`[verify]   ${label} ${name}: ${verdict.detail}`);
+    }
+  }
+
+  console.log(
+    `[verify] DONE in ${Math.round((Date.now() - started) / 1000)}s -- links ${ok} pass / ${bad} fail / ${blocked} not judgeable from this server, across ${cases.length} parts`
+  );
+}
+
+/**
+ * A link passes only if the response is a results page that actually
+ * mentions the part's defining terms. Checking for a 200 is not enough:
+ * bot walls, consent interstitials and empty-result pages all return 200,
+ * and that is precisely what the previous check scored as success.
+ */
+async function checkSupplierLink(name, url, specs) {
+  try {
+    const res = await fetch(url, {
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      signal: AbortSignal.timeout(20000),
+    });
+    const body = await res.text();
+    const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim().slice(0, 90);
+    const detail = `status=${res.status} len=${body.length} title=${JSON.stringify(title)}`;
+    // Only the top of the page and the title get scanned for verdict
+    // phrases. Searching a 700KB body for "no results" hits the string
+    // inside bundled JS and fails a page that did return products.
+    const head = `${title}\n${body.slice(0, 4000)}`;
+
+    // A bot wall says nothing about whether the link is any good -- these
+    // links are opened from a real browser on a home connection, not from
+    // this datacenter. Reporting them as failures would be a lie in the
+    // safe direction, which is still a lie.
+    if (/pardon our interruption|just a moment|access denied|unusual traffic|are you a robot|before you continue|consent\.google|something went wrong/i.test(head) || res.status === 403 || res.status === 503) {
+      return { ok: null, detail: `${detail} <- blocked from this server, not judgeable here` };
+    }
+    if (res.status >= 400) return { ok: false, detail };
+    // Grainger's "Whoops, we couldn't find that." reads like a verdict on
+    // the query but isn't one: nine different queries -- down to a bare
+    // "socket head cap screw", which has thousands of matches there --
+    // all returned it with a byte-identical 18,269-byte body. It never ran
+    // the search. Treating it as a no-result would blame the query for a
+    // block, and send the next fix off in the wrong direction again.
+    if (/we couldn.?t find|couldn.?t find that|no results (were )?found|did not match any/i.test(head)) {
+      return { ok: null, detail: `${detail} <- served regardless of query; a block, not a verdict` };
+    }
+
+    // The defining term of the search should appear in the results. For a
+    // fastener that's the thread size; for raw stock, the shape.
+    const marker = specs.threadSize || specs.shape || specs.material;
+    const normalize = (s) => s.toLowerCase().replace(/["”]/g, "").replace(/\s+/g, " ");
+    if (marker && !normalize(body).includes(normalize(marker))) {
+      return { ok: false, detail: `${detail} <- no mention of ${JSON.stringify(marker)}` };
+    }
+    return { ok: true, detail };
+  } catch (err) {
+    return { ok: false, detail: `fetch failed -- ${err.message}` };
+  }
+}

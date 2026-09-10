@@ -20,10 +20,11 @@ All McMaster-Carr categories: raw stock (aluminum, brass, steel, carbon fiber tu
 5. Frontend displays results for the user to manually judge fit/worth.
 
 ## Known constraints
-- McMaster actively blocks scraping and gates full spec detail behind login — this is the hardest part of the build and may require creative workarounds (e.g., manual paste of spec fields as a fallback input mode if live scraping isn't reliable).
+- McMaster gates spec detail behind an **anonymous page-view allowance**, not bot detection. Headless Chromium with light fingerprint patching renders product pages and parses all 8 spec fields reliably — until the allowance runs out, after which every URL returns a ~776-char page reading "To continue browsing, please log in." Rendering many parts in a batch exhausts it and takes the whole feature down; the app therefore caches per part number, retries once, never batch-renders, and falls back to manual entry with an honest message.
 - Matching confidence will vary: raw stock and standard fasteners (DIN/ANSI specs) cross-reference cleanly; less standardized items will need fuzzier matching or manual review.
 - No cost target beyond $0 — GitHub Pages + Cloudflare Workers free tier only.
 
-## Open questions for next session
-- Fallback approach if direct McMaster scraping proves unreliable/blocked (manual spec entry vs. browser-extension-assisted lookup)
-- Whether to cache/store spec lookups to avoid repeat scraping of the same part number
+## Resolved (verified against live responses, not assumed)
+- **Fallback if McMaster scraping is blocked** → manual spec entry, which the UI opens automatically when nothing could be fetched. There is no automated second source: a plain HTTP fetch of a product page returns 200 and ~151KB of Angular shell with zero spec values; McMaster's own `WebSrchEng.aspx` JSON endpoint answers without a login but only validates a part number and returns its family and catalog page, not the spec table; and Bing, Google, MROSupply and MPParts were each fetched and none yields a usable spec description for a part number.
+- **Whether to cache spec lookups** → yes, and not as an optimization. Page views are the scarce resource, so caching is what keeps the feature alive.
+- **Verifying supplier links from the server** → not possible. Every supplier refuses a datacenter client: Fastenal 403, MSC "Pardon Our Interruption", Bolt Depot a Cloudflare challenge, Amazon 503, and Grainger a byte-identical "Whoops, we couldn't find that." for nine different queries including a bare "socket head cap screw". Its no-results page is a bot wall, not a verdict on the query. Since the links open in the user's own browser, where these sites behave normally, the UI exposes the search phrase as an editable field instead of asserting the results are good.
