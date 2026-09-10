@@ -44,9 +44,10 @@ function readManualSpecs() {
 async function runLookup() {
   const partNumber = document.getElementById("partNumber").value.trim();
   const specs = readManualSpecs();
+  const pastedText = document.getElementById("pastedText").value.trim();
 
-  if (!partNumber && Object.keys(specs).length === 0) {
-    setStatus("Enter a part number or fill in manual specs.", true);
+  if (!partNumber && !pastedText && Object.keys(specs).length === 0) {
+    setStatus("Enter a part number, paste a spec block, or fill in manual specs.", true);
     return;
   }
 
@@ -65,7 +66,7 @@ async function runLookup() {
     const res = await fetch(`${BACKEND_URL}/api/xref`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ partNumber, specs }),
+      body: JSON.stringify({ partNumber, specs, pastedText }),
     });
 
     if (!res.ok) {
