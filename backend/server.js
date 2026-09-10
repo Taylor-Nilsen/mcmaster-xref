@@ -380,48 +380,101 @@ async function runTestSweep() {
   const context = await newStealthContext(browser);
   const page = await context.newPage();
 
-  async function renderText(url, timeout = 20000) {
+  async function renderText(url, timeout = 30000) {
     await page.goto(url, { waitUntil: "load", timeout });
-    await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 12000 }).catch(() => {});
+    await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 18000 }).catch(() => {});
     return page.evaluate(() => document.body.innerText);
   }
 
   // ---------- Phase 1: discovery ----------
+  // Real McMaster part-page URLs end in a part number, e.g.
+  // /91251A051/ or /products/6384K49/ -- both confirmed live.
   const partNumberRe = /\/(\d{2,6}[A-Z]\d{2,4})\/?(?:$|\?)/;
+  // Real category/family URLs are /products/<slug>/ (confirmed live via
+  // search, e.g. mcmaster.com/products/socket-head-screws/) -- a single
+  // path segment after the domain is always static nav chrome (orders,
+  // contact, login, ...), never a catalog page.
+  const productPathRe = /mcmaster\.com\/products\/[a-z0-9-]+\/?(?:$|\?)/i;
   const parts = new Set();
-  const categories = new Set();
 
-  try {
-    const seedText = await renderText("https://www.mcmaster.com/91251A051/");
-    console.log(`[sweep] seed page rendered, ${seedText.length} chars`);
-    const seedHrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
-    for (const href of seedHrefs) {
+  // Verified-real category pages (via live search, not guessed), spread
+  // across distinct catalog areas so the resulting parts span different
+  // categories: fasteners, bearings, tools, material handling, electrical,
+  // pipe/tube fittings.
+  const CATEGORY_SEEDS = [
+    "https://www.mcmaster.com/products/machine-screws/",
+    "https://www.mcmaster.com/products/socket-head-screws/",
+    "https://www.mcmaster.com/products/specialty-fasteners/",
+    "https://www.mcmaster.com/products/screw-sets/",
+    "https://www.mcmaster.com/products/shaft-bearings/",
+    "https://www.mcmaster.com/products/bearing-housings/",
+    "https://www.mcmaster.com/products/self-lubricating-bearings/",
+    "https://www.mcmaster.com/products/steel-bearings/",
+    "https://www.mcmaster.com/products/hand-tools/",
+    "https://www.mcmaster.com/products/power-tools/",
+    "https://www.mcmaster.com/products/material-handling/",
+    "https://www.mcmaster.com/products/cable-connectors/",
+    "https://www.mcmaster.com/products/electrical-connectors/",
+    "https://www.mcmaster.com/products/steel-pipe-fittings/",
+    "https://www.mcmaster.com/products/steel-pipe-couplings/",
+    "https://www.mcmaster.com/products/copper-pipe-fittings/",
+  ];
+
+  // Harvests direct part links from whatever page is currently loaded,
+  // and separately any /products/<slug>/ links (candidate sub-families) --
+  // category pages sometimes link straight to parts, sometimes one level
+  // down to families, so both need to be checked.
+  async function harvestCurrentPage() {
+    const hrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
+    let found = 0;
+    const subLinks = new Set();
+    for (const href of hrefs) {
       const m = href.match(partNumberRe);
-      if (m) parts.add(m[1]);
-      else if (/mcmaster\.com\/[a-z0-9-]+\/?$/i.test(href) && !href.includes("/login") && !href.includes("/help")) {
-        categories.add(href);
+      if (m) {
+        if (!parts.has(m[1])) found++;
+        parts.add(m[1]);
+      } else if (productPathRe.test(href)) {
+        subLinks.add(href);
       }
     }
-    console.log(`[sweep] discovery: seed gave ${parts.size} direct parts, ${categories.size} candidate category links`);
+    return { found, subLinks: [...subLinks] };
+  }
+
+  try {
+    let seedText = await renderText("https://www.mcmaster.com/91251A051/");
+    if (seedText.length < 1500) {
+      console.log(`[sweep] seed page short (${seedText.length} chars), retrying once...`);
+      seedText = await renderText("https://www.mcmaster.com/91251A051/", 35000);
+    }
+    const { found } = await harvestCurrentPage();
+    console.log(`[sweep] seed page rendered, ${seedText.length} chars, +${found} direct parts`);
   } catch (err) {
     console.log(`[sweep] discovery seed FAILED: ${err.message}`);
   }
 
-  const categoryList = [...categories].slice(0, 15);
-  for (const catUrl of categoryList) {
+  for (const catUrl of CATEGORY_SEEDS) {
     if (parts.size >= 130) break;
     try {
-      const text = await renderText(catUrl, 15000);
-      const hrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
-      let found = 0;
-      for (const href of hrefs) {
-        const m = href.match(partNumberRe);
-        if (m && !parts.has(m[1])) {
-          parts.add(m[1]);
-          found++;
+      const text = await renderText(catUrl, 30000);
+      if (text.length < 1500) {
+        console.log(`[sweep] category ${catUrl}: short render (${text.length} chars), skipping`);
+        continue;
+      }
+      const { found, subLinks } = await harvestCurrentPage();
+      console.log(`[sweep] category ${catUrl}: +${found} direct parts (total ${parts.size}), ${subLinks.length} sub-family links, textLen=${text.length}`);
+
+      if (found === 0 && subLinks.length > 0) {
+        for (const subUrl of subLinks.slice(0, 3)) {
+          try {
+            const subText = await renderText(subUrl, 30000);
+            if (subText.length < 1500) continue;
+            const sub = await harvestCurrentPage();
+            console.log(`[sweep]   sub-family ${subUrl}: +${sub.found} parts (total ${parts.size})`);
+          } catch (err) {
+            console.log(`[sweep]   sub-family ${subUrl} FAILED: ${err.message}`);
+          }
         }
       }
-      console.log(`[sweep] category ${catUrl}: +${found} parts (total ${parts.size}), textLen=${text.length}`);
     } catch (err) {
       console.log(`[sweep] category ${catUrl} FAILED: ${err.message}`);
     }
