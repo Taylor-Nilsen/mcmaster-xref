@@ -60,19 +60,33 @@ MATERIALS = [
 DRIVE_TYPES = ["hex", "phillips", "slotted", "torx", "socket", "square", "combination"]
 FINISHES = ["zinc plated", "black oxide", "galvanized", "chrome plated", "plain", "anodized", "powder coated"]
 
+# Verified against real responses (see backend/server.js's checkSupplierUrls
+# diagnostic) -- most originally-guessed internal search URLs turned out
+# wrong (404s, or a right-looking param landing on a "no results" page).
+# Only Grainger, AliExpress, and Banggood get a direct site search link;
+# everything else routes through a site-scoped Google search instead of an
+# undocumented internal URL scheme that can silently break on a redesign.
 RAW_STOCK_SUPPLIERS = [
-    ("Speedy Metals", "https://www.speedymetals.com/search?q={q}"),
-    ("MSC Direct", "https://www.mscdirect.com/search?q={q}"),
-    ("Online Metals", "https://www.onlinemetals.com/en/search?q={q}"),
+    ("Speedy Metals", "https://www.google.com/search?q={gq}"),
+    ("MSC Direct", "https://www.google.com/search?q={gq}"),
+    ("Online Metals", "https://www.google.com/search?q={gq}"),
 ]
 FASTENER_SUPPLIERS = [
-    ("Fastenal", "https://www.fastenal.com/products/search?query={q}"),
-    ("Grainger", "https://www.grainger.com/search?searchQuery={q}"),
-    ("Bolt Depot", "https://www.boltdepot.com/Search.aspx?search={q}"),
-    ("Amazon", "https://www.amazon.com/s?k={q}"),
+    ("Fastenal", "https://www.google.com/search?q={gq}"),
+    ("Grainger", "https://www.grainger.com/search?searchQuery={q}&searchBar=true"),
+    ("Bolt Depot", "https://www.google.com/search?q={gq}"),
+    ("Amazon", "https://www.google.com/search?q={gq}"),
     ("AliExpress", "https://www.aliexpress.com/wholesale?SearchText={q}"),
     ("Banggood", "https://www.banggood.com/search/{q}-products.html"),
 ]
+SUPPLIER_DOMAINS = {
+    "Speedy Metals": "speedymetals.com",
+    "MSC Direct": "mscdirect.com",
+    "Online Metals": "onlinemetals.com",
+    "Fastenal": "fastenal.com",
+    "Bolt Depot": "boltdepot.com",
+    "Amazon": "amazon.com",
+}
 
 
 def parse_key_value(text):
@@ -138,7 +152,11 @@ def build_supplier_links(specs):
     else:
         suppliers = RAW_STOCK_SUPPLIERS + FASTENER_SUPPLIERS
 
-    return [{"name": name, "url": url.format(q=q), "query": query} for name, url in suppliers]
+    links = []
+    for name, url in suppliers:
+        gq = quote(f"site:{SUPPLIER_DOMAINS[name]} {query}") if name in SUPPLIER_DOMAINS else ""
+        links.append({"name": name, "url": url.format(q=q, gq=gq), "query": query})
+    return links
 
 
 def scrape_part(page, part_number):

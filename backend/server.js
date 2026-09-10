@@ -254,6 +254,15 @@ function sanitizeSpecs(specs) {
  * those sites (most block bots as aggressively as McMaster does) -- it
  * hands the user a pre-filled search so they can judge fit themselves,
  * per the spec's workflow step 5.
+ *
+ * Link patterns below were verified with a live diagnostic (checkSupplierUrls)
+ * that hit each one directly and logged the real response -- most of the
+ * originally-guessed internal search URLs turned out wrong (404s, or a
+ * wrong query param landing on a "no results" page). Only Grainger (its
+ * param confirmed against a real indexed example URL), AliExpress, and
+ * Banggood get a direct site search link now; everything else routes
+ * through a site-scoped Google search instead of guessing an undocumented
+ * internal URL scheme that can silently break on the next site redesign.
  */
 function buildSupplierLinks(specs) {
   const query = [specs.material, specs.shape, specs.threadSize, specs.diameter, specs.thickness, specs.width, specs.length, specs.driveType, specs.finish, specs.grade]
@@ -263,17 +272,18 @@ function buildSupplierLinks(specs) {
   if (!query) return [];
 
   const q = encodeURIComponent(query);
+  const googleSiteSearch = (domain) => `https://www.google.com/search?q=${encodeURIComponent(`site:${domain} ${query}`)}`;
 
   const rawStockSuppliers = [
-    { name: "Speedy Metals", url: `https://www.speedymetals.com/search?q=${q}` },
-    { name: "MSC Direct", url: `https://www.mscdirect.com/search?q=${q}` },
-    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?q=${q}` },
+    { name: "Speedy Metals", url: googleSiteSearch("speedymetals.com") },
+    { name: "MSC Direct", url: googleSiteSearch("mscdirect.com") },
+    { name: "Online Metals", url: googleSiteSearch("onlinemetals.com") },
   ];
   const fastenerSuppliers = [
-    { name: "Fastenal", url: `https://www.fastenal.com/products/search?query=${q}` },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
-    { name: "Bolt Depot", url: `https://www.boltdepot.com/Search.aspx?search=${q}` },
-    { name: "Amazon", url: `https://www.amazon.com/s?k=${q}` },
+    { name: "Fastenal", url: googleSiteSearch("fastenal.com") },
+    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}&searchBar=true` },
+    { name: "Bolt Depot", url: googleSiteSearch("boltdepot.com") },
+    { name: "Amazon", url: googleSiteSearch("amazon.com") },
     { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${q}` },
     { name: "Banggood", url: `https://www.banggood.com/search/${q}-products.html` },
   ];
@@ -301,18 +311,11 @@ function buildSupplierLinks(specs) {
  * developed/debugged.
  */
 async function checkSupplierUrls() {
-  const q = encodeURIComponent('18-8 stainless steel 1/4-20 3/8" hex');
-  const urls = [
-    { name: "Speedy Metals", url: `https://www.speedymetals.com/search?q=${q}` },
-    { name: "MSC Direct", url: `https://www.mscdirect.com/search?q=${q}` },
-    { name: "Online Metals", url: `https://www.onlinemetals.com/en/search?q=${q}` },
-    { name: "Fastenal", url: `https://www.fastenal.com/products/search?query=${q}` },
-    { name: "Grainger", url: `https://www.grainger.com/search?searchQuery=${q}` },
-    { name: "Bolt Depot", url: `https://www.boltdepot.com/Search.aspx?search=${q}` },
-    { name: "Amazon", url: `https://www.amazon.com/s?k=${q}` },
-    { name: "AliExpress", url: `https://www.aliexpress.com/wholesale?SearchText=${q}` },
-    { name: "Banggood", url: `https://www.banggood.com/search/${q}-products.html` },
-  ];
+  // Reuses the real buildSupplierLinks() so this diagnostic can never drift
+  // out of sync with what the app actually generates.
+  const rawStockLinks = buildSupplierLinks({ material: "18-8 stainless steel", shape: "round bar", diameter: '3/8"' });
+  const fastenerLinks = buildSupplierLinks({ material: "18-8 stainless steel", threadSize: "1/4-20", driveType: "hex" });
+  const urls = [...rawStockLinks, ...fastenerLinks];
 
   for (const { name, url } of urls) {
     try {
