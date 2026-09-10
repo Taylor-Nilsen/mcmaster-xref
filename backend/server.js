@@ -98,14 +98,25 @@ async function fetchMcMasterSpecsLive(partNumber) {
       Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
     });
     const page = await context.newPage();
-    const response = await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
+    const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
+
+    // networkidle + a flat delay wasn't enough -- a first real test showed
+    // the page settling into "idle" with only nav/footer chrome rendered
+    // (714 chars, no product content), meaning McMaster's Angular app
+    // fetches the actual product data on a separate call that hadn't
+    // resolved yet. Actively wait for real content instead of a fixed
+    // network-quiet signal.
+    try {
+      await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 15000 });
+    } catch {
+      // proceed with whatever rendered -- logged below either way
+    }
 
     const text = await page.evaluate(() => document.body.innerText);
     console.log(
       `[xref] part=${partNumber} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
     );
-    console.log(`[xref] textSnippet: ${JSON.stringify((text || "").slice(0, 600))}`);
+    console.log(`[xref] fullText: ${JSON.stringify((text || "").slice(0, 3000))}`);
 
     if (!text || text.trim().length < 50) {
       throw new Error("page rendered but had no usable text (likely blocked)");
