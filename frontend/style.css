@@ -59,7 +59,11 @@ input, select {
   color: var(--text);
   border-radius: 6px;
   padding: 0.55rem 0.65rem;
-  font-size: 0.95rem;
+  /* Must stay at 16px or larger. iOS Safari zooms the whole page in when
+     you focus an input with smaller text, and it does not zoom back out --
+     which reads as the page breaking rather than as a font size. */
+  font-size: 1rem;
+  min-height: 44px;
 }
 
 .field {
@@ -78,7 +82,8 @@ button {
   border: none;
   border-radius: 6px;
   padding: 0.65rem 1.1rem;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  min-height: 44px;
   cursor: pointer;
 }
 
@@ -149,6 +154,7 @@ details summary {
 .links .query-note input {
   width: 100%;
   padding: 0.5rem 0.6rem;
+  font-size: 1rem;
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border);
