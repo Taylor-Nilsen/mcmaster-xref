@@ -77,15 +77,22 @@ async function fetchMcMasterSpecsLive(partNumber) {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage();
-    await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
+    const response = await page.goto(pageUrl, { waitUntil: "networkidle", timeout: 25000 });
     await new Promise((resolve) => setTimeout(resolve, 1000)); // let any late client-side render settle
 
     const text = await page.evaluate(() => document.body.innerText);
+    console.log(
+      `[xref] part=${partNumber} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
+    );
+    console.log(`[xref] textSnippet: ${JSON.stringify((text || "").slice(0, 600))}`);
+
     if (!text || text.trim().length < 50) {
       throw new Error("page rendered but had no usable text (likely blocked)");
     }
 
-    return { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+    const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+    console.log(`[xref] extractedSpecs: ${JSON.stringify(specs)}`);
+    return specs;
   } finally {
     await browser.close();
   }
