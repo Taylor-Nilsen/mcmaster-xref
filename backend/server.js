@@ -64,6 +64,22 @@ app.post("/api/xref", async (req, res) => {
   });
 });
 
+async function newStealthContext(browser) {
+  const context = await browser.newContext({
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    viewport: { width: 1280, height: 900 },
+    locale: "en-US",
+  });
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
+    window.chrome = { runtime: {} };
+    Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
+    Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
+  });
+  return context;
+}
+
 /**
  * Renders the live McMaster product page in a real headless browser and
  * parses the fully-rendered text. No caching -- a fresh browser launches
@@ -85,18 +101,7 @@ async function fetchMcMasterSpecsLive(partNumber) {
     args: ["--disable-blink-features=AutomationControlled"],
   });
   try {
-    const context = await browser.newContext({
-      userAgent:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-      viewport: { width: 1280, height: 900 },
-      locale: "en-US",
-    });
-    await context.addInitScript(() => {
-      Object.defineProperty(navigator, "webdriver", { get: () => undefined });
-      window.chrome = { runtime: {} };
-      Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
-      Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
-    });
+    const context = await newStealthContext(browser);
     const page = await context.newPage();
     const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
 
@@ -340,9 +345,167 @@ async function checkSupplierUrls() {
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
-  runStartupSelfTest();
-  checkSupplierUrls();
+  if (process.env.RUN_TEST_SWEEP === "1") {
+    runTestSweep();
+  } else {
+    runStartupSelfTest();
+    checkSupplierUrls();
+  }
 });
+
+/**
+ * TEMPORARY, env-gated (RUN_TEST_SWEEP=1): a real end-to-end verification
+ * sweep, not a guess dressed up as a test. Three phases, each logged
+ * incrementally so partial progress survives a free-tier idle sleep:
+ *
+ *  1. Discovery -- harvests real part numbers directly from McMaster's own
+ *     category pages (not invented), starting from a known-good product
+ *     page's own links so category URLs are real, not guessed.
+ *  2. Render sweep -- runs fetchMcMasterSpecsLive-equivalent logic against
+ *     up to 100 of those real parts, one shared browser instance (not one
+ *     per part -- launch overhead would dominate), tallies success/empty/
+ *     login-wall/error.
+ *  3. Supplier link verification -- for a diverse 20 of the successful
+ *     parts, fetches every generated supplier link for real and checks it
+ *     returns substantive content. This proves the link resolves to a
+ *     real, relevant results page -- it cannot prove "perfect drop-in
+ *     replacement" for a hardware part, which needs engineering judgment
+ *     (tolerances, thread fit class, load rating) no scraper can certify.
+ */
+async function runTestSweep() {
+  const startedAt = Date.now();
+  console.log("[sweep] START");
+
+  const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
+  const context = await newStealthContext(browser);
+  const page = await context.newPage();
+
+  async function renderText(url, timeout = 20000) {
+    await page.goto(url, { waitUntil: "load", timeout });
+    await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 12000 }).catch(() => {});
+    return page.evaluate(() => document.body.innerText);
+  }
+
+  // ---------- Phase 1: discovery ----------
+  const partNumberRe = /\/(\d{2,6}[A-Z]\d{2,4})\/?(?:$|\?)/;
+  const parts = new Set();
+  const categories = new Set();
+
+  try {
+    const seedText = await renderText("https://www.mcmaster.com/91251A051/");
+    console.log(`[sweep] seed page rendered, ${seedText.length} chars`);
+    const seedHrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
+    for (const href of seedHrefs) {
+      const m = href.match(partNumberRe);
+      if (m) parts.add(m[1]);
+      else if (/mcmaster\.com\/[a-z0-9-]+\/?$/i.test(href) && !href.includes("/login") && !href.includes("/help")) {
+        categories.add(href);
+      }
+    }
+    console.log(`[sweep] discovery: seed gave ${parts.size} direct parts, ${categories.size} candidate category links`);
+  } catch (err) {
+    console.log(`[sweep] discovery seed FAILED: ${err.message}`);
+  }
+
+  const categoryList = [...categories].slice(0, 15);
+  for (const catUrl of categoryList) {
+    if (parts.size >= 130) break;
+    try {
+      const text = await renderText(catUrl, 15000);
+      const hrefs = await page.$$eval("a", (els) => els.map((e) => e.href));
+      let found = 0;
+      for (const href of hrefs) {
+        const m = href.match(partNumberRe);
+        if (m && !parts.has(m[1])) {
+          parts.add(m[1]);
+          found++;
+        }
+      }
+      console.log(`[sweep] category ${catUrl}: +${found} parts (total ${parts.size}), textLen=${text.length}`);
+    } catch (err) {
+      console.log(`[sweep] category ${catUrl} FAILED: ${err.message}`);
+    }
+  }
+
+  const allParts = [...parts].slice(0, 100);
+  console.log(`[sweep] DISCOVERY DONE: ${parts.size} unique real part numbers found, testing ${allParts.length}`);
+
+  // ---------- Phase 2: render + parse sweep ----------
+  let ok = 0, empty = 0, loginWall = 0, error = 0;
+  const successfulSpecs = [];
+
+  for (let i = 0; i < allParts.length; i++) {
+    const pn = allParts[i];
+    try {
+      const text = await renderText(`https://www.mcmaster.com/${pn}/`);
+      if (/please log in/i.test(text)) {
+        loginWall++;
+        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: LOGIN_WALL`);
+        continue;
+      }
+      const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
+      const count = Object.keys(specs).length;
+      if (count > 0) {
+        ok++;
+        successfulSpecs.push({ pn, specs });
+        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: OK (${count} fields)`);
+      } else {
+        empty++;
+        console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: EMPTY`);
+      }
+    } catch (err) {
+      error++;
+      console.log(`[sweep] ${i + 1}/${allParts.length} ${pn}: ERROR -- ${err.message}`);
+    }
+  }
+
+  console.log(
+    `[sweep] RENDER SWEEP DONE: ${allParts.length} tested -- OK=${ok} EMPTY=${empty} LOGIN_WALL=${loginWall} ERROR=${error}`
+  );
+
+  await browser.close();
+
+  // ---------- Phase 3: supplier link verification ----------
+  // Spread picks across the successful set rather than the first 20, for
+  // category diversity (discovery order roughly tracks category order).
+  const sampleCount = Math.min(20, successfulSpecs.length);
+  const step = Math.max(1, Math.floor(successfulSpecs.length / sampleCount));
+  const sample = [];
+  for (let i = 0; i < successfulSpecs.length && sample.length < sampleCount; i += step) {
+    sample.push(successfulSpecs[i]);
+  }
+
+  console.log(`[sweep] LINK VERIFICATION START: ${sample.length} parts`);
+
+  let linkOk = 0, linkBad = 0;
+  for (const { pn, specs } of sample) {
+    const links = buildSupplierLinks(specs);
+    for (const { name, url } of links) {
+      try {
+        const res = await fetch(url, {
+          redirect: "follow",
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" },
+          signal: AbortSignal.timeout(10000),
+        });
+        const body = await res.text();
+        const bad = res.status >= 400 || /couldn.?t find|no results|access denied|just a moment/i.test(body.slice(0, 2000));
+        if (bad) {
+          linkBad++;
+          console.log(`[sweep] link ${pn}/${name}: BAD status=${res.status} len=${body.length}`);
+        } else {
+          linkOk++;
+          console.log(`[sweep] link ${pn}/${name}: OK status=${res.status} len=${body.length}`);
+        }
+      } catch (err) {
+        linkBad++;
+        console.log(`[sweep] link ${pn}/${name}: FAILED -- ${err.message}`);
+      }
+    }
+  }
+
+  console.log(`[sweep] LINK VERIFICATION DONE: ${linkOk} ok, ${linkBad} bad, out of ${linkOk + linkBad} checks across ${sample.length} parts`);
+  console.log(`[sweep] COMPLETE in ${Math.round((Date.now() - startedAt) / 1000)}s`);
+}
 
 /**
  * Renders a handful of real parts on every startup (including free-tier
