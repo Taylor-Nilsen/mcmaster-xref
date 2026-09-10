@@ -180,26 +180,52 @@ const KEY_MAP = {
   width: "width",
   "drive style": "driveType",
   "drive type": "driveType",
+  "fastener head type": "headType",
   "head type": "headType",
   finish: "finish",
   grade: "grade",
   class: "grade",
+  "system of measurement": "measurementSystem",
+};
+
+// McMaster renders a spec's label and value as separate lines (confirmed
+// against a real rendered page), not "Label: Value" on one line -- e.g.
+// "Drive Style" then "Hex" as two consecutive non-empty lines. A few
+// fields (thread size) are nested one level under a bare group-header
+// line ("Thread" -> "Size" -> "0-80"), which needs disambiguating since
+// "Size" alone is ambiguous outside that context.
+const GROUP_SUBFIELDS = {
+  thread: { size: "threadSize" },
 };
 
 /**
- * Parses "Key: Value" / "Key - Value" lines -- the shape of McMaster's own
- * spec table once it's actually rendered. Higher confidence than the fuzzy
- * keyword matching in parseSpecsFromText, so the caller lets this override
- * it.
+ * Parses McMaster's real label/value line pairs. Higher confidence than
+ * the fuzzy keyword matching in parseSpecsFromText, so the caller lets
+ * this override it.
  */
 function parseKeyValueText(text) {
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const specs = {};
-  for (const line of text.split("\n")) {
-    const m = line.match(/^\s*([A-Za-z][A-Za-z /]{1,40}?)\s*[:\-]\s*(.{1,80}?)\s*$/);
-    if (!m) continue;
-    const key = KEY_MAP[m[1].trim().toLowerCase()];
-    if (key && !specs[key]) specs[key] = m[2].trim();
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const label = lines[i].toLowerCase();
+
+    const group = GROUP_SUBFIELDS[label];
+    if (group && lines[i + 1] && group[lines[i + 1].toLowerCase()]) {
+      const key = group[lines[i + 1].toLowerCase()];
+      if (!specs[key] && lines[i + 2]) specs[key] = lines[i + 2];
+      continue;
+    }
+
+    const key = KEY_MAP[label];
+    if (key && !specs[key]) {
+      const value = lines[i + 1];
+      if (value && !KEY_MAP[value.toLowerCase()] && !GROUP_SUBFIELDS[value.toLowerCase()]) {
+        specs[key] = value;
+      }
+    }
   }
+
   return specs;
 }
 
