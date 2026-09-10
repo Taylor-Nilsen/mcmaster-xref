@@ -52,7 +52,7 @@ label {
   margin-bottom: 0.25rem;
 }
 
-input, select {
+input, select, textarea {
   width: 100%;
   background: #10141a;
   border: 1px solid var(--border);
@@ -64,6 +64,12 @@ input, select {
      which reads as the page breaking rather than as a font size. */
   font-size: 1rem;
   min-height: 44px;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 5.5rem;
 }
 
 .field {

@@ -34,12 +34,24 @@ app.get("/", (_req, res) => res.json({ status: "ok" }));
 app.post("/api/xref", async (req, res) => {
   const partNumber = (req.body.partNumber || "").trim();
   const manualSpecs = sanitizeSpecs(req.body.specs || {});
+  const pastedText = typeof req.body.pastedText === "string" ? req.body.pastedText.slice(0, 20000) : "";
+
+  // Text copied straight off McMaster's own page needs no new parser: the
+  // label-then-value line shape it produces is exactly what parseKeyValueText
+  // was written against. It's also the way out of a gated lookup -- the
+  // person has the page open, so the specs are a copy away even when this
+  // server is refused them.
+  const pastedSpecs = pastedText
+    ? { ...parseSpecsFromText(pastedText), ...parseKeyValueText(pastedText) }
+    : {};
 
   let mcmasterSpecs = {};
   let mcmasterError = null;
   let mcmasterErrorCode = null;
 
-  if (partNumber) {
+  // Don't spend a page view re-fetching what was just pasted in. The
+  // anonymous-view allowance is the scarce resource here.
+  if (partNumber && Object.keys(pastedSpecs).length === 0) {
     try {
       mcmasterSpecs = await fetchMcMasterSpecsLive(partNumber);
     } catch (err) {
@@ -48,15 +60,15 @@ app.post("/api/xref", async (req, res) => {
     }
   }
 
-  const specs = { ...mcmasterSpecs, ...manualSpecs };
+  const specs = { ...mcmasterSpecs, ...pastedSpecs, ...manualSpecs };
   const hasAnySpec = Object.keys(specs).length > 0;
 
-  let source = "manual";
-  if (Object.keys(mcmasterSpecs).length && Object.keys(manualSpecs).length) {
-    source = "mcmaster+manual";
-  } else if (Object.keys(mcmasterSpecs).length) {
-    source = "mcmaster";
-  }
+  const contributors = [
+    Object.keys(mcmasterSpecs).length && "mcmaster",
+    Object.keys(pastedSpecs).length && "pasted",
+    Object.keys(manualSpecs).length && "manual",
+  ].filter(Boolean);
+  const source = contributors.join("+") || "none";
 
   const links = hasAnySpec ? buildSupplierLinks(specs) : [];
 
@@ -98,7 +110,7 @@ const LOGIN_WALL_RE = /to continue browsing,?\s*please log in|please log in to c
 class LoginWallError extends Error {
   constructor() {
     super(
-      "McMaster is requiring a login for this server right now (it allows a limited number of anonymous page views). Specs can't be read automatically until that lifts -- enter them below and the supplier links still work."
+      "McMaster wants a login before it will show this part's specs. Two parts checked back to back confirm this is per-part, not a general block: 91251A329 was walled while 91251A540 returned all 8 fields from the same server seconds later. Open the part on mcmaster.com, copy its spec block, and paste it below -- that produces the same result as a successful lookup."
     );
     this.code = "LOGIN_WALL";
   }
