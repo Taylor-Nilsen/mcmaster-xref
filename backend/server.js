@@ -298,21 +298,31 @@ app.listen(port, () => {
 });
 
 /**
- * Renders one real part on every startup (including free-tier cold-start
- * wakes) and logs the result. Lets this get verified by reading Render's
- * logs directly -- no outbound network access to the deployed URL is
- * available from wherever this gets developed/debugged, so this is the
- * only way to see whether a live render actually works without asking
- * the user to test it by hand each time.
+ * Renders a handful of real parts on every startup (including free-tier
+ * cold-start wakes) and logs each result. Lets this get verified by
+ * reading Render's logs directly -- no outbound network access to the
+ * deployed URL is available from wherever this gets developed/debugged,
+ * so this is the only way to see whether live rendering actually works,
+ * and across more than one part, without asking the user to test it by
+ * hand each time. Run sequentially, not in parallel, so the free-tier
+ * instance isn't launching several Chromium processes at once.
  */
+const SELFTEST_PARTS = [
+  "91251A051", // socket head screw -- known-good baseline
+  "91251A540", // different fastener family
+  "92196A106", // different fastener family
+  "0000000A",  // deliberately invalid -- checks graceful failure, not a crash
+];
+
 async function runStartupSelfTest() {
-  const testPart = "91251A051";
-  console.log(`[selftest] rendering ${testPart}...`);
-  try {
-    const specs = await fetchMcMasterSpecsLive(testPart);
-    const count = Object.keys(specs).length;
-    console.log(`[selftest] ${count ? "OK" : "EMPTY"} -- specs: ${JSON.stringify(specs)}`);
-  } catch (err) {
-    console.log(`[selftest] FAILED: ${err.message}`);
+  for (const testPart of SELFTEST_PARTS) {
+    console.log(`[selftest] rendering ${testPart}...`);
+    try {
+      const specs = await fetchMcMasterSpecsLive(testPart);
+      const count = Object.keys(specs).length;
+      console.log(`[selftest] ${testPart}: ${count ? "OK" : "EMPTY"} (${count} fields) -- ${JSON.stringify(specs)}`);
+    } catch (err) {
+      console.log(`[selftest] ${testPart}: FAILED -- ${err.message}`);
+    }
   }
 }
