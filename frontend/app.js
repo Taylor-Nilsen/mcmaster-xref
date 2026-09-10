@@ -46,18 +46,26 @@ async function runLookup() {
     return;
   }
 
+  if (typeof BACKEND_URL !== "string" || BACKEND_URL.includes("YOUR-SERVICE-NAME")) {
+    setStatus(
+      "Backend URL isn't configured yet. Edit frontend/config.js after deploying the backend (see backend/README.md).",
+      true
+    );
+    return;
+  }
+
   setStatus("Looking up...");
   resultsPanel.hidden = true;
 
   try {
-    const res = await fetch("/api/xref", {
+    const res = await fetch(`${BACKEND_URL}/api/xref`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ partNumber, specs }),
     });
 
     if (!res.ok) {
-      throw new Error(`Server returned HTTP ${res.status}`);
+      throw new Error(`Backend returned HTTP ${res.status}`);
     }
 
     const data = await res.json();

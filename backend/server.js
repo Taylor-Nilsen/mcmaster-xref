@@ -1,8 +1,8 @@
 /**
- * McMaster-Carr Cross-Reference: single service.
- *
- * Serves the static frontend (public/) and handles POST /api/xref from
- * the same origin -- no CORS setup, no separate backend URL to configure.
+ * McMaster-Carr Cross-Reference backend. The frontend (frontend/) is a
+ * static site on GitHub Pages -- Pages can't run server code, so this
+ * runs separately (Render) and the frontend calls it cross-origin, hence
+ * the CORS headers below.
  *
  * POST /api/xref
  *   Body: { partNumber?: string, specs?: PartialSpecs }
@@ -19,12 +19,14 @@
  */
 
 const express = require("express");
-const path = require("path");
+const cors = require("cors");
 const { chromium } = require("playwright");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (_req, res) => res.json({ status: "ok" }));
 
 app.post("/api/xref", async (req, res) => {
   const partNumber = (req.body.partNumber || "").trim();

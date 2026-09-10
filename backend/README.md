@@ -1,8 +1,9 @@
-# App: one service, Render (free)
+# Backend: Render (free)
 
-`server.js` serves the static frontend (`public/`) *and* handles
-`POST /api/xref` from the same origin -- no CORS to configure, no separate
-backend URL to paste into a config file. One repo, one deploy.
+Renders the live McMaster page with real headless Chrome (Playwright) on
+every request -- no caching. Separate from the frontend because GitHub
+Pages (static-only) can't run this; the frontend calls it cross-origin
+(CORS is handled in `server.js`).
 
 Runs on [Render](https://render.com)'s free Web Service tier: no credit
 card required to create one, so there's no way to rack up a surprise bill
@@ -13,21 +14,30 @@ just throttles or sleeps it.
 
 **Easiest**: connect this repo in the Render dashboard and use the
 included `render.yaml` (repo root) -- Render reads it as a Blueprint and
-sets everything up (build command, start command, root directory) in one
-go. New → Blueprint → pick this repo → Apply.
+sets everything up in one go. New → Blueprint → pick this repo → Apply.
 
 **If the Blueprint doesn't pick up cleanly**, set these manually when
 creating the Web Service instead:
 
-- Root directory: `app`
+- Root directory: `backend`
 - Environment: **Node**
 - Build command: `npm install && npx playwright install --with-deps chromium`
 - Start command: `node server.js`
 - Instance type: **Free**
 
-Render gives you a public URL immediately
-(`https://mcmaster-xref.onrender.com` or similar) -- that's it, nothing
-else to configure. Open it and use the app.
+Render gives you a public URL (e.g.
+`https://mcmaster-xref-backend.onrender.com`) -- copy it.
+
+## Point the frontend at it
+
+Edit `frontend/config.js`:
+
+```js
+const BACKEND_URL = "https://mcmaster-xref-backend.onrender.com";
+```
+
+Commit and push -- the GitHub Pages workflow picks it up automatically
+(see main [README](../README.md)).
 
 ## Notes
 
@@ -37,4 +47,4 @@ else to configure. Open it and use the app.
   not instant if it's been idle.
 - **Redeploying after code changes**: push to the connected branch --
   Render rebuilds and redeploys automatically.
-- **Local run**: `cd app && npm install && npx playwright install --with-deps chromium && npm start`, then open `http://localhost:3000`.
+- **Local run**: `cd backend && npm install && npx playwright install --with-deps chromium && npm start`, then it's listening on `http://localhost:3000`.

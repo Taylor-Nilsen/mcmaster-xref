@@ -7,22 +7,21 @@ full design.
 ## Status
 
 McMaster is a JS-only SPA (a plain HTTP fetch never sees real spec data),
-so the app uses a real headless Chrome instance (Playwright) to render the
-live product page and read it after JS has run. It re-renders fresh on
+so the backend uses a real headless Chrome instance (Playwright) to render
+the live product page and read it after JS has run. It re-renders fresh on
 every lookup -- no caching.
 
-This can't be done purely client-side: a browser blocks cross-origin
-responses via CORS unless the target server opts in, and McMaster doesn't,
-so no amount of frontend-only JS can read McMaster's page directly. A
-server-side piece is unavoidable -- but it's now the *same* service as the
-frontend (see Architecture below), not a separate deploy.
+This can't be done purely client-side, and GitHub Pages (static-only)
+can't run a server itself -- hence the split: a static frontend on Pages,
+and a small backend elsewhere that does the actual rendering. The frontend
+calls it cross-origin.
 
 Limits that are inherent to the site, not this implementation:
-- It can't see anything McMaster gates behind account login -- the app
+- It can't see anything McMaster gates behind account login -- the backend
   doesn't store or use McMaster credentials (storing a real login for an
   automated bot to reuse is a security/ToS risk not worth taking).
-- First request after the service has been idle a while is slower (cold
-  start -- see `app/README.md`). Free, just not instant every time.
+- First request after the backend has been idle a while is slower (cold
+  start -- see `backend/README.md`). Free, just not instant every time.
 
 Manual spec entry in the UI is always available as a fallback and overrides
 whatever the live render found.
@@ -35,36 +34,41 @@ scraped results.
 
 For parts with login-gated specs, `scripts/mcmaster_scrape.py` is a
 separate, optional local tool that drives a real logged-in browser on your
-own machine instead -- see `scripts/README.md`. That one's necessarily
-separate: it needs *your* browser session, which nothing running on a
-public server can have.
+own machine instead -- see `scripts/README.md`.
 
 ## Architecture
 
-One service, `app/`:
-- `app/server.js` serves the static frontend (`app/public/`) and handles
-  `POST /api/xref` (headless-render + parse + supplier-link generation)
-  from the same origin. No CORS setup, no config file pointing the
-  frontend at a separately-deployed backend -- there isn't one.
-
-Runs on [Render](https://render.com)'s free tier (no credit card
-required). See [app/README.md](app/README.md) for deploy steps.
+- `frontend/` -- static site on **GitHub Pages** (matches your GitHub Pro
+  account)
+- `backend/` -- small Node/Express service on **Render** (free, no card
+  required): launches headless Chrome to render the McMaster page live,
+  parses specs, generates supplier links
 
 ## Setup
 
-1. Push this repo to GitHub (already done if you're reading this from the
-   repo).
-2. Follow [app/README.md](app/README.md) to deploy on Render -- one
-   Blueprint apply, or a few fields filled in by hand. You get a URL back
-   and that's the whole app, frontend and live lookup together.
+### 1. Deploy the backend
+
+See [backend/README.md](backend/README.md) -- connect the repo on Render
+(one Blueprint apply via `render.yaml`, or a few manual fields) and get a
+public URL back.
+
+### 2. Point the frontend at it
+
+Edit `frontend/config.js`:
+
+```js
+const BACKEND_URL = "https://mcmaster-xref-backend.onrender.com";
+```
+
+Commit and push.
+
+### 3. Enable GitHub Pages
+
+Repo Settings -> Pages -> Source: **GitHub Actions**. The included workflow
+(`.github/workflows/deploy-pages.yml`) publishes `frontend/` on every push
+to `main`.
 
 ## Local development
 
-```
-cd app
-npm install
-npx playwright install --with-deps chromium
-npm start
-```
-
-Then open `http://localhost:3000`.
+Open `frontend/index.html` directly in a browser -- it just needs
+`BACKEND_URL` reachable. See `backend/README.md` for backend notes.
