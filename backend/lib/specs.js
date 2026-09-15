@@ -26,8 +26,8 @@ const FINISHES = ["zinc plated", "black oxide", "galvanized", "chrome plated", "
  */
 const PART_TYPES = [
   [/socket head (?:cap )?screw/i, "socket head cap screw", "fastener"],
-  [/button head (?:socket )?(?:cap )?screw/i, "button head socket cap screw", "fastener"],
-  [/(?:flat|countersunk) head (?:socket )?(?:cap )?screw/i, "flat head socket cap screw", "fastener"],
+  [/button head (?:socket )?(?:cap )?screw/i, "button head screw", "fastener"],
+  [/(?:flat|countersunk) head (?:socket )?(?:cap )?screw/i, "flat head screw", "fastener"],
   [/pan head screw/i, "pan head screw", "fastener"],
   [/truss head screw/i, "truss head screw", "fastener"],
   [/cheese head screw/i, "cheese head screw", "fastener"],
@@ -262,6 +262,13 @@ function normalizeThread(value) {
 }
 
 // McMaster writes gauge sizes as "Number 10"; every supplier indexes "#10".
+// A bare number is a gauge size: McMaster's sheet metal screws list
+// "Thread Size: 8", and searching "8 x 1/2\"" matches nothing anywhere.
+function normalizeGauge(value) {
+  const v = String(value).trim();
+  return /^\d{1,2}$/.test(v) ? `#${v}` : v;
+}
+
 function normalizeScrewSize(value) {
   const m = String(value).match(/^number\s*(\d+)$/i);
   return m ? `#${m[1]}` : String(value).trim();
@@ -287,8 +294,8 @@ function normalizeSpecs(specs) {
     }
   }
 
-  if (out.threadSize) out.threadSize = normalizeThread(out.threadSize);
-  if (out.screwSize) out.screwSize = normalizeScrewSize(out.screwSize);
+  if (out.threadSize) out.threadSize = normalizeGauge(normalizeThread(out.threadSize));
+  if (out.screwSize) out.screwSize = normalizeGauge(normalizeScrewSize(out.screwSize));
 
   if (out.threadSize && out.diameter) delete out.diameter;
 
@@ -359,6 +366,13 @@ function partFamily(specs) {
  * material only -- an under-specified search beats a confidently wrong one.
  */
 function partNoun(specs, family) {
+  // A known head type beats the title, because the title does not say what
+  // the drive is: McMaster calls both of these a "Flat Head Screw", but a
+  // hex-drive one is a flat head socket cap screw and a Phillips one is
+  // not, and they sit in different aisles. fastenerNoun reads both fields.
+  if (family === "fastener" && specs.headType) {
+    return fastenerNoun(specs) || specs.partType || null;
+  }
   if (specs.partType) return specs.partType;
   if (family === "fastener") return fastenerNoun(specs);
   return null;
@@ -409,7 +423,13 @@ function buildQuery(rawSpecs) {
     ]
       .filter(Boolean)
       .join(" x ");
-    return joinTerms([size, noun, specs.material, specs.durometer]);
+    return joinTerms([
+      size,
+      noun,
+      specs.material,
+      specs.thickness && `${specs.thickness} thick`,
+      specs.durometer,
+    ]);
   }
 
   // Raw stock deliberately drops length: McMaster's is the length of the
@@ -420,7 +440,19 @@ function buildQuery(rawSpecs) {
     return joinTerms([specs.material, specs.shape || noun, specs.diameter, specs.thickness, specs.width, specs.finish]);
   }
 
-  return joinTerms([specs.material, noun, specs.diameter, specs.thickness, specs.width, specs.finish]);
+  // Bearings, springs, dowel pins. Inside diameter is a bearing's defining
+  // spec and length is a pin's, so neither may be dropped here the way the
+  // raw-stock branch deliberately drops stock length.
+  return joinTerms([
+    specs.material,
+    noun,
+    specs.insideDiameter && `${specs.insideDiameter} ID`,
+    specs.diameter,
+    specs.thickness,
+    specs.width,
+    specs.length,
+    specs.finish,
+  ]);
 }
 
 // Each supplier's own search URL, taken from a real indexed results URL on
@@ -541,6 +573,7 @@ module.exports = {
   strengthGrade,
   normalizeThread,
   normalizeScrewSize,
+  normalizeGauge,
   normalizeSpecs,
   fastenerNoun,
   partFamily,

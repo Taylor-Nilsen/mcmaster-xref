@@ -14,6 +14,7 @@ const {
   detectPartType,
   normalizeThread,
   normalizeScrewSize,
+  normalizeGauge,
   partFamily,
   sanitizeSpecs,
   strengthGrade,
@@ -426,4 +427,90 @@ test("Bolt Depot browses the right category per family", () => {
   // A nut has no length, so no length filter may be sent -- it would
   // filter the grid down to nothing.
   assert.ok(!url(HEX_NUT_PAGE).includes("F_Length"), url(HEX_NUT_PAGE));
+});
+
+
+// --- Defects the 24-part category sweep turned up --------------------------
+
+test("a head-style title does not decide the drive", () => {
+  // McMaster calls both of these a "Flat Head Screw". A hex-drive one is a
+  // flat head socket cap screw; a Phillips one is a different aisle.
+  const phillips = parsePage(`18-8 Stainless Steel Flat Head Screw
+Material
+18-8 Stainless Steel
+Thread
+Size
+10-32
+Length
+1/2"
+Fastener Head Type
+Flat
+Drive Style
+Phillips
+`);
+  assert.equal(buildQuery(phillips), '10-32 x 1/2" flat head screw 18-8 Stainless Steel');
+
+  const hexDrive = parsePage(`Alloy Steel Flat Head Screw
+Material
+Alloy Steel
+Thread
+Size
+10-32
+Length
+1/2"
+Fastener Head Type
+Flat
+Drive Style
+Hex
+`);
+  assert.equal(buildQuery(hexDrive), '10-32 x 1/2" flat head socket cap screw Alloy Steel');
+});
+
+test("normalizeGauge marks a bare gauge number", () => {
+  // Sheet metal screws list "Thread Size: 8"; "8 x 1/2\"" matches nothing.
+  assert.equal(normalizeGauge("8"), "#8");
+  assert.equal(normalizeGauge("10"), "#10");
+  assert.equal(normalizeGauge("8-32"), "8-32");
+  assert.equal(normalizeGauge('1/4"-20'), '1/4"-20');
+  assert.equal(normalizeGauge("#8"), "#8");
+});
+
+test("a bearing keeps its inside diameter", () => {
+  const specs = parsePage(`Steel Ball Bearing
+Material
+Steel
+Inside Diameter
+1/4"
+Outside Diameter
+5/8"
+Width
+0.196"
+`);
+  const query = buildQuery(specs);
+  assert.ok(query.includes('1/4" ID'), query);
+  assert.ok(query.includes("bearing"), query);
+});
+
+test("a dowel pin and a spring keep their length", () => {
+  const pin = parsePage(`Alloy Steel Dowel Pin
+Material
+Alloy Steel
+Diameter
+1/4"
+Length
+1"
+`);
+  assert.equal(buildQuery(pin), 'Alloy Steel dowel pin 1/4" 1"');
+});
+
+test("a gasket keeps its thickness", () => {
+  const gasket = parsePage(`Neoprene Rubber Gasket
+Material
+Neoprene Rubber
+Thickness
+1/16"
+Width
+12"
+`);
+  assert.ok(buildQuery(gasket).includes('1/16" thick'), buildQuery(gasket));
 });
