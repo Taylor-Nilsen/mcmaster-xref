@@ -1,9 +1,16 @@
 const SPEC_FIELD_IDS = [
   "category",
+  // Part type decides the product noun in the query and which suppliers
+  // get asked ("hex nut" goes to Bolt Depot's nut aisle, "o-ring" to the
+  // MRO distributors), so it has to be correctable by hand -- the page
+  // title it is normally read from is exactly what a login wall hides.
+  "partType",
   "material",
   "shape",
   "threadSize",
   "diameter",
+  "insideDiameter",
+  "screwSize",
   "thickness",
   "width",
   "length",
@@ -14,6 +21,7 @@ const SPEC_FIELD_IDS = [
   "driveType",
   "finish",
   "grade",
+  "durometer",
 ];
 
 const statusEl = document.getElementById("status");

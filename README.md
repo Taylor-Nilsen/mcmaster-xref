@@ -26,11 +26,17 @@ Limits that are inherent to the site, not this implementation:
 Manual spec entry in the UI is always available as a fallback and overrides
 whatever the live render found.
 
-Supplier "results" are pre-filled search links (Speedy Metals, MSC Direct,
-Online Metals, Fastenal, Grainger, Bolt Depot, Amazon, AliExpress,
-Banggood), not scraped listings -- those sites block bots as hard as
+Supplier "results" are pre-filled search links, not scraped listings -- those sites block bots as hard as
 McMaster does, so this hands you their native search instead of unreliable
 scraped results.
+
+Which suppliers get asked depends on what the part is, read from the
+product name on the page: screws, nuts and washers go to the fastener
+houses (Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress), metal
+stock to the metal suppliers (Online Metals, Speedy Metals, MSC,
+Grainger), and everything else -- o-rings, gaskets, bearings -- to the
+general MRO distributors. The "Part type" box under manual entry
+overrides that when the page name is wrong or unavailable.
 
 For parts with login-gated specs, `scripts/mcmaster_scrape.py` is a
 separate, optional local tool that drives a real logged-in browser on your

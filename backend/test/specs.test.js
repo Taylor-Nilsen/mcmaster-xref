@@ -11,6 +11,10 @@ const assert = require("node:assert/strict");
 const {
   parseSpecsFromText,
   parseKeyValueText,
+  detectPartType,
+  normalizeThread,
+  normalizeScrewSize,
+  partFamily,
   sanitizeSpecs,
   strengthGrade,
   normalizeSpecs,
@@ -21,6 +25,64 @@ const {
   buildSupplierLinks,
   boltDepotUrl,
 } = require("../lib/specs");
+
+// Each page below opens with the product title, the way a rendered
+// McMaster page does. The title is the only thing that says what the part
+// *is* -- the spec table cannot tell a nut from a screw, since both are a
+// thread size and a material.
+const HEX_NUT_PAGE = `
+18-8 Stainless Steel Hex Nut
+Material
+18-8 Stainless Steel
+Thread
+Size
+1/4"-20
+Width
+7/16"
+Thickness
+7/32"
+`;
+
+const FLAT_WASHER_PAGE = `
+18-8 Stainless Steel Flat Washer
+Material
+18-8 Stainless Steel
+For Screw Size
+Number 10
+Outside Diameter
+1/2"
+Thickness
+0.04"
+`;
+
+const O_RING_PAGE = `
+Buna-N O-Ring
+Material
+Buna-N Rubber
+Inside Diameter
+1/4"
+Width
+1/16"
+Durometer
+70A
+`;
+
+const METRIC_SCREW_PAGE = `
+Class 12.9 Alloy Steel Socket Head Screw
+Material
+Class 12.9 Alloy Steel
+Thread
+Size
+M6 x 1 mm
+Length
+20 mm
+Fastener Head Type
+Socket
+Drive Style
+Hex
+`;
+
+const parsePage = (text) => ({ ...parseSpecsFromText(text), ...parseKeyValueText(text) });
 
 // Shape of a rendered McMaster product page: every spec is a label line
 // followed by its value line, and thread size sits one level under a bare
@@ -162,8 +224,15 @@ test("fastenerNoun maps head and drive to a trade name", () => {
   assert.equal(fastenerNoun({ headType: "Flat", driveType: "Torx" }), "flat head socket cap screw");
   assert.equal(fastenerNoun({ headType: "Hex" }), "hex head cap screw");
   assert.equal(fastenerNoun({ headType: "Pan", driveType: "Phillips" }), "pan head screw");
-  assert.equal(fastenerNoun({ threadSize: "4-40" }), "machine screw");
+  assert.equal(fastenerNoun({ threadSize: "4-40", driveType: "Phillips" }), "machine screw");
   assert.equal(fastenerNoun({}), null);
+});
+
+test("fastenerNoun refuses to call a bare thread a screw", () => {
+  // A nut, a coupling and a threaded insert all look like "a thread and a
+  // material". Naming that a machine screw is how a nut lookup ended up
+  // searching for screws.
+  assert.equal(fastenerNoun({ threadSize: '1/4"-20' }), null);
 });
 
 test("isFastener", () => {
@@ -182,8 +251,11 @@ test("buildQuery writes a fastener the way a catalog does", () => {
   assert.ok(!/class/i.test(query));
 });
 
-test("buildQuery on raw stock lists material, shape, size", () => {
-  assert.equal(buildQuery(parseKeyValueText(ALUMINUM_BAR_PAGE)), "6061 Aluminum Round Bar 3/8\" 1 ft.");
+test("buildQuery on raw stock lists material, shape, size -- and drops stock length", () => {
+  // "1 ft." is the length of the stick McMaster ships. Metal suppliers cut
+  // to order, so carrying it into their search narrows the results with a
+  // number that means something else on their site.
+  assert.equal(buildQuery(parseKeyValueText(ALUMINUM_BAR_PAGE)), '6061 Aluminum Round Bar 3/8"');
 });
 
 test("buildQuery is empty when there is nothing to search for", () => {
@@ -243,4 +315,115 @@ test("boltDepotUrl filters only when the size parses cleanly", () => {
 
   assert.equal(boltDepotUrl({ headType: "Hex" }).includes("Category=Hex_bolts"), true);
   assert.equal(boltDepotUrl({}), "https://boltdepot.com/Catalog-Tabs");
+});
+
+
+// --- Part type, family and routing -------------------------------------
+
+test("detectPartType reads the noun off the title line", () => {
+  assert.equal(detectPartType(HEX_NUT_PAGE), "hex nut");
+  assert.equal(detectPartType(FLAT_WASHER_PAGE), "flat washer");
+  assert.equal(detectPartType(O_RING_PAGE), "o-ring");
+  assert.equal(detectPartType(SOCKET_SCREW_PAGE), "socket head cap screw");
+  assert.equal(detectPartType(ALUMINUM_BAR_PAGE), "round bar");
+  assert.equal(detectPartType("Material\n18-8 Stainless Steel\n"), null);
+});
+
+test("detectPartType ignores nouns further down the page", () => {
+  // Related-product and category links sit below the specs; matching them
+  // would rename the part to whatever it happens to sit next to.
+  const page = `${SOCKET_SCREW_PAGE}\nRelated\nHex Nuts\nFlat Washers\n`;
+  assert.equal(detectPartType(page), "socket head cap screw");
+});
+
+test("partFamily routes each kind of part", () => {
+  assert.equal(partFamily(parsePage(SOCKET_SCREW_PAGE)), "fastener");
+  assert.equal(partFamily(parsePage(HEX_NUT_PAGE)), "nut");
+  assert.equal(partFamily(parsePage(FLAT_WASHER_PAGE)), "washer");
+  assert.equal(partFamily(parsePage(O_RING_PAGE)), "sealing");
+  assert.equal(partFamily(parsePage(ALUMINUM_BAR_PAGE)), "rawstock");
+  assert.equal(partFamily({}), "other");
+});
+
+test("partFamily takes the manual Category select as an answer", () => {
+  assert.equal(partFamily({ category: "fastener" }), "fastener");
+  assert.equal(partFamily({ category: "stock", material: "Brass" }), "rawstock");
+});
+
+// --- The six output bugs -----------------------------------------------
+
+test("a nut searches for a nut, not a screw", () => {
+  assert.equal(buildQuery(parsePage(HEX_NUT_PAGE)), '1/4"-20 hex nut 18-8 Stainless Steel');
+});
+
+test("a nut's query carries no length", () => {
+  // Pairing a thread with the nut's own height would read as a screw
+  // length: "1/4\"-20 x 7/32\"".
+  const query = buildQuery(parsePage(HEX_NUT_PAGE));
+  assert.ok(!query.includes("7/32"), query);
+  assert.ok(!/ x /.test(query), query);
+});
+
+test("a washer leads with the screw size it fits and goes to fastener suppliers", () => {
+  assert.equal(buildQuery(parsePage(FLAT_WASHER_PAGE)), "#10 flat washer 18-8 Stainless Steel");
+  const names = buildSupplierLinks(parsePage(FLAT_WASHER_PAGE)).map((l) => l.name);
+  assert.ok(names.includes("Fastenal"), names.join(", "));
+  assert.ok(!names.includes("Online Metals"), names.join(", "));
+  assert.ok(!names.includes("Speedy Metals"), names.join(", "));
+});
+
+test("an o-ring keeps its inside diameter and goes to MRO suppliers", () => {
+  assert.equal(buildQuery(parsePage(O_RING_PAGE)), '1/4" ID x 1/16" wide o-ring Buna-N Rubber 70A');
+  const names = buildSupplierLinks(parsePage(O_RING_PAGE)).map((l) => l.name);
+  assert.deepEqual(names, ["Grainger", "MSC Direct", "Amazon", "AliExpress"]);
+});
+
+test("a metric thread is written the way catalogs index it, with the grade once", () => {
+  const query = buildQuery(parsePage(METRIC_SCREW_PAGE));
+  assert.equal(query, "M6-1 x 20 mm socket head cap screw Alloy Steel Class 12.9");
+  assert.equal(query.match(/Class 12\.9/g).length, 1);
+});
+
+test("normalizeThread rewrites McMaster's metric phrasing", () => {
+  assert.equal(normalizeThread("M6 x 1 mm"), "M6-1");
+  assert.equal(normalizeThread("M6x1"), "M6-1");
+  assert.equal(normalizeThread("M3 x 0.5 mm"), "M3-0.5");
+  assert.equal(normalizeThread('1/4"-20'), '1/4"-20');
+});
+
+test("normalizeScrewSize rewrites gauge sizes", () => {
+  assert.equal(normalizeScrewSize("Number 10"), "#10");
+  assert.equal(normalizeScrewSize("#10"), "#10");
+  assert.equal(normalizeScrewSize('1/4"'), '1/4"');
+});
+
+test("normalizeSpecs lifts a property class out of the material", () => {
+  const out = normalizeSpecs({ material: "Class 12.9 Alloy Steel" });
+  assert.equal(out.material, "Alloy Steel");
+  assert.equal(out.grade, "Class 12.9");
+  // An existing grade wins; the material is still cleaned up.
+  const kept = normalizeSpecs({ material: "Grade 8 Steel", grade: "Grade 8" });
+  assert.equal(kept.material, "Steel");
+  assert.equal(kept.grade, "Grade 8");
+});
+
+test("a head type no longer leaks into the drive type", () => {
+  // "Fastener Head Type / Socket" with no Drive Style line used to set
+  // driveType to "socket" by keyword match.
+  const noDriveLine = SOCKET_SCREW_PAGE.replace("Drive Style\nHex\n", "");
+  assert.equal(parseSpecsFromText(noDriveLine).driveType, undefined);
+  assert.equal(parseSpecsFromText("18-8 Stainless Steel Hex Drive Flat Head Screw").driveType, "hex");
+});
+
+test("Bolt Depot browses the right category per family", () => {
+  const url = (page) => {
+    const specs = parsePage(page);
+    return boltDepotUrl(specs, partFamily(specs));
+  };
+  assert.ok(url(HEX_NUT_PAGE).includes("Category=Nuts"), url(HEX_NUT_PAGE));
+  assert.ok(url(FLAT_WASHER_PAGE).includes("Category=Washers"), url(FLAT_WASHER_PAGE));
+  assert.ok(url(SOCKET_SCREW_PAGE).includes("Category=Socket_screws"), url(SOCKET_SCREW_PAGE));
+  // A nut has no length, so no length filter may be sent -- it would
+  // filter the grid down to nothing.
+  assert.ok(!url(HEX_NUT_PAGE).includes("F_Length"), url(HEX_NUT_PAGE));
 });
