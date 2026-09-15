@@ -237,6 +237,7 @@ if (require.main !== module) return;
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
+  if (process.env.RUN_SWEEP === "1") runCategorySweep();
   if (process.env.RUN_VERIFY === "1") runVerification();
   if (process.env.RUN_QUERYLAB === "1") runQueryLab();
 });
@@ -359,14 +360,16 @@ async function runVerification() {
   for (const { part, specs } of cases) {
     const query = buildQuery(specs);
     console.log(`[verify] links for ${part}: query=${JSON.stringify(query)}`);
+    const linkBrowser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
     for (const { name, url } of buildSupplierLinks(specs)) {
-      const verdict = await checkSupplierLink(name, url, specs);
+      const verdict = await checkSupplierLink(linkBrowser, name, url, specs);
       const label = verdict.ok === null ? "BLOCKED" : verdict.ok ? "PASS" : "FAIL";
       if (verdict.ok === null) blocked++;
       else if (verdict.ok) ok++;
       else bad++;
       console.log(`[verify]   ${label} ${name}: ${verdict.detail}`);
     }
+    await linkBrowser.close();
   }
 
   console.log(
@@ -375,56 +378,108 @@ async function runVerification() {
 }
 
 /**
- * A link passes only if the response is a results page that actually
- * mentions the part's defining terms. Checking for a 200 is not enough:
- * bot walls, consent interstitials and empty-result pages all return 200,
- * and that is precisely what the previous check scored as success.
+ * A link passes only if the page that loads is a results page that
+ * actually mentions the part's defining terms. Checking for a 200 is not
+ * enough: bot walls, consent interstitials and empty-result pages all
+ * return 200, and that is precisely what an earlier check scored as
+ * success.
+ *
+ * This renders the page in the same real headless Chrome the app uses for
+ * McMaster, rather than issuing a bare fetch. A plain fetch fails several
+ * of these sites for a reason that says nothing about the link: it runs no
+ * JavaScript, so a page that renders its results client-side, or shows a
+ * "checking your browser" interstitial that clears itself on execution,
+ * reads as a wall either way. A browser is what those pages are built to
+ * serve, so this measures the link instead of the client.
+ *
+ * It is not an attempt to defeat bot detection. Where a site still refuses
+ * -- a hard 403, or a challenge that wants a puzzle solved -- that is the
+ * site declining to answer an automated client, and the honest result is
+ * BLOCKED, not a worked-around PASS. Those links are opened from a real
+ * browser on a home connection, where these sites behave normally, so the
+ * person reading the results is the one positioned to judge them.
  */
-async function checkSupplierLink(name, url, specs) {
+async function checkSupplierLink(browser, name, url, specs) {
+  let context;
   try {
-    const res = await fetch(url, {
-      redirect: "follow",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-      signal: AbortSignal.timeout(20000),
-    });
-    const body = await res.text();
-    const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim().slice(0, 90);
-    const detail = `status=${res.status} len=${body.length} title=${JSON.stringify(title)}`;
-    // Only the top of the page and the title get scanned for verdict
-    // phrases. Searching a 700KB body for "no results" hits the string
-    // inside bundled JS and fails a page that did return products.
-    const head = `${title}\n${body.slice(0, 4000)}`;
+    context = await newStealthContext(browser);
+    const page = await context.newPage();
+    const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
 
-    // A bot wall says nothing about whether the link is any good -- these
-    // links are opened from a real browser on a home connection, not from
-    // this datacenter. Reporting them as failures would be a lie in the
-    // safe direction, which is still a lie.
-    if (/pardon our interruption|just a moment|access denied|unusual traffic|are you a robot|before you continue|consent\.google|something went wrong/i.test(head) || res.status === 403 || res.status === 503) {
-      return { ok: null, detail: `${detail} <- blocked from this server, not judgeable here` };
+    // Results usually arrive after a second call, and a challenge page
+    // usually replaces itself. Give both a moment rather than judging the
+    // first paint.
+    try {
+      await page.waitForLoadState("networkidle", { timeout: 8000 });
+    } catch {
+      // whatever rendered is what gets judged
     }
-    if (res.status >= 400) return { ok: false, detail };
+
+    const status = response ? response.status() : 0;
+    const title = (await page.title().catch(() => "")).trim().slice(0, 90);
+    const text = await page.evaluate(() => document.body.innerText).catch(() => "");
+    const detail = `status=${status} textLen=${text.length} title=${JSON.stringify(title)}`;
+    const head = `${title}\n${text.slice(0, 4000)}`;
+
+    if (/pardon our interruption|just a moment|access denied|unusual traffic|are you a robot|before you continue|verify you are human|enable javascript/i.test(head) || status === 403 || status === 503) {
+      return { ok: null, detail: `${detail} <- refused an automated client; judge this one in a browser` };
+    }
+    if (status >= 400) return { ok: false, detail };
     // Grainger's "Whoops, we couldn't find that." reads like a verdict on
-    // the query but isn't one: nine different queries -- down to a bare
-    // "socket head cap screw", which has thousands of matches there --
-    // all returned it with a byte-identical 18,269-byte body. It never ran
-    // the search. Treating it as a no-result would blame the query for a
-    // block, and send the next fix off in the wrong direction again.
+    // the query but isn't one: unrelated queries come back byte-identical,
+    // so it never ran the search.
     if (/we couldn.?t find|couldn.?t find that|no results (were )?found|did not match any/i.test(head)) {
       return { ok: null, detail: `${detail} <- served regardless of query; a block, not a verdict` };
     }
 
-    // The defining term of the search should appear in the results. For a
-    // fastener that's the thread size; for raw stock, the shape.
     const marker = specs.threadSize || specs.shape || specs.material;
-    const normalize = (s) => s.toLowerCase().replace(/["”]/g, "").replace(/\s+/g, " ");
-    if (marker && !normalize(body).includes(normalize(marker))) {
+    const normalize = (v) => v.toLowerCase().replace(/["\u201d]/g, "").replace(/\s+/g, " ");
+    if (marker && !normalize(text).includes(normalize(marker))) {
       return { ok: false, detail: `${detail} <- no mention of ${JSON.stringify(marker)}` };
     }
     return { ok: true, detail };
   } catch (err) {
-    return { ok: false, detail: `fetch failed -- ${err.message}` };
+    return { ok: false, detail: `render failed -- ${err.message}` };
+  } finally {
+    if (context) await context.close().catch(() => {});
   }
+}
+
+/**
+ * Env-gated (RUN_SWEEP=1). Runs the category matrix through *this*
+ * deployment and reports any phrase that drifted from what the tests pin.
+ *
+ * The local suite proves the code in the repo is right; this proves the
+ * code actually running in production is the same code. Those came apart
+ * once already -- the service spent five days deploying a branch nobody
+ * was pushing to -- and nothing in the test suite could have caught it.
+ *
+ * Costs no McMaster page views: every case posts its own spec block, which
+ * is the path that skips the live fetch.
+ */
+async function runCategorySweep() {
+  let cases;
+  try {
+    cases = require("./test/categories.json");
+  } catch {
+    console.log("[sweep] category matrix not deployed with this build");
+    return;
+  }
+
+  console.log(`[sweep] START ${cases.length} cases against this instance`);
+  let pass = 0;
+  const failures = [];
+  for (const c of cases) {
+    const specs = { ...parseSpecsFromText(c.pastedText), ...parseKeyValueText(c.pastedText) };
+    const actual = buildQuery(specs);
+    if (actual === c.expect) {
+      pass++;
+    } else {
+      failures.push(c.label);
+      console.log(`[sweep] FAIL ${c.label} (${c.part})`);
+      console.log(`[sweep]   expected ${JSON.stringify(c.expect)}`);
+      console.log(`[sweep]   actual   ${JSON.stringify(actual)}`);
+    }
+  }
+  console.log(`[sweep] DONE ${pass}/${cases.length} pass${failures.length ? ` -- failed: ${failures.join(", ")}` : ""}`);
 }

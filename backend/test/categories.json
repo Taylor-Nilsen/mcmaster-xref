@@ -1,0 +1,146 @@
+[
+  {
+    "label": "Socket head cap screw (inch)",
+    "part": "91251A540",
+    "pastedText": "Black-Oxide Alloy Steel Socket Head Screw\nMaterial\nBlack-Oxide Alloy Steel\nThread\nSize\n1/4\"-20\nLength\n3/4\"\nFastener Head Type\nSocket\nDrive Style\nHex\nThread Fit Class\nClass 3\nHead Diameter\n3/8\"\n",
+    "expect": "1/4\"-20 x 3/4\" socket head cap screw Alloy Steel Black-Oxide"
+  },
+  {
+    "label": "Socket head cap screw (metric)",
+    "part": "91290A115",
+    "pastedText": "Class 12.9 Alloy Steel Socket Head Screw\nMaterial\nClass 12.9 Alloy Steel\nThread\nSize\nM6 x 1 mm\nLength\n20 mm\nFastener Head Type\nSocket\nDrive Style\nHex\n",
+    "expect": "M6-1 x 20 mm socket head cap screw Alloy Steel Class 12.9"
+  },
+  {
+    "label": "Hex head cap screw",
+    "part": "92620A624",
+    "pastedText": "18-8 Stainless Steel Hex Head Screw\nMaterial\n18-8 Stainless Steel\nThread\nSize\n3/8\"-16\nLength\n1-1/2\"\nFastener Head Type\nHex\n",
+    "expect": "3/8\"-16 x 1-1/2\" hex head cap screw 18-8 Stainless Steel"
+  },
+  {
+    "label": "Flat head screw (Phillips)",
+    "part": "91771A831",
+    "pastedText": "18-8 Stainless Steel Flat Head Screw\nMaterial\n18-8 Stainless Steel\nThread\nSize\n10-32\nLength\n1/2\"\nFastener Head Type\nFlat\nDrive Style\nPhillips\n",
+    "expect": "10-32 x 1/2\" flat head screw 18-8 Stainless Steel"
+  },
+  {
+    "label": "Button head socket cap screw",
+    "part": "92949A150",
+    "pastedText": "Black-Oxide Alloy Steel Button Head Screw\nMaterial\nBlack-Oxide Alloy Steel\nThread\nSize\n1/4\"-20\nLength\n1/2\"\nFastener Head Type\nButton\nDrive Style\nHex\n",
+    "expect": "1/4\"-20 x 1/2\" button head socket cap screw Alloy Steel Black-Oxide"
+  },
+  {
+    "label": "Set screw",
+    "part": "91375A194",
+    "pastedText": "Alloy Steel Set Screw\nMaterial\nAlloy Steel\nThread\nSize\n1/4\"-20\nLength\n1/4\"\nFastener Head Type\nSet Screw\nDrive Style\nHex\n",
+    "expect": "1/4\"-20 x 1/4\" set screw Alloy Steel"
+  },
+  {
+    "label": "Pan head machine screw",
+    "part": "90272A110",
+    "pastedText": "18-8 Stainless Steel Pan Head Screw\nMaterial\n18-8 Stainless Steel\nThread\nSize\n4-40\nLength\n1/4\"\nFastener Head Type\nPan\nDrive Style\nPhillips\n",
+    "expect": "4-40 x 1/4\" pan head screw 18-8 Stainless Steel"
+  },
+  {
+    "label": "Sheet metal screw",
+    "part": "90286A118",
+    "pastedText": "18-8 Stainless Steel Sheet Metal Screw\nMaterial\n18-8 Stainless Steel\nThread\nSize\n8\nLength\n1/2\"\nDrive Style\nPhillips\n",
+    "expect": "#8 x 1/2\" sheet metal screw 18-8 Stainless Steel"
+  },
+  {
+    "label": "Shoulder screw",
+    "part": "90298A537",
+    "pastedText": "Alloy Steel Shoulder Screw\nMaterial\nAlloy Steel\nThread\nSize\n1/4\"-20\nLength\n1\"\nDiameter\n3/8\"\nDrive Style\nHex\n",
+    "expect": "1/4\"-20 x 1\" shoulder screw Alloy Steel"
+  },
+  {
+    "label": "Threaded rod",
+    "part": "98861A030",
+    "pastedText": "18-8 Stainless Steel Threaded Rod\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nLength\n3 ft.\n",
+    "expect": "1/4\"-20 x 3 ft. threaded rod 18-8 Stainless Steel"
+  },
+  {
+    "label": "Hex nut",
+    "part": "91845A029",
+    "pastedText": "18-8 Stainless Steel Hex Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nWidth\n7/16\"\nThickness\n7/32\"\n",
+    "expect": "1/4\"-20 hex nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Nylon-insert lock nut",
+    "part": "90631A011",
+    "pastedText": "18-8 Stainless Steel Nylon-Insert Locknut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nWidth\n7/16\"\n",
+    "expect": "1/4\"-20 lock nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Wing nut",
+    "part": "94300A140",
+    "pastedText": "18-8 Stainless Steel Wing Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\n",
+    "expect": "1/4\"-20 wing nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Flat washer",
+    "part": "90107A029",
+    "pastedText": "18-8 Stainless Steel Flat Washer\nMaterial\n18-8 Stainless Steel\nFor Screw Size\nNumber 10\nOutside Diameter\n1/2\"\nThickness\n0.04\"\n",
+    "expect": "#10 flat washer 18-8 Stainless Steel"
+  },
+  {
+    "label": "Lock washer",
+    "part": "92146A029",
+    "pastedText": "18-8 Stainless Steel Lock Washer\nMaterial\n18-8 Stainless Steel\nFor Screw Size\n1/4\"\nOutside Diameter\n0.489\"\n",
+    "expect": "1/4\" lock washer 18-8 Stainless Steel"
+  },
+  {
+    "label": "O-ring",
+    "part": "9452K113",
+    "pastedText": "Buna-N O-Ring\nMaterial\nBuna-N Rubber\nInside Diameter\n1/4\"\nWidth\n1/16\"\nDurometer\n70A\n",
+    "expect": "1/4\" ID x 1/16\" wide o-ring Buna-N Rubber 70A"
+  },
+  {
+    "label": "Gasket sheet",
+    "part": "8516K61",
+    "pastedText": "Neoprene Rubber Gasket\nMaterial\nNeoprene Rubber\nThickness\n1/16\"\nWidth\n12\"\nLength\n12\"\n",
+    "expect": "12\" wide gasket Neoprene Rubber 1/16\" thick"
+  },
+  {
+    "label": "Ball bearing",
+    "part": "60355K505",
+    "pastedText": "Steel Ball Bearing\nMaterial\nSteel\nInside Diameter\n1/4\"\nOutside Diameter\n5/8\"\nWidth\n0.196\"\n",
+    "expect": "Steel bearing 1/4\" ID 5/8\" 0.196\""
+  },
+  {
+    "label": "Compression spring",
+    "part": "9657K277",
+    "pastedText": "Steel Compression Spring\nMaterial\nSteel\nOutside Diameter\n0.36\"\nLength\n1\"\n",
+    "expect": "Steel spring 0.36\" 1\""
+  },
+  {
+    "label": "Dowel pin",
+    "part": "98381A484",
+    "pastedText": "Alloy Steel Dowel Pin\nMaterial\nAlloy Steel\nDiameter\n1/4\"\nLength\n1\"\n",
+    "expect": "Alloy Steel dowel pin 1/4\" 1\""
+  },
+  {
+    "label": "Aluminum round bar",
+    "part": "8974K21",
+    "pastedText": "Multipurpose 6061 Aluminum Round Bar\nMaterial\n6061 Aluminum\nShape\nRound Bar\nDiameter\n3/8\"\nLength\n1 ft.\n",
+    "expect": "6061 Aluminum Round Bar 3/8\""
+  },
+  {
+    "label": "Stainless sheet",
+    "part": "8983K115",
+    "pastedText": "Multipurpose 304 Stainless Steel Sheet\nMaterial\n304 Stainless Steel\nShape\nSheet\nThickness\n0.063\"\nWidth\n6\"\nLength\n12\"\n",
+    "expect": "304 Stainless Steel Sheet 0.063\" 6\""
+  },
+  {
+    "label": "Steel tube",
+    "part": "9220K11",
+    "pastedText": "Low-Carbon Steel Tube\nMaterial\nLow-Carbon Steel\nShape\nTube\nOutside Diameter\n1/2\"\nThickness\n0.035\"\nLength\n1 ft.\n",
+    "expect": "Low-Carbon Steel Tube 1/2\" 0.035\""
+  },
+  {
+    "label": "Keystock",
+    "part": "98870A150",
+    "pastedText": "Zinc-Plated Steel Keystock\nMaterial\nZinc-Plated Steel\nShape\nKeystock\nWidth\n1/4\"\nThickness\n1/4\"\nLength\n12\"\n",
+    "expect": "Steel Keystock 1/4\" 1/4\" Zinc-Plated"
+  }
+]
