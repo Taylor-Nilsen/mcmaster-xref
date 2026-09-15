@@ -90,3 +90,9 @@ built from whatever specs are present regardless of where they came from.
   working (`mcmaster-xref-backend`, the one with `--with-deps` in its
   build command). It's inert and free -- safe to delete whenever you're in
   the Render dashboard for something else, no rush.
+- **Tests**: `cd backend && npm install && npm test`. The parsing and
+  query-building logic lives in `lib/specs.js` with no dependencies, and
+  the endpoint tests only exercise the paths that never hit McMaster, so
+  the suite runs in under a second, needs no Chromium, and spends none of
+  the anonymous-view allowance. CI runs it on every push
+  (`.github/workflows/test.yml`).
