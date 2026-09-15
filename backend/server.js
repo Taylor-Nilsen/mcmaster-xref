@@ -237,6 +237,7 @@ if (require.main !== module) return;
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
+  if (process.env.RUN_URLPROBE === "1") runUrlProbe();
   if (process.env.RUN_SWEEP === "1") runCategorySweep();
   if (process.env.RUN_VERIFY === "1") runVerification();
   if (process.env.RUN_QUERYLAB === "1") runQueryLab();
@@ -432,6 +433,12 @@ async function checkSupplierLink(browser, name, url, specs) {
       return { ok: null, detail: `${detail} <- served regardless of query; a block, not a verdict` };
     }
 
+    // A page that rendered no text at all has not answered the question --
+    // it is a render that did not finish, not a judgement on the link.
+    if (!text.trim()) {
+      return { ok: null, detail: `${detail} <- rendered no text; judge this one in a browser` };
+    }
+
     const marker = specs.threadSize || specs.shape || specs.material;
     const normalize = (v) => v.toLowerCase().replace(/["\u201d]/g, "").replace(/\s+/g, " ");
     if (marker && !normalize(text).includes(normalize(marker))) {
@@ -482,4 +489,66 @@ async function runCategorySweep() {
     }
   }
   console.log(`[sweep] DONE ${pass}/${cases.length} pass${failures.length ? ` -- failed: ${failures.join(", ")}` : ""}`);
+}
+
+/**
+ * Env-gated (RUN_URLPROBE=1). Finds a supplier's real search URL instead of
+ * guessing one.
+ *
+ * Online Metals and Speedy Metals both answered 404 for every raw-stock
+ * lookup -- the search paths in the link table were simply wrong, so that
+ * whole family of parts handed out dead links. A replacement guessed from
+ * here would be the same mistake again, so each candidate shape is opened
+ * in a real browser and reported with what it actually returned.
+ */
+const PROBE_QUERY = "6061 aluminum round bar";
+const PROBE_CANDIDATES = [
+  ["Online Metals", "https://www.onlinemetals.com/en/search?text={q}"],
+  ["Online Metals", "https://www.onlinemetals.com/search?text={q}"],
+  ["Online Metals", "https://www.onlinemetals.com/en/search?q={q}"],
+  ["Online Metals", "https://www.onlinemetals.com/catalogsearch/result/?q={q}"],
+  ["Online Metals", "https://www.onlinemetals.com/en/buy/search?text={q}"],
+  ["Online Metals", "https://www.onlinemetals.com/"],
+  ["Speedy Metals", "https://www.speedymetals.com/Search?searchTerm={q}"],
+  ["Speedy Metals", "https://www.speedymetals.com/search?searchTerm={q}"],
+  ["Speedy Metals", "https://www.speedymetals.com/SearchResults.aspx?searchTerm={q}"],
+  ["Speedy Metals", "https://www.speedymetals.com/search.aspx?q={q}"],
+  ["Speedy Metals", "https://www.speedymetals.com/s/{q}"],
+  ["Speedy Metals", "https://www.speedymetals.com/"],
+];
+
+async function runUrlProbe() {
+  console.log("[probe] START");
+  const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
+  try {
+    for (const [name, template] of PROBE_CANDIDATES) {
+      const url = template.replace("{q}", encodeURIComponent(PROBE_QUERY));
+      let context;
+      try {
+        context = await newStealthContext(browser);
+        const page = await context.newPage();
+        const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        try {
+          await page.waitForLoadState("networkidle", { timeout: 8000 });
+        } catch {
+          // judge whatever rendered
+        }
+        const status = response ? response.status() : 0;
+        const title = (await page.title().catch(() => "")).trim().slice(0, 70);
+        const text = (await page.evaluate(() => document.body.innerText).catch(() => "")) || "";
+        const hits = /aluminum/i.test(text) && /round bar|round|bar/i.test(text);
+        console.log(
+          `[probe] ${status === 200 ? (hits ? "HITS " : "200  ") : "BAD  "} ${name} ${url} status=${status} textLen=${text.length} title=${JSON.stringify(title)}`
+        );
+      } catch (err) {
+        console.log(`[probe] ERR   ${name} ${url} -- ${err.message}`);
+      } finally {
+        if (context) await context.close().catch(() => {});
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+  } finally {
+    await browser.close();
+  }
+  console.log("[probe] DONE");
 }
