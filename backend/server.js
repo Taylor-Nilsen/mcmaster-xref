@@ -492,37 +492,62 @@ async function runCategorySweep() {
 }
 
 /**
- * Env-gated (RUN_URLPROBE=1). Finds a supplier's real search URL instead of
- * guessing one.
+ * Env-gated (RUN_URLPROBE=1). Finds suppliers whose search actually answers
+ * a browser, instead of assuming one does.
  *
- * Online Metals and Speedy Metals both answered 404 for every raw-stock
- * lookup -- the search paths in the link table were simply wrong, so that
- * whole family of parts handed out dead links. A replacement guessed from
- * here would be the same mistake again, so each candidate shape is opened
- * in a real browser and reported with what it actually returned.
+ * The link table was built from plausible-looking URLs, and two of them --
+ * both metal suppliers -- turned out to 404 on every query, so every
+ * raw-stock lookup handed out dead links. The lesson is that a supplier
+ * belongs in the table only once something has opened its search and seen
+ * the part come back.
+ *
+ * Each candidate is opened in a real browser and scored on what rendered:
+ * HITS means the page came back with the query's own terms in it, 200
+ * means it answered but without them (usually a redirect to a homepage),
+ * WALL means the site refused an automated client, and BAD is a 404 or
+ * worse. Only HITS earns a place in the table.
  */
-const PROBE_QUERY = "6061 aluminum round bar";
-const PROBE_CANDIDATES = [
-  ["Online Metals", "https://www.onlinemetals.com/en/search?text={q}"],
-  ["Online Metals", "https://www.onlinemetals.com/search?text={q}"],
-  ["Online Metals", "https://www.onlinemetals.com/en/search?q={q}"],
-  ["Online Metals", "https://www.onlinemetals.com/catalogsearch/result/?q={q}"],
-  ["Online Metals", "https://www.onlinemetals.com/en/buy/search?text={q}"],
-  ["Online Metals", "https://www.onlinemetals.com/"],
-  ["Speedy Metals", "https://www.speedymetals.com/Search?searchTerm={q}"],
-  ["Speedy Metals", "https://www.speedymetals.com/search?searchTerm={q}"],
-  ["Speedy Metals", "https://www.speedymetals.com/SearchResults.aspx?searchTerm={q}"],
-  ["Speedy Metals", "https://www.speedymetals.com/search.aspx?q={q}"],
-  ["Speedy Metals", "https://www.speedymetals.com/s/{q}"],
-  ["Speedy Metals", "https://www.speedymetals.com/"],
+const PROBE_QUERIES = {
+  rawstock: { q: "6061 aluminum round bar", terms: [/6061/i, /\b(bar|rod)\b/i] },
+  fastener: { q: "1/4-20 socket head cap screw", terms: [/1\/4/, /socket|cap screw/i] },
+};
+
+// Path shapes are grouped by the ecommerce platform that uses them, since
+// most of these sites are a stock Shopify, Magento or BigCommerce store
+// underneath and share one search route.
+const PROBE_TARGETS = [
+  ["eBay", "fastener", "https://www.ebay.com/sch/i.html?_nkw={q}"],
+  ["eBay", "rawstock", "https://www.ebay.com/sch/i.html?_nkw={q}"],
+  ["Zoro", "fastener", "https://www.zoro.com/search?q={q}"],
+  ["Zoro", "rawstock", "https://www.zoro.com/search?q={q}"],
+  ["Global Industrial", "fastener", "https://www.globalindustrial.com/search?searchTerm={q}"],
+  ["Accu", "fastener", "https://www.accu.co.uk/en/search?search_query={q}"],
+  ["Albany County Fasteners", "fastener", "https://www.albanycountyfasteners.com/search?q={q}"],
+  ["Bolt Dropper", "fastener", "https://boltdropper.com/search?q={q}"],
+  ["Fastener SuperStore", "fastener", "https://www.fastenersuperstore.com/search?keywords={q}"],
+  ["Tanner Bolt", "fastener", "https://www.tannerbolt.com/search?q={q}"],
+  ["Metals Depot", "rawstock", "https://www.metalsdepot.com/search?q={q}"],
+  ["Metals Depot", "rawstock", "https://www.metalsdepot.com/catalogsearch/result/?q={q}"],
+  ["Midwest Steel Supply", "rawstock", "https://www.midweststeelsupply.com/search?q={q}"],
+  ["Discount Steel", "rawstock", "https://www.discountsteel.com/search?q={q}"],
+  ["Industrial Metal Supply", "rawstock", "https://www.industrialmetalsupply.com/catalogsearch/result/?q={q}"],
+  ["Metal Supermarkets", "rawstock", "https://www.metalsupermarkets.com/?s={q}"],
+  ["Alro", "rawstock", "https://www.alro.com/search?q={q}"],
+  ["OnlineMetals alt", "rawstock", "https://www.onlinemetals.com/en/search-results?text={q}"],
+  ["SpeedyMetals alt", "rawstock", "https://www.speedymetals.com/Search.aspx?searchTerm={q}"],
+  ["VXB Bearings", "fastener", "https://www.vxb.com/search?q={q}"],
+  ["The O-Ring Store", "fastener", "https://www.theoringstore.com/search?q={q}"],
+  ["Marco Rubber", "fastener", "https://www.marcorubber.com/search?q={q}"],
 ];
 
 async function runUrlProbe() {
-  console.log("[probe] START");
+  console.log(`[probe] START ${PROBE_TARGETS.length} candidates`);
   const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
+  const winners = [];
   try {
-    for (const [name, template] of PROBE_CANDIDATES) {
-      const url = template.replace("{q}", encodeURIComponent(PROBE_QUERY));
+    for (const [name, family, template] of PROBE_TARGETS) {
+      const { q, terms } = PROBE_QUERIES[family];
+      const url = template.replace("{q}", encodeURIComponent(q));
       let context;
       try {
         context = await newStealthContext(browser);
@@ -534,21 +559,34 @@ async function runUrlProbe() {
           // judge whatever rendered
         }
         const status = response ? response.status() : 0;
-        const title = (await page.title().catch(() => "")).trim().slice(0, 70);
+        const title = (await page.title().catch(() => "")).trim().slice(0, 60);
         const text = (await page.evaluate(() => document.body.innerText).catch(() => "")) || "";
-        const hits = /aluminum/i.test(text) && /round bar|round|bar/i.test(text);
-        console.log(
-          `[probe] ${status === 200 ? (hits ? "HITS " : "200  ") : "BAD  "} ${name} ${url} status=${status} textLen=${text.length} title=${JSON.stringify(title)}`
-        );
+
+        let verdict;
+        if (/just a moment|access denied|pardon our interruption|unusual traffic|are you a robot|verify you are human/i.test(`${title}\n${text.slice(0, 3000)}`) || status === 403 || status === 503) {
+          verdict = "WALL";
+        } else if (status >= 400) {
+          verdict = "BAD ";
+        } else if (!text.trim()) {
+          verdict = "EMPTY";
+        } else if (terms.every((re) => re.test(text))) {
+          verdict = "HITS";
+          winners.push(`${name} [${family}] ${template}`);
+        } else {
+          verdict = "200 ";
+        }
+        console.log(`[probe] ${verdict} ${name} [${family}] status=${status} textLen=${text.length} title=${JSON.stringify(title)} ${url}`);
       } catch (err) {
-        console.log(`[probe] ERR   ${name} ${url} -- ${err.message}`);
+        console.log(`[probe] ERR  ${name} [${family}] ${url} -- ${err.message}`);
       } finally {
         if (context) await context.close().catch(() => {});
       }
-      await new Promise((r) => setTimeout(r, 1500));
+      await new Promise((r) => setTimeout(r, 1200));
     }
   } finally {
     await browser.close();
   }
+  console.log(`[probe] VERIFIED ${winners.length}:`);
+  for (const w of winners) console.log(`[probe]   + ${w}`);
   console.log("[probe] DONE");
 }
