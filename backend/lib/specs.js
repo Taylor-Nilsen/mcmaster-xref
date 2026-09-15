@@ -25,6 +25,9 @@ const FINISHES = ["zinc plated", "black oxide", "galvanized", "chrome plated", "
  * "lock nut" has to beat "nut".
  */
 const PART_TYPES = [
+  // Headed screws. The head style alone does not fix the noun -- a
+  // Phillips flat head is not a socket cap screw -- so these stay generic
+  // and fastenerNoun refines them when the drive is known.
   [/socket head (?:cap )?screw/i, "socket head cap screw", "fastener"],
   [/button head (?:socket )?(?:cap )?screw/i, "button head screw", "fastener"],
   [/(?:flat|countersunk) head (?:socket )?(?:cap )?screw/i, "flat head screw", "fastener"],
@@ -32,35 +35,129 @@ const PART_TYPES = [
   [/truss head screw/i, "truss head screw", "fastener"],
   [/cheese head screw/i, "cheese head screw", "fastener"],
   [/hex head (?:cap )?screw|hex (?:cap )?bolt/i, "hex head cap screw", "fastener"],
-  [/shoulder screw/i, "shoulder screw", "fastener"],
+  [/shoulder screw|shoulder bolt/i, "shoulder screw", "fastener"],
   [/set screw/i, "set screw", "fastener"],
   [/thumb screw/i, "thumb screw", "fastener"],
-  [/machine screw/i, "machine screw", "fastener"],
   [/wood screw/i, "wood screw", "fastener"],
-  [/sheet metal screw|self.?tapping screw/i, "sheet metal screw", "fastener"],
-  [/threaded rod|all.?thread/i, "threaded rod", "fastener"],
+  [/(?:sheet metal|self.?tapping) screw/i, "sheet metal screw", "fastener"],
+  [/concrete screw|masonry screw/i, "concrete screw", "fastener"],
   [/carriage bolt/i, "carriage bolt", "fastener"],
+  [/toggle bolt/i, "toggle bolt", "fastener"],
+  [/machine screw/i, "machine screw", "fastener"],
+
+  // Rod, stud and anchor forms. "threaded rod" has to beat "rod", and the
+  // anchors have to beat the bolt and screw words inside their own names.
+  [/acme threaded rod/i, "acme threaded rod", "fastener"],
+  [/double.?end.*stud|threaded stud|\bstud\b/i, "threaded stud", "fastener"],
+  [/threaded rod|all.?thread/i, "threaded rod", "fastener"],
+  [/wedge anchor/i, "wedge anchor", "fastener"],
+  [/sleeve anchor/i, "sleeve anchor", "fastener"],
+  [/drop.?in anchor/i, "drop-in anchor", "fastener"],
+  [/\banchor\b/i, "anchor", "fastener"],
+  [/shoulder eyebolt/i, "shoulder eyebolt", "fastener"],
+  [/eye ?bolt/i, "eyebolt", "fastener"],
+  [/eye ?nut/i, "eye nut", "nut"],
+  [/u.?bolt/i, "u-bolt", "fastener"],
+  [/j.?bolt/i, "j-bolt", "fastener"],
+
+  // Rivets before the generic nut rule, so a rivet nut stays a rivet nut.
+  [/rivet ?nut|nutsert/i, "rivet nut", "fastener"],
+  [/blind rivet|pop rivet/i, "blind rivet", "fastener"],
+  [/semi.?tubular rivet/i, "semi-tubular rivet", "fastener"],
+  [/drive rivet/i, "drive rivet", "fastener"],
+  [/solid rivet/i, "solid rivet", "fastener"],
   [/\brivet\b/i, "rivet", "fastener"],
-  [/(?:nylon.insert|nyloc|lock).?nut/i, "lock nut", "nut"],
+
+  // Nuts, specific trade names first.
+  [/(?:nylon.insert|nyloc|lock).?nut|locknut/i, "lock nut", "nut"],
+  [/coupling nut/i, "coupling nut", "nut"],
+  [/flange nut/i, "flange nut", "nut"],
   [/wing nut/i, "wing nut", "nut"],
-  [/(?:cap|acorn) nut/i, "acorn nut", "nut"],
+  [/(?:cap|acorn|dome) nut/i, "acorn nut", "nut"],
   [/square nut/i, "square nut", "nut"],
+  [/jam nut/i, "jam nut", "nut"],
   [/hex nut/i, "hex nut", "nut"],
   [/\bnut\b/i, "nut", "nut"],
+
+  // Named washers. A "thrust washer bearing" is a bearing, so the bearing
+  // rule below has to see it before the bare washer rule does.
   [/lock washer/i, "lock washer", "washer"],
   [/flat washer/i, "flat washer", "washer"],
+  [/fender washer/i, "fender washer", "washer"],
+  [/belleville|disc spring washer/i, "belleville washer", "washer"],
+  [/sealing washer/i, "sealing washer", "washer"],
+  [/shoulder washer/i, "shoulder washer", "washer"],
+  [/\bshim\b/i, "shim", "washer"],
+
+  // Rotating parts. These precede the generic washer and spring rules.
+  [/thrust washer bearing|thrust bearing/i, "thrust bearing", "other"],
+  [/linear (?:ball )?bearing/i, "linear bearing", "other"],
+  [/needle.?roller bearing/i, "needle-roller bearing", "other"],
+  [/flanged (?:ball |sleeve )?bearing/i, "flanged bearing", "other"],
+  [/sleeve bearing|\bbushing\b/i, "sleeve bearing", "other"],
+  [/ball bearing|\bbearing\b/i, "ball bearing", "other"],
   [/\bwasher\b/i, "washer", "washer"],
-  [/o-?ring/i, "o-ring", "sealing"],
-  [/\bgasket\b/i, "gasket", "sealing"],
-  [/oil seal|shaft seal/i, "shaft seal", "sealing"],
+
+  // Pins before springs, or a spring pin reads as a spring.
+  [/spring pin|roll pin/i, "spring pin", "other"],
   [/dowel pin/i, "dowel pin", "other"],
-  [/\bbearing\b/i, "bearing", "other"],
-  [/spring\b/i, "spring", "other"],
+  [/cotter pin/i, "cotter pin", "other"],
+  [/clevis pin/i, "clevis pin", "other"],
+  [/taper pin/i, "taper pin", "other"],
+  [/\bpin\b/i, "pin", "other"],
+
+  [/retaining ring|snap ring|circlip|e.?style ring|e.?clip/i, "retaining ring", "other"],
+  [/helical insert|threaded insert|keylocking insert|heat.?set insert|\binsert\b/i, "threaded insert", "fastener"],
+  [/standoff/i, "standoff", "fastener"],
+  [/\bspacer\b/i, "spacer", "other"],
+
+  // Power transmission.
+  [/shaft collar/i, "shaft collar", "other"],
+  [/(?:shaft |flexible |rigid )?coupling\b/i, "shaft coupling", "other"],
+  [/universal joint|u.?joint/i, "universal joint", "other"],
+  [/rod end|ball joint/i, "rod end", "other"],
+  [/timing belt pulley/i, "timing belt pulley", "other"],
+  [/\bpulley\b|sheave/i, "pulley", "other"],
+  [/timing belt/i, "timing belt", "other"],
+  [/v.?belt/i, "v-belt", "other"],
+  [/\bbelt\b/i, "belt", "other"],
+  [/spur gear|\bgear\b/i, "spur gear", "other"],
+  [/sprocket/i, "sprocket", "other"],
+  [/roller chain|\bchain\b/i, "roller chain", "other"],
+  [/shock absorber/i, "shock absorber", "other"],
+  [/\bactuator\b/i, "actuator", "other"],
+
+  // Springs, after every part whose name contains the word.
+  [/compression spring/i, "compression spring", "other"],
+  [/extension spring/i, "extension spring", "other"],
+  [/torsion spring/i, "torsion spring", "other"],
+  [/\bspring\b/i, "spring", "other"],
+
+  // Sealing.
+  [/o-?ring/i, "o-ring", "sealing"],
+  [/quad ring|x-?ring/i, "quad ring", "sealing"],
+  [/oil seal|shaft seal|lip seal/i, "shaft seal", "sealing"],
+  [/\bgasket\b/i, "gasket", "sealing"],
+
+  // Pipe and tube fittings, before the raw-stock pipe and tube rules --
+  // a pipe nipple is a fitting sold by an MRO house, not a length of bar.
+  [/pipe nipple/i, "pipe nipple", "fitting"],
+  [/(?:pipe|tube) elbow|\belbow\b/i, "elbow fitting", "fitting"],
+  [/(?:pipe|tube) tee|\btee\b/i, "tee fitting", "fitting"],
+  [/compression (?:tube )?fitting/i, "compression fitting", "fitting"],
+  [/barbed (?:hose |tube )?fitting/i, "barbed fitting", "fitting"],
+  [/hose fitting|tube fitting|pipe fitting/i, "fitting", "fitting"],
+  [/quick.?disconnect/i, "quick-disconnect coupling", "fitting"],
+
+  // Raw stock.
+  [/key ?stock/i, "keystock", "rawstock"],
   [/round bar|rod stock/i, "round bar", "rawstock"],
-  [/hex bar|square bar|rectangular bar|flat bar|\bbar stock\b/i, "bar", "rawstock"],
+  [/hex bar/i, "hex bar", "rawstock"],
+  [/square bar|rectangular bar|flat bar|\bbar stock\b/i, "bar", "rawstock"],
   [/\b(?:sheet|plate)\b/i, "sheet", "rawstock"],
+  [/\bangle\b/i, "angle", "rawstock"],
+  [/\bchannel\b/i, "channel", "rawstock"],
   [/\btub(?:e|ing)\b|\bpipe\b/i, "tube", "rawstock"],
-  [/keystock|key stock/i, "keystock", "rawstock"],
 ];
 
 const NOUN_FAMILY = new Map(PART_TYPES.map(([, noun, family]) => [noun, family]));
@@ -135,6 +232,8 @@ const KEY_MAP = {
   "screw size": "screwSize",
   "for thread size": "screwSize",
   "inside diameter": "insideDiameter",
+  "for shaft diameter": "shaftDiameter",
+  "shaft diameter": "shaftDiameter",
   id: "insideDiameter",
   durometer: "durometer",
   hardness: "durometer",
@@ -202,7 +301,7 @@ function sanitizeSpecs(specs) {
     "diameter", "thickness", "width", "grade", "category", "headType",
     // partType is the manual override for what the part *is* -- the one
     // field that decides the product noun and which suppliers get asked.
-    "partType", "screwSize", "insideDiameter", "durometer",
+    "partType", "screwSize", "insideDiameter", "durometer", "shaftDiameter",
   ];
   const out = {};
   for (const key of allowed) {
@@ -352,10 +451,14 @@ function partFamily(specs) {
   if (category.includes("stock")) return "rawstock";
 
   if (specs.headType) return "fastener";
-  if (specs.insideDiameter) return "sealing";
   if (specs.screwSize) return "washer";
   if (specs.threadSize) return "fastener";
   if (specs.shape) return "rawstock";
+  // An inside diameter used to imply a seal, which put shaft collars,
+  // spacers, pulleys, gears and every other bored part in front of the
+  // o-ring suppliers. It only means "this part has a hole in it". A seal
+  // is identified by its name or by being made of rubber.
+  if (specs.insideDiameter && /rubber|buna|viton|nitrile|silicone|neoprene|epdm/i.test(specs.material || "")) return "sealing";
   return "other";
 }
 
@@ -399,7 +502,9 @@ function buildQuery(rawSpecs) {
   const noun = partNoun(specs, family);
 
   if (family === "fastener") {
-    const size = [specs.threadSize, specs.length].filter(Boolean).join(" x ");
+    // Rivets, anchors and pins have a diameter where a screw has a thread,
+    // and dropping it left "1/4\" rivet" describing only the length.
+    const size = [specs.threadSize || specs.diameter, specs.length].filter(Boolean).join(" x ");
     return joinTerms([size, noun, specs.material, specs.finish, specs.grade]);
   }
 
@@ -436,6 +541,10 @@ function buildQuery(rawSpecs) {
   // stick it ships ("1 ft."), while metal suppliers cut to order, so
   // carrying it over just narrows the search with a number that means
   // something else on the other site.
+  if (family === "fitting") {
+    return joinTerms([specs.threadSize || specs.diameter, noun, specs.material, specs.finish]);
+  }
+
   if (family === "rawstock") {
     return joinTerms([specs.material, specs.shape || noun, specs.diameter, specs.thickness, specs.width, specs.finish]);
   }
@@ -446,7 +555,9 @@ function buildQuery(rawSpecs) {
   return joinTerms([
     specs.material,
     noun,
+    specs.threadSize,
     specs.insideDiameter && `${specs.insideDiameter} ID`,
+    specs.shaftDiameter && `for ${specs.shaftDiameter} shaft`,
     specs.diameter,
     specs.thickness,
     specs.width,
@@ -506,6 +617,7 @@ const SUPPLIERS_BY_FAMILY = {
   nut: FASTENER_SUPPLIERS,
   washer: FASTENER_SUPPLIERS,
   sealing: MRO_SUPPLIERS,
+  fitting: MRO_SUPPLIERS,
   rawstock: RAW_STOCK_SUPPLIERS,
   other: MRO_SUPPLIERS,
 };

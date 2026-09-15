@@ -105,13 +105,13 @@
     "label": "Ball bearing",
     "part": "60355K505",
     "pastedText": "Steel Ball Bearing\nMaterial\nSteel\nInside Diameter\n1/4\"\nOutside Diameter\n5/8\"\nWidth\n0.196\"\n",
-    "expect": "Steel bearing 1/4\" ID 5/8\" 0.196\""
+    "expect": "Steel ball bearing 1/4\" ID 5/8\" 0.196\""
   },
   {
     "label": "Compression spring",
     "part": "9657K277",
     "pastedText": "Steel Compression Spring\nMaterial\nSteel\nOutside Diameter\n0.36\"\nLength\n1\"\n",
-    "expect": "Steel spring 0.36\" 1\""
+    "expect": "Steel compression spring 0.36\" 1\""
   },
   {
     "label": "Dowel pin",
@@ -142,5 +142,521 @@
     "part": "98870A150",
     "pastedText": "Zinc-Plated Steel Keystock\nMaterial\nZinc-Plated Steel\nShape\nKeystock\nWidth\n1/4\"\nThickness\n1/4\"\nLength\n12\"\n",
     "expect": "Steel Keystock 1/4\" 1/4\" Zinc-Plated"
+  },
+  {
+    "label": "Threaded rods & studs — Black-Oxide Alloy Steel Threaded Stud",
+    "part": "(shape)",
+    "pastedText": "Black-Oxide Alloy Steel Threaded Stud\nMaterial\nBlack-Oxide Alloy Steel\nThread\nSize\n3/8\"-16\nLength\n2\"\n",
+    "expect": "3/8\"-16 x 2\" threaded stud Alloy Steel Black-Oxide"
+  },
+  {
+    "label": "Threaded rods & studs — Acme Threaded Rod",
+    "part": "(shape)",
+    "pastedText": "Steel Acme Threaded Rod\nMaterial\nSteel\nThread\nSize\n1/2\"-10\nLength\n6 ft.\n",
+    "expect": "1/2\"-10 x 6 ft. acme threaded rod Steel"
+  },
+  {
+    "label": "Threaded rods & studs — Zinc-Plated Steel Threaded Rod",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Threaded Rod\nMaterial\nZinc-Plated Steel\nThread\nSize\nM8 x 1.25 mm\nLength\n1 m\n",
+    "expect": "M8-1.25 x 1 m threaded rod Steel Zinc-Plated"
+  },
+  {
+    "label": "Threaded rods & studs — Double-End Threaded Stud",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Double-End Threaded Stud\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nLength\n3\"\n",
+    "expect": "1/4\"-20 x 3\" threaded stud 18-8 Stainless Steel"
+  },
+  {
+    "label": "Eyebolts & U-bolts — Zinc-Plated Steel Eyebolt",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Eyebolt\nMaterial\nZinc-Plated Steel\nThread\nSize\n1/4\"-20\nLength\n2\"\n",
+    "expect": "1/4\"-20 x 2\" eyebolt Steel Zinc-Plated"
+  },
+  {
+    "label": "Eyebolts & U-bolts — Shoulder Eyebolt",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Shoulder Eyebolt\nMaterial\n18-8 Stainless Steel\nThread\nSize\n3/8\"-16\nLength\n1-1/2\"\n",
+    "expect": "3/8\"-16 x 1-1/2\" shoulder eyebolt 18-8 Stainless Steel"
+  },
+  {
+    "label": "Eyebolts & U-bolts — Galvanized Steel U-Bolt",
+    "part": "(shape)",
+    "pastedText": "Galvanized Steel U-Bolt\nMaterial\nGalvanized Steel\nThread\nSize\n5/16\"-18\nWidth\n2\"\n",
+    "expect": "5/16\"-18 u-bolt Steel galvanized"
+  },
+  {
+    "label": "Eyebolts & U-bolts — J-Bolt",
+    "part": "(shape)",
+    "pastedText": "Steel J-Bolt\nMaterial\nSteel\nThread\nSize\n1/4\"-20\nLength\n3\"\n",
+    "expect": "1/4\"-20 x 3\" j-bolt Steel"
+  },
+  {
+    "label": "Eyebolts & U-bolts — Eye Nut",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Eye Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\n",
+    "expect": "1/4\"-20 eye nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Nuts — Hex Nut",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Hex Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nWidth\n7/16\"\n",
+    "expect": "1/4\"-20 hex nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Nuts — Zinc-Plated Steel Nylon-Insert Locknut",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Nylon-Insert Locknut\nMaterial\nZinc-Plated Steel\nThread\nSize\n3/8\"-16\nWidth\n9/16\"\n",
+    "expect": "3/8\"-16 lock nut Steel Zinc-Plated"
+  },
+  {
+    "label": "Nuts — Wing Nut",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Wing Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n10-32\n",
+    "expect": "10-32 wing nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Nuts — Chrome-Plated Steel Acorn Nut",
+    "part": "(shape)",
+    "pastedText": "Chrome-Plated Steel Acorn Nut\nMaterial\nChrome-Plated Steel\nThread\nSize\n1/4\"-20\n",
+    "expect": "1/4\"-20 acorn nut Steel Chrome-Plated"
+  },
+  {
+    "label": "Nuts — Square Nut",
+    "part": "(shape)",
+    "pastedText": "Steel Square Nut\nMaterial\nSteel\nThread\nSize\n5/16\"-18\nWidth\n1/2\"\n",
+    "expect": "5/16\"-18 square nut Steel"
+  },
+  {
+    "label": "Nuts — Coupling Nut",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Coupling Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nLength\n7/8\"\n",
+    "expect": "1/4\"-20 coupling nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Washers — Zinc-Plated Steel Lock Washer",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Lock Washer\nMaterial\nZinc-Plated Steel\nFor Screw Size\n1/4\"\nOutside Diameter\n0.489\"\n",
+    "expect": "1/4\" lock washer Steel Zinc-Plated"
+  },
+  {
+    "label": "Washers — Fender Washer",
+    "part": "(shape)",
+    "pastedText": "Steel Fender Washer\nMaterial\nSteel\nFor Screw Size\n1/4\"\nOutside Diameter\n1-1/4\"\n",
+    "expect": "1/4\" fender washer Steel"
+  },
+  {
+    "label": "Washers — Belleville Disc Spring Washer",
+    "part": "(shape)",
+    "pastedText": "Steel Belleville Disc Spring Washer\nMaterial\nSteel\nFor Screw Size\n3/8\"\nOutside Diameter\n0.75\"\n",
+    "expect": "3/8\" belleville washer Steel"
+  },
+  {
+    "label": "Washers — Nylon Shoulder Washer",
+    "part": "(shape)",
+    "pastedText": "Nylon Shoulder Washer\nMaterial\nNylon\nFor Screw Size\nNumber 8\nOutside Diameter\n0.312\"\n",
+    "expect": "#8 shoulder washer Nylon"
+  },
+  {
+    "label": "Pins — Cotter Pin",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Cotter Pin\nMaterial\n18-8 Stainless Steel\nDiameter\n1/8\"\nLength\n1-1/2\"\n",
+    "expect": "18-8 Stainless Steel cotter pin 1/8\" 1-1/2\""
+  },
+  {
+    "label": "Pins — Zinc-Plated Steel Clevis Pin",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Clevis Pin\nMaterial\nZinc-Plated Steel\nDiameter\n3/8\"\nLength\n2\"\n",
+    "expect": "Steel clevis pin 3/8\" 2\" Zinc-Plated"
+  },
+  {
+    "label": "Pins — Spring Pin",
+    "part": "(shape)",
+    "pastedText": "Steel Spring Pin\nMaterial\nSteel\nDiameter\n3/16\"\nLength\n1\"\n",
+    "expect": "Steel spring pin 3/16\" 1\""
+  },
+  {
+    "label": "Pins — Alloy Steel Taper Pin",
+    "part": "(shape)",
+    "pastedText": "Alloy Steel Taper Pin\nMaterial\nAlloy Steel\nDiameter\n1/4\"\nLength\n1-1/4\"\n",
+    "expect": "Alloy Steel taper pin 1/4\" 1-1/4\""
+  },
+  {
+    "label": "Spacers & standoffs — Aluminum Unthreaded Spacer",
+    "part": "(shape)",
+    "pastedText": "Aluminum Unthreaded Spacer\nMaterial\nAluminum\nOutside Diameter\n1/4\"\nInside Diameter\n0.115\"\nLength\n1/2\"\n",
+    "expect": "Aluminum spacer 0.115\" ID 1/4\" 1/2\""
+  },
+  {
+    "label": "Spacers & standoffs — Hex Standoff",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Hex Standoff\nMaterial\n18-8 Stainless Steel\nThread\nSize\n4-40\nLength\n1/2\"\nWidth\n3/16\"\n",
+    "expect": "4-40 x 1/2\" standoff 18-8 Stainless Steel"
+  },
+  {
+    "label": "Spacers & standoffs — Nylon Round Spacer",
+    "part": "(shape)",
+    "pastedText": "Nylon Round Spacer\nMaterial\nNylon\nOutside Diameter\n3/8\"\nInside Diameter\n0.192\"\nLength\n1/4\"\n",
+    "expect": "Nylon spacer 0.192\" ID 3/8\" 1/4\""
+  },
+  {
+    "label": "Spacers & standoffs — Brass Threaded Standoff",
+    "part": "(shape)",
+    "pastedText": "Brass Threaded Standoff\nMaterial\nBrass\nThread\nSize\n6-32\nLength\n3/4\"\n",
+    "expect": "6-32 x 3/4\" standoff Brass"
+  },
+  {
+    "label": "Spacers & standoffs — Shoulder Spacer",
+    "part": "(shape)",
+    "pastedText": "Steel Shoulder Spacer\nMaterial\nSteel\nOutside Diameter\n1/2\"\nLength\n3/8\"\n",
+    "expect": "Steel spacer 1/2\" 3/8\""
+  },
+  {
+    "label": "Inserts — Helical Insert",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Helical Insert\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nLength\n3/8\"\n",
+    "expect": "1/4\"-20 x 3/8\" threaded insert 18-8 Stainless Steel"
+  },
+  {
+    "label": "Inserts — Brass Heat-Set Threaded Insert",
+    "part": "(shape)",
+    "pastedText": "Brass Heat-Set Threaded Insert\nMaterial\nBrass\nThread\nSize\n6-32\nOutside Diameter\n0.2\"\n",
+    "expect": "6-32 threaded insert Brass"
+  },
+  {
+    "label": "Inserts — Keylocking Threaded Insert",
+    "part": "(shape)",
+    "pastedText": "Steel Keylocking Threaded Insert\nMaterial\nSteel\nThread\nSize\n3/8\"-16\nLength\n1/2\"\n",
+    "expect": "3/8\"-16 x 1/2\" threaded insert Steel"
+  },
+  {
+    "label": "Inserts — Brass Press-Fit Threaded Insert",
+    "part": "(shape)",
+    "pastedText": "Brass Press-Fit Threaded Insert\nMaterial\nBrass\nThread\nSize\n8-32\nLength\n1/4\"\n",
+    "expect": "8-32 x 1/4\" threaded insert Brass"
+  },
+  {
+    "label": "Inserts — Threaded Insert",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Threaded Insert\nMaterial\n18-8 Stainless Steel\nThread\nSize\n10-32\nLength\n5/16\"\n",
+    "expect": "10-32 x 5/16\" threaded insert 18-8 Stainless Steel"
+  },
+  {
+    "label": "Retaining rings — External Retaining Ring",
+    "part": "(shape)",
+    "pastedText": "Steel External Retaining Ring\nMaterial\nSteel\nFor Shaft Diameter\n1/2\"\nThickness\n0.035\"\n",
+    "expect": "Steel retaining ring for 1/2\" shaft 0.035\""
+  },
+  {
+    "label": "Retaining rings — Internal Retaining Ring",
+    "part": "(shape)",
+    "pastedText": "Steel Internal Retaining Ring\nMaterial\nSteel\nInside Diameter\n1\"\nThickness\n0.042\"\n",
+    "expect": "Steel retaining ring 1\" ID 0.042\""
+  },
+  {
+    "label": "Retaining rings — E-Style Retaining Ring",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel E-Style Retaining Ring\nMaterial\n18-8 Stainless Steel\nFor Shaft Diameter\n1/4\"\n",
+    "expect": "18-8 Stainless Steel retaining ring for 1/4\" shaft"
+  },
+  {
+    "label": "Retaining rings — Spiral Retaining Ring",
+    "part": "(shape)",
+    "pastedText": "Steel Spiral Retaining Ring\nMaterial\nSteel\nInside Diameter\n3/4\"\n",
+    "expect": "Steel retaining ring 3/4\" ID"
+  },
+  {
+    "label": "Retaining rings — Push-On Retaining Ring",
+    "part": "(shape)",
+    "pastedText": "Steel Push-On Retaining Ring\nMaterial\nSteel\nFor Shaft Diameter\n3/16\"\n",
+    "expect": "Steel retaining ring for 3/16\" shaft"
+  },
+  {
+    "label": "Rivets — Aluminum Blind Rivet",
+    "part": "(shape)",
+    "pastedText": "Aluminum Blind Rivet\nMaterial\nAluminum\nDiameter\n1/8\"\nLength\n1/4\"\n",
+    "expect": "1/8\" x 1/4\" blind rivet Aluminum"
+  },
+  {
+    "label": "Rivets — Solid Rivet",
+    "part": "(shape)",
+    "pastedText": "Steel Solid Rivet\nMaterial\nSteel\nDiameter\n3/16\"\nLength\n1/2\"\n",
+    "expect": "3/16\" x 1/2\" solid rivet Steel"
+  },
+  {
+    "label": "Rivets — Rivet Nut",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Rivet Nut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n10-32\nLength\n1/2\"\n",
+    "expect": "10-32 x 1/2\" rivet nut 18-8 Stainless Steel"
+  },
+  {
+    "label": "Rivets — Aluminum Semi-Tubular Rivet",
+    "part": "(shape)",
+    "pastedText": "Aluminum Semi-Tubular Rivet\nMaterial\nAluminum\nDiameter\n1/8\"\nLength\n3/8\"\n",
+    "expect": "1/8\" x 3/8\" semi-tubular rivet Aluminum"
+  },
+  {
+    "label": "Rivets — Drive Rivet",
+    "part": "(shape)",
+    "pastedText": "Steel Drive Rivet\nMaterial\nSteel\nDiameter\n1/4\"\nLength\n1/2\"\n",
+    "expect": "1/4\" x 1/2\" drive rivet Steel"
+  },
+  {
+    "label": "Anchors — Zinc-Plated Steel Wedge Anchor",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Wedge Anchor\nMaterial\nZinc-Plated Steel\nThread\nSize\n3/8\"-16\nLength\n3\"\n",
+    "expect": "3/8\"-16 x 3\" wedge anchor Steel Zinc-Plated"
+  },
+  {
+    "label": "Anchors — Sleeve Anchor",
+    "part": "(shape)",
+    "pastedText": "Steel Sleeve Anchor\nMaterial\nSteel\nDiameter\n1/4\"\nLength\n2-1/4\"\n",
+    "expect": "1/4\" x 2-1/4\" sleeve anchor Steel"
+  },
+  {
+    "label": "Anchors — Zinc-Plated Steel Drop-In Anchor",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Drop-In Anchor\nMaterial\nZinc-Plated Steel\nThread\nSize\n1/2\"-13\nLength\n2\"\n",
+    "expect": "1/2\"-13 x 2\" drop-in anchor Steel Zinc-Plated"
+  },
+  {
+    "label": "Anchors — Toggle Bolt",
+    "part": "(shape)",
+    "pastedText": "Steel Toggle Bolt\nMaterial\nSteel\nThread\nSize\n1/4\"-20\nLength\n3\"\n",
+    "expect": "1/4\"-20 x 3\" toggle bolt Steel"
+  },
+  {
+    "label": "Anchors — Concrete Screw",
+    "part": "(shape)",
+    "pastedText": "Steel Concrete Screw\nMaterial\nSteel\nDiameter\n3/16\"\nLength\n1-3/4\"\n",
+    "expect": "3/16\" x 1-3/4\" concrete screw Steel"
+  },
+  {
+    "label": "Sealing — Neoprene Rubber Gasket",
+    "part": "(shape)",
+    "pastedText": "Neoprene Rubber Gasket\nMaterial\nNeoprene Rubber\nThickness\n1/16\"\nWidth\n12\"\n",
+    "expect": "12\" wide gasket Neoprene Rubber 1/16\" thick"
+  },
+  {
+    "label": "Sealing — Nitrile Rubber Oil Seal",
+    "part": "(shape)",
+    "pastedText": "Nitrile Rubber Oil Seal\nMaterial\nNitrile Rubber\nInside Diameter\n1\"\nOutside Diameter\n1.5\"\nWidth\n1/4\"\n",
+    "expect": "1\" ID x 1/4\" wide shaft seal Nitrile Rubber"
+  },
+  {
+    "label": "Sealing — Silicone Rubber Quad Ring",
+    "part": "(shape)",
+    "pastedText": "Silicone Rubber Quad Ring\nMaterial\nSilicone Rubber\nInside Diameter\n1/2\"\nWidth\n1/8\"\nDurometer\n70A\n",
+    "expect": "1/2\" ID x 1/8\" wide quad ring Silicone Rubber 70A"
+  },
+  {
+    "label": "Sealing — Sealing Washer",
+    "part": "(shape)",
+    "pastedText": "18-8 Stainless Steel Sealing Washer\nMaterial\n18-8 Stainless Steel\nFor Screw Size\n1/4\"\nOutside Diameter\n5/8\"\n",
+    "expect": "1/4\" sealing washer 18-8 Stainless Steel"
+  },
+  {
+    "label": "Raw materials — 304 Stainless Steel Sheet",
+    "part": "(shape)",
+    "pastedText": "Multipurpose 304 Stainless Steel Sheet\nMaterial\n304 Stainless Steel\nShape\nSheet\nThickness\n0.063\"\nWidth\n6\"\n",
+    "expect": "304 Stainless Steel Sheet 0.063\" 6\""
+  },
+  {
+    "label": "Raw materials — Low-Carbon Steel Tube",
+    "part": "(shape)",
+    "pastedText": "Low-Carbon Steel Tube\nMaterial\nLow-Carbon Steel\nShape\nTube\nOutside Diameter\n1/2\"\nThickness\n0.035\"\n",
+    "expect": "Low-Carbon Steel Tube 1/2\" 0.035\""
+  },
+  {
+    "label": "Raw materials — Zinc-Plated Steel Keystock",
+    "part": "(shape)",
+    "pastedText": "Zinc-Plated Steel Keystock\nMaterial\nZinc-Plated Steel\nShape\nKeystock\nWidth\n1/4\"\nThickness\n1/4\"\n",
+    "expect": "Steel Keystock 1/4\" 1/4\" Zinc-Plated"
+  },
+  {
+    "label": "Raw materials — 6061 Aluminum Angle",
+    "part": "(shape)",
+    "pastedText": "6061 Aluminum Angle\nMaterial\n6061 Aluminum\nShape\nAngle\nThickness\n1/8\"\nWidth\n1\"\n",
+    "expect": "6061 Aluminum Angle 1/8\" 1\""
+  },
+  {
+    "label": "Raw materials — 6061 Aluminum Hex Bar",
+    "part": "(shape)",
+    "pastedText": "Multipurpose 6061 Aluminum Hex Bar\nMaterial\n6061 Aluminum\nShape\nHex Bar\nWidth\n1/2\"\n",
+    "expect": "6061 Aluminum Hex Bar 1/2\""
+  },
+  {
+    "label": "Pipe & tube fittings — Galvanized Steel Pipe Nipple",
+    "part": "(shape)",
+    "pastedText": "Galvanized Steel Pipe Nipple\nMaterial\nGalvanized Steel\nThread\nSize\n1/2\"-14\nLength\n3\"\n",
+    "expect": "1/2\"-14 pipe nipple Steel galvanized"
+  },
+  {
+    "label": "Pipe & tube fittings — Brass Pipe Elbow",
+    "part": "(shape)",
+    "pastedText": "Brass Pipe Elbow\nMaterial\nBrass\nThread\nSize\n1/4\"-18\n",
+    "expect": "1/4\"-18 elbow fitting Brass"
+  },
+  {
+    "label": "Pipe & tube fittings — 304 Stainless Steel Pipe Tee",
+    "part": "(shape)",
+    "pastedText": "304 Stainless Steel Pipe Tee\nMaterial\n304 Stainless Steel\nThread\nSize\n3/8\"-18\n",
+    "expect": "3/8\"-18 tee fitting 304 Stainless Steel"
+  },
+  {
+    "label": "Pipe & tube fittings — Brass Compression Tube Fitting",
+    "part": "(shape)",
+    "pastedText": "Brass Compression Tube Fitting\nMaterial\nBrass\nOutside Diameter\n1/4\"\nThread\nSize\n1/8\"-27\n",
+    "expect": "1/8\"-27 compression fitting Brass"
+  },
+  {
+    "label": "Pipe & tube fittings — Brass Barbed Hose Fitting",
+    "part": "(shape)",
+    "pastedText": "Brass Barbed Hose Fitting\nMaterial\nBrass\nOutside Diameter\n3/8\"\nThread\nSize\n1/4\"-18\n",
+    "expect": "1/4\"-18 barbed fitting Brass"
+  },
+  {
+    "label": "Bearings — Flanged Ball Bearing",
+    "part": "(shape)",
+    "pastedText": "Steel Flanged Ball Bearing\nMaterial\nSteel\nInside Diameter\n3/8\"\nOutside Diameter\n7/8\"\nWidth\n0.281\"\n",
+    "expect": "Steel flanged bearing 3/8\" ID 7/8\" 0.281\""
+  },
+  {
+    "label": "Bearings — Needle-Roller Bearing",
+    "part": "(shape)",
+    "pastedText": "Steel Needle-Roller Bearing\nMaterial\nSteel\nInside Diameter\n1/2\"\nOutside Diameter\n11/16\"\nWidth\n1/2\"\n",
+    "expect": "Steel needle-roller bearing 1/2\" ID 11/16\" 1/2\""
+  },
+  {
+    "label": "Bearings — Thrust Ball Bearing",
+    "part": "(shape)",
+    "pastedText": "Steel Thrust Ball Bearing\nMaterial\nSteel\nInside Diameter\n3/8\"\nOutside Diameter\n7/8\"\nWidth\n9/32\"\n",
+    "expect": "Steel ball bearing 3/8\" ID 7/8\" 9/32\""
+  },
+  {
+    "label": "Bearings — Linear Ball Bearing",
+    "part": "(shape)",
+    "pastedText": "Steel Linear Ball Bearing\nMaterial\nSteel\nInside Diameter\n1/2\"\nOutside Diameter\n7/8\"\nLength\n1-1/4\"\n",
+    "expect": "Steel linear bearing 1/2\" ID 7/8\" 1-1/4\""
+  },
+  {
+    "label": "Bushings — Oil-Embedded Bronze Sleeve Bearing",
+    "part": "(shape)",
+    "pastedText": "Oil-Embedded Bronze Sleeve Bearing\nMaterial\nBronze\nInside Diameter\n1/2\"\nOutside Diameter\n5/8\"\nLength\n1\"\n",
+    "expect": "Bronze sleeve bearing 1/2\" ID 5/8\" 1\""
+  },
+  {
+    "label": "Bushings — Bronze Flanged Sleeve Bearing",
+    "part": "(shape)",
+    "pastedText": "Bronze Flanged Sleeve Bearing\nMaterial\nBronze\nInside Diameter\n3/8\"\nOutside Diameter\n1/2\"\nLength\n3/4\"\n",
+    "expect": "Bronze flanged bearing 3/8\" ID 1/2\" 3/4\""
+  },
+  {
+    "label": "Bushings — Nylon Sleeve Bearing",
+    "part": "(shape)",
+    "pastedText": "Nylon Sleeve Bearing\nMaterial\nNylon\nInside Diameter\n1/4\"\nOutside Diameter\n3/8\"\nLength\n1/2\"\n",
+    "expect": "Nylon sleeve bearing 1/4\" ID 3/8\" 1/2\""
+  },
+  {
+    "label": "Bushings — Drill Bushing",
+    "part": "(shape)",
+    "pastedText": "Steel Drill Bushing\nMaterial\nSteel\nInside Diameter\n1/4\"\nOutside Diameter\n1/2\"\nLength\n5/8\"\n",
+    "expect": "Steel sleeve bearing 1/4\" ID 1/2\" 5/8\""
+  },
+  {
+    "label": "Bushings — Bronze Thrust Washer Bearing",
+    "part": "(shape)",
+    "pastedText": "Bronze Thrust Washer Bearing\nMaterial\nBronze\nInside Diameter\n1/2\"\nOutside Diameter\n7/8\"\nThickness\n1/16\"\n",
+    "expect": "Bronze thrust bearing 1/2\" ID 7/8\" 1/16\""
+  },
+  {
+    "label": "Shaft components — Black-Oxide Steel Shaft Collar",
+    "part": "(shape)",
+    "pastedText": "Black-Oxide Steel Shaft Collar\nMaterial\nBlack-Oxide Steel\nInside Diameter\n1/2\"\nOutside Diameter\n1-1/8\"\nWidth\n7/16\"\n",
+    "expect": "Steel shaft collar 1/2\" ID 1-1/8\" 7/16\" Black-Oxide"
+  },
+  {
+    "label": "Shaft components — Aluminum Flexible Shaft Coupling",
+    "part": "(shape)",
+    "pastedText": "Aluminum Flexible Shaft Coupling\nMaterial\nAluminum\nInside Diameter\n1/4\"\nLength\n1-1/4\"\n",
+    "expect": "Aluminum shaft coupling 1/4\" ID 1-1/4\""
+  },
+  {
+    "label": "Shaft components — Universal Joint",
+    "part": "(shape)",
+    "pastedText": "Steel Universal Joint\nMaterial\nSteel\nInside Diameter\n3/8\"\nLength\n2\"\n",
+    "expect": "Steel universal joint 3/8\" ID 2\""
+  },
+  {
+    "label": "Shaft components — Ball Joint Rod End",
+    "part": "(shape)",
+    "pastedText": "Steel Ball Joint Rod End\nMaterial\nSteel\nThread\nSize\n1/4\"-28\nInside Diameter\n1/4\"\n",
+    "expect": "Steel rod end 1/4\"-28 1/4\" ID"
+  },
+  {
+    "label": "Shaft components — 1566 Carbon Steel Key Stock",
+    "part": "(shape)",
+    "pastedText": "1566 Carbon Steel Key Stock\nMaterial\n1566 Carbon Steel\nShape\nKey Stock\nWidth\n1/4\"\nThickness\n1/4\"\n",
+    "expect": "1566 Carbon Steel Key Stock 1/4\" 1/4\""
+  },
+  {
+    "label": "Drive components — Aluminum Timing Belt Pulley",
+    "part": "(shape)",
+    "pastedText": "Aluminum Timing Belt Pulley\nMaterial\nAluminum\nInside Diameter\n1/4\"\nOutside Diameter\n1\"\n",
+    "expect": "Aluminum timing belt pulley 1/4\" ID 1\""
+  },
+  {
+    "label": "Drive components — Neoprene Timing Belt",
+    "part": "(shape)",
+    "pastedText": "Neoprene Timing Belt\nMaterial\nNeoprene\nWidth\n1/4\"\nLength\n12\"\n",
+    "expect": "Neoprene timing belt 1/4\" 12\""
+  },
+  {
+    "label": "Drive components — Rubber V-Belt",
+    "part": "(shape)",
+    "pastedText": "Rubber V-Belt\nMaterial\nRubber\nWidth\n1/2\"\nLength\n36\"\n",
+    "expect": "Rubber v-belt 1/2\" 36\""
+  },
+  {
+    "label": "Drive components — Spur Gear",
+    "part": "(shape)",
+    "pastedText": "Steel Spur Gear\nMaterial\nSteel\nInside Diameter\n1/4\"\nOutside Diameter\n1-1/2\"\n",
+    "expect": "Steel spur gear 1/4\" ID 1-1/2\""
+  },
+  {
+    "label": "Drive components — Roller Chain Sprocket",
+    "part": "(shape)",
+    "pastedText": "Steel Roller Chain Sprocket\nMaterial\nSteel\nInside Diameter\n1/2\"\nOutside Diameter\n2\"\n",
+    "expect": "Steel sprocket 1/2\" ID 2\""
+  },
+  {
+    "label": "Drive components — Roller Chain",
+    "part": "(shape)",
+    "pastedText": "Steel Roller Chain\nMaterial\nSteel\nWidth\n1/4\"\nLength\n10 ft.\n",
+    "expect": "Steel roller chain 1/4\" 10 ft."
+  },
+  {
+    "label": "Springs — Extension Spring",
+    "part": "(shape)",
+    "pastedText": "Steel Extension Spring\nMaterial\nSteel\nOutside Diameter\n0.25\"\nLength\n2\"\n",
+    "expect": "Steel extension spring 0.25\" 2\""
+  },
+  {
+    "label": "Springs — Torsion Spring",
+    "part": "(shape)",
+    "pastedText": "Steel Torsion Spring\nMaterial\nSteel\nOutside Diameter\n0.5\"\nLength\n1/2\"\n",
+    "expect": "Steel torsion spring 0.5\" 1/2\""
+  },
+  {
+    "label": "Springs — Conical Compression Spring",
+    "part": "(shape)",
+    "pastedText": "Steel Conical Compression Spring\nMaterial\nSteel\nOutside Diameter\n0.75\"\nLength\n1-1/2\"\n",
+    "expect": "Steel compression spring 0.75\" 1-1/2\""
+  },
+  {
+    "label": "Springs — 302 Stainless Steel Compression Spring",
+    "part": "(shape)",
+    "pastedText": "302 Stainless Steel Compression Spring\nMaterial\n302 Stainless Steel\nOutside Diameter\n0.3\"\nLength\n3/4\"\n",
+    "expect": "302 Stainless Steel compression spring 0.3\" 3/4\""
   }
 ]
