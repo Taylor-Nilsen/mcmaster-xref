@@ -134,6 +134,14 @@ class LoginWallError extends Error {
  */
 const specCache = new Map();
 
+// A gated part is gated per-part, not per-request: re-rendering it just
+// spends the same two page views to be told the same thing. Without this,
+// every retry from the UI cost another full render pair, which is what a
+// phone sees as the page hanging. Short-lived, because the gate has been
+// observed to lift -- a retry a few minutes later still gets a real look.
+const GATED_TTL_MS = 5 * 60 * 1000;
+const gatedCache = new Map();
+
 /**
  * Renders the live McMaster product page in a real headless browser and
  * parses the fully-rendered text. Throws LoginWallError when McMaster is
@@ -146,6 +154,12 @@ async function fetchMcMasterSpecsLive(partNumber) {
   if (cached) {
     console.log(`[xref] part=${partNumber} served from cache`);
     return cached;
+  }
+
+  const gatedAt = gatedCache.get(partNumber);
+  if (gatedAt && Date.now() - gatedAt < GATED_TTL_MS) {
+    console.log(`[xref] part=${partNumber} known gated, not re-rendering`);
+    throw new LoginWallError();
   }
 
   // The gate is intermittent rather than absolute: in one verification run
@@ -166,6 +180,7 @@ async function fetchMcMasterSpecsLive(partNumber) {
       console.log(`[xref] part=${partNumber} attempt ${attempt} gated`);
     }
   }
+  if (lastError && lastError.code === "LOGIN_WALL") gatedCache.set(partNumber, Date.now());
   throw lastError;
 }
 
@@ -187,8 +202,20 @@ async function renderMcMasterPage(partNumber, attempt) {
     // McMaster's Angular app fetches product data on a separate call after
     // load, so waiting for network-quiet returns nav/footer chrome only.
     // Wait for real content to appear instead.
+    // Two ways this wait can legitimately end: the product data arrives, or
+    // the login wall does. Waiting only for the data meant a gated part --
+    // 850 characters that will never grow -- burned the full timeout on
+    // every attempt, twice per request. That is most of the 82 seconds a
+    // gated lookup used to take before it could say it was gated.
     try {
-      await page.waitForFunction(() => document.body.innerText.length > 1500, { timeout: 15000 });
+      await page.waitForFunction(
+        (wallSource) => {
+          const t = document.body ? document.body.innerText : "";
+          return t.length > 1500 || new RegExp(wallSource, "i").test(t);
+        },
+        LOGIN_WALL_RE.source,
+        { timeout: 15000 }
+      );
     } catch {
       // proceed with whatever rendered -- classified below
     }
