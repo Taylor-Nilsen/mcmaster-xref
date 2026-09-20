@@ -211,10 +211,25 @@ async function renderMcMasterPage(partNumber, attempt) {
       await page.waitForFunction(
         (wallSource) => {
           const t = document.body ? document.body.innerText : "";
-          return t.length > 1500 || new RegExp(wallSource, "i").test(t);
+          // The wall is final the moment it appears -- nothing more is
+          // coming, so waiting out the timeout only makes a gated part slow
+          // to report that it is gated.
+          if (new RegExp(wallSource, "i").test(t)) return true;
+          // Waiting for a character count was a race: the Angular app fills
+          // the spec table progressively, and 1500 characters is reached
+          // partway through it. Two renders of 91251A540 crossed that line
+          // at 2425 and 2228 characters; the short one parsed 5 of 8 fields
+          // and its query degraded from "socket head cap screw" to "machine
+          // screw", because the head type had not arrived yet. Partial
+          // specs are worse than none, since they look like an answer. Wait
+          // for the text to stop growing instead, which is what "finished"
+          // actually means here.
+          const prev = window.__xrefTextLen;
+          window.__xrefTextLen = t.length;
+          return t.length > 1500 && prev === t.length;
         },
         LOGIN_WALL_RE.source,
-        { timeout: 15000 }
+        { timeout: 15000, polling: 500 }
       );
     } catch {
       // proceed with whatever rendered -- classified below
