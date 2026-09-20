@@ -67,14 +67,33 @@ async function runLookup() {
     return;
   }
 
-  setStatus("Looking up...");
   resultsPanel.hidden = true;
+
+  // A live lookup renders a real browser on the far end, and the backend
+  // may be cold on top of that, so this can genuinely run past a minute.
+  // With a single unchanging "Looking up..." there is nothing on screen to
+  // tell a slow answer from a dead one, and on a phone that reads as a page
+  // that never loads. A counter says it is still going, and the wording
+  // says roughly how long is normal before that is worth doubting.
+  const startedAt = Date.now();
+  const tick = setInterval(() => {
+    const secs = Math.round((Date.now() - startedAt) / 1000);
+    setStatus(
+      secs < 20
+        ? `Looking up... ${secs}s`
+        : `Looking up... ${secs}s (a live render, or a cold backend, can take up to ${LOOKUP_TIMEOUT_MS / 1000}s)`
+    );
+  }, 1000);
+  setStatus("Looking up... 0s");
 
   try {
     const res = await fetch(`${BACKEND_URL}/api/xref`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ partNumber, specs, pastedText }),
+      // Without this the request has no deadline at all: a stalled backend
+      // leaves the spinner up forever with nothing the person can act on.
+      signal: timeoutSignal(LOOKUP_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -84,9 +103,35 @@ async function runLookup() {
     const data = await res.json();
     renderResults(data);
   } catch (err) {
-    setStatus(`Lookup failed: ${err.message}`, true);
+    const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
+    setStatus(
+      timedOut
+        ? `Lookup timed out after ${LOOKUP_TIMEOUT_MS / 1000}s. The backend may be starting up -- try again, or paste the spec block below to skip the live render.`
+        : `Lookup failed: ${err.message}`,
+      true
+    );
+  } finally {
+    clearInterval(tick);
   }
 }
+
+// AbortSignal.timeout is Safari 16+. Reaching for it unguarded on an older
+// phone throws before the request is even made, which would turn a slow
+// lookup into no lookup at all -- so fall back to an AbortController, and
+// to no deadline where even that is missing.
+function timeoutSignal(ms) {
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(ms);
+  }
+  if (typeof AbortController === "undefined") return undefined;
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
+// Long enough to cover a cold start plus a live render, short enough that
+// a genuinely stuck request says so instead of hanging.
+const LOOKUP_TIMEOUT_MS = 120000;
 
 function setStatus(msg, isError = false) {
   statusEl.textContent = msg;
