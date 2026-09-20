@@ -14,7 +14,7 @@ All McMaster-Carr categories: raw stock (aluminum, brass, steel, carbon fiber tu
 1. User submits a McMaster part number.
 2. Worker fetches/parses the McMaster spec page for that part (material, dimensions, thread size, finish, grade, drive type, etc.).
 3. Worker searches other suppliers for matching specs:
-   - Raw stock: Speedy Metals, MSC Direct, Online Metals, Fastenal
+   - Raw stock: Speedy Metals, Metal Supermarkets, MSC Direct, Grainger
    - Fasteners/hardware: Fastenal, Grainger, Bolt Depot, Amazon, AliExpress, Banggood
 4. Worker returns a list of candidate equivalent listings with links (no price scraping from McMaster itself).
 5. Frontend displays results for the user to manually judge fit/worth.

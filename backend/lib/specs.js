@@ -580,10 +580,46 @@ function buildQuery(rawSpecs) {
 // datacenter fetch tests the wrong thing. Hence the editable query in the
 // UI: the person looking at the results is the only one positioned to
 // judge them, so they get the controls rather than a claim.
+// Measured 20 Sep 2026, by opening each search and reading what came back.
+//
+// Speedy Metals' path was simply wrong: /Search returns an IIS "404 - File
+// or directory not found" for every query. Their own search form posts to
+// search.aspx with a SearchTerm parameter, and that path returns real
+// product rows.
+//
+// Online Metals is dropped. Its /en/search?text= was measured returning a
+// Tomcat 404 (PR #7), and it now answers a datacenter client with a
+// Cloudflare challenge on every path, so there is no way to confirm a
+// replacement from a server. Their robots.txt disallows /*?q=, which says
+// the storefront queries on q rather than text -- evidence, but not a
+// measurement, and a supplier earns its place here by measurement. Metal
+// Supermarkets takes the slot: it answers, and it reports its own result
+// count in the page, so the count below is read rather than inferred.
+//
+// dimensionless: these two are cut-to-order stock houses. They index a
+// product by material and form and sell the dimensions as options on it,
+// so a size in the search string matches no product name and returns
+// nothing at all. Measured over the seven raw-stock queries in the
+// category matrix, carrying the dimensions scored 0/7 at both; dropping
+// them scored 5/7 at Metal Supermarkets (5, 14, 6, 9 and 3 results) and
+// 2/7 at Speedy Metals. Speedy Metals' own no-results page gives the same
+// advice: "it's often best to search without dimensions first."
+//
+// MSC and Grainger are distributors that do index dimensions, and both
+// refuse a datacenter client, so there is no measurement that would
+// justify taking the size away from them. They keep the full query.
 const RAW_STOCK_SUPPLIERS = [
-  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?text={q}" },
+  {
+    name: "Speedy Metals",
+    urlTemplate: "https://www.speedymetals.com/search.aspx?SearchTerm={plus}",
+    dimensionless: true,
+  },
+  {
+    name: "Metal Supermarkets",
+    urlTemplate: "https://www.metalsupermarkets.com/?s={plus}",
+    dimensionless: true,
+  },
   { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Speedy Metals", urlTemplate: "https://www.speedymetals.com/Search?searchTerm={q}" },
   { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
 ];
 
@@ -595,6 +631,20 @@ const FASTENER_SUPPLIERS = [
   { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
 ];
 
+// Drops the dimension tokens from a query: anything carrying a digit and
+// ending in an inch mark ('3/8"', '0.063"'). Material, grade and form are
+// what a cut-to-order stock house indexes, and they are all that is left.
+function stripDimensions(query) {
+  return String(query || "")
+    .replace(/\S*[0-9][^\s]*"/g, "")
+    // Dimensions are joined by "x" ('1/2" x 0.035"'), so removing them can
+    // leave the separator behind. These searches are a strict AND over the
+    // product name, and a stray "x" is a term that matches nothing.
+    .replace(/(^|\s)x(?=\s|$)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function applyTemplate(urlTemplate, query) {
   return urlTemplate
     .replace("{plus}", encodeURIComponent(query).replace(/%20/g, "+"))
@@ -602,8 +652,8 @@ function applyTemplate(urlTemplate, query) {
 }
 
 // Everything that is neither threaded hardware nor a length of metal --
-// o-rings, gaskets, bearings, springs. Sending these to Online Metals or
-// Speedy Metals, as the old two-way split did, offers bar stock to someone
+// o-rings, gaskets, bearings, springs. Sending these to the metal
+// suppliers, as the old two-way split did, offers bar stock to someone
 // who asked for a seal; the general MRO distributors actually carry them.
 const MRO_SUPPLIERS = [
   { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
@@ -638,7 +688,12 @@ function buildSupplierLinks(rawSpecs) {
     suppliers.splice(3, 0, { name: "Bolt Depot", urlTemplate: boltDepotUrl(specs, family) });
   }
 
-  return suppliers.map((s) => ({ ...s, url: applyTemplate(s.urlTemplate, query), query }));
+  // A dimensionless supplier gets its own query, and carries the flag so the
+  // frontend applies the same transform when the query is edited by hand.
+  return suppliers.map((s) => {
+    const supplierQuery = s.dimensionless ? stripDimensions(query) || query : query;
+    return { ...s, url: applyTemplate(s.urlTemplate, supplierQuery), query: supplierQuery };
+  });
 }
 
 // Bolt Depot has no free-text search, only a filtered category browse
@@ -693,6 +748,7 @@ module.exports = {
   isFastener,
   buildQuery,
   applyTemplate,
+  stripDimensions,
   buildSupplierLinks,
   boltDepotUrl,
 };

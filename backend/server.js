@@ -533,8 +533,14 @@ const PROBE_TARGETS = [
   ["Industrial Metal Supply", "rawstock", "https://www.industrialmetalsupply.com/catalogsearch/result/?q={q}"],
   ["Metal Supermarkets", "rawstock", "https://www.metalsupermarkets.com/?s={q}"],
   ["Alro", "rawstock", "https://www.alro.com/search?q={q}"],
-  ["OnlineMetals alt", "rawstock", "https://www.onlinemetals.com/en/search-results?text={q}"],
-  ["SpeedyMetals alt", "rawstock", "https://www.speedymetals.com/Search.aspx?searchTerm={q}"],
+  // Both of these were resolved on 20 Sep 2026 and are in the link table
+  // now: speedymetals.com/search.aspx?SearchTerm= answers with product rows,
+  // and metalsupermarkets.com/?s= reports its own result count. Online
+  // Metals is left here rather than in the table -- it answers a datacenter
+  // client with a Cloudflare challenge on every path, so neither parameter
+  // can be told apart from the other from a server.
+  ["OnlineMetals ?q", "rawstock", "https://www.onlinemetals.com/en/search?q={q}"],
+  ["OnlineMetals ?text", "rawstock", "https://www.onlinemetals.com/en/search?text={q}"],
   ["VXB Bearings", "fastener", "https://www.vxb.com/search?q={q}"],
   ["The O-Ring Store", "fastener", "https://www.theoringstore.com/search?q={q}"],
   ["Marco Rubber", "fastener", "https://www.marcorubber.com/search?q={q}"],

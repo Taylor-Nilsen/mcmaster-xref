@@ -23,6 +23,7 @@ const {
   isFastener,
   buildQuery,
   applyTemplate,
+  stripDimensions,
   buildSupplierLinks,
   boltDepotUrl,
 } = require("../lib/specs");
@@ -296,7 +297,60 @@ test("buildSupplierLinks returns fastener suppliers with Bolt Depot included", (
 
 test("buildSupplierLinks returns raw-stock suppliers for raw stock", () => {
   const names = buildSupplierLinks(parseKeyValueText(ALUMINUM_BAR_PAGE)).map((l) => l.name);
-  assert.deepEqual(names, ["Online Metals", "MSC Direct", "Speedy Metals", "Grainger"]);
+  assert.deepEqual(names, ["Speedy Metals", "Metal Supermarkets", "MSC Direct", "Grainger"]);
+});
+
+test("Speedy Metals points at the search path that answers", () => {
+  // /Search?searchTerm= returned an IIS 404 for every query. Their own
+  // search form posts to search.aspx with a SearchTerm parameter.
+  const link = buildSupplierLinks(parseKeyValueText(ALUMINUM_BAR_PAGE)).find(
+    (l) => l.name === "Speedy Metals"
+  );
+  assert.ok(link.url.startsWith("https://www.speedymetals.com/search.aspx?SearchTerm="), link.url);
+});
+
+test("stripDimensions drops sizes and keeps material, grade and form", () => {
+  assert.equal(stripDimensions('6061 Aluminum Round Bar 3/8"'), "6061 Aluminum Round Bar");
+  assert.equal(stripDimensions('304 Stainless Steel Sheet 0.063" 6"'), "304 Stainless Steel Sheet");
+  assert.equal(stripDimensions('Steel Keystock 1/4" 1/4" Zinc-Plated'), "Steel Keystock Zinc-Plated");
+  // Nothing to drop leaves the query alone.
+  assert.equal(stripDimensions("6061 Aluminum Round Bar"), "6061 Aluminum Round Bar");
+  // Dimensions are joined by "x", and the separator must not survive them:
+  // these searches are a strict AND, so a stray "x" matches nothing.
+  assert.equal(stripDimensions('Steel Tube 1/2" x 0.035"'), "Steel Tube");
+  assert.equal(stripDimensions('6" x 6" Aluminum Plate'), "Aluminum Plate");
+  // A word that merely contains an x is not a separator.
+  assert.equal(stripDimensions('Hex Bar 1/2"'), "Hex Bar");
+});
+
+test("the cut-to-order stock houses search without dimensions", () => {
+  // Measured: carrying the size scored 0/7 across the raw-stock matrix at
+  // both, because they index a product by material and form and sell the
+  // sizes as options on it.
+  const links = buildSupplierLinks(parseKeyValueText(ALUMINUM_BAR_PAGE));
+  for (const name of ["Speedy Metals", "Metal Supermarkets"]) {
+    const link = links.find((l) => l.name === name);
+    assert.equal(link.query, "6061 Aluminum Round Bar", name);
+    assert.ok(link.dimensionless, name);
+    assert.ok(!link.url.includes("3%2F8"), `${name}: ${link.url}`);
+  }
+});
+
+test("the distributors that index dimensions keep the full query", () => {
+  const links = buildSupplierLinks(parseKeyValueText(ALUMINUM_BAR_PAGE));
+  for (const name of ["MSC Direct", "Grainger"]) {
+    const link = links.find((l) => l.name === name);
+    assert.ok(link.query.includes('3/8"'), `${name}: ${link.query}`);
+    assert.ok(!link.dimensionless, name);
+  }
+});
+
+test("a query that is nothing but dimensions is left intact", () => {
+  // Stripping everything would search for the empty string, which is worse
+  // than searching for a size.
+  const links = buildSupplierLinks({ material: "", partType: "", threadSize: "" });
+  assert.deepEqual(links, []);
+  assert.equal(stripDimensions('3/8"'), "");
 });
 
 test("buildSupplierLinks returns nothing when there is no query", () => {

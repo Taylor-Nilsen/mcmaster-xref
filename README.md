@@ -33,7 +33,7 @@ scraped results.
 Which suppliers get asked depends on what the part is, read from the
 product name on the page: screws, nuts and washers go to the fastener
 houses (Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress), metal
-stock to the metal suppliers (Online Metals, Speedy Metals, MSC,
+stock to the metal suppliers (Speedy Metals, Metal Supermarkets, MSC,
 Grainger), and everything else -- o-rings, gaskets, bearings -- to the
 general MRO distributors. The "Part type" box under manual entry
 overrides that when the page name is wrong or unavailable.
