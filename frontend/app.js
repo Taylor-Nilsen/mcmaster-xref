@@ -160,11 +160,33 @@ function renderLinks(data) {
       // A supplier without a placeholder (Bolt Depot browses by filter, not
       // by text) has nothing to substitute, so its link is left alone.
       if (!a || !link.urlTemplate || !/\{q\}|\{plus\}/.test(link.urlTemplate)) return;
+      // Same rule the backend applied when it built these links: a
+      // cut-to-order stock house indexes a product by material and form and
+      // sells the sizes as options on it, so a dimension in the search string
+      // matches no product name and returns nothing. Mirrored here so the
+      // transform survives an edit rather than being undone by the first
+      // keystroke.
+      const linkQuery = link.dimensionless ? stripDimensions(q) || q : q;
       a.href = link.urlTemplate
-        .replace("{plus}", encodeURIComponent(q).replace(/%20/g, "+"))
-        .replace("{q}", encodeURIComponent(q));
+        .replace("{plus}", encodeURIComponent(linkQuery).replace(/%20/g, "+"))
+        .replace("{q}", encodeURIComponent(linkQuery));
     });
   });
+}
+
+// Drops the dimension tokens from a query: anything carrying a digit and
+// ending in an inch mark. Kept identical to stripDimensions in
+// backend/lib/specs.js -- the two files share no module, so the rule is
+// written out in both.
+function stripDimensions(query) {
+  return String(query || "")
+    .replace(/\S*[0-9][^\s]*"/g, "")
+    // Dimensions are joined by "x" ('1/2" x 0.035"'), so removing them can
+    // leave the separator behind. These searches are a strict AND over the
+    // product name, and a stray "x" is a term that matches nothing.
+    .replace(/(^|\s)x(?=\s|$)/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function escapeHtml(str) {
