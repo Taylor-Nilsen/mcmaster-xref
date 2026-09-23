@@ -98,6 +98,7 @@ const PART_TYPES = [
   [/linear (?:ball )?bearing/i, "linear bearing", "other"],
   [/needle.?roller bearing/i, "needle-roller bearing", "other"],
   [/flanged (?:ball |sleeve )?bearing/i, "flanged bearing", "other"],
+  [/drill bushing/i, "drill bushing", "other"],
   [/sleeve bearing|\bbushing\b/i, "sleeve bearing", "other"],
   [/ball bearing|\bbearing\b/i, "ball bearing", "other"],
   [/\bwasher\b/i, "washer", "washer"],
@@ -207,6 +208,37 @@ function detectPartType(text) {
   return null;
 }
 
+// Words in a title that say what the part is made of or coated with. Those
+// have their own fields; what is left in front of the noun is what makes
+// the part a *kind* of that noun.
+const MATERIAL_WORD_RE =
+  /^(?:steel|stainless|alloy|carbon|low-carbon|high-carbon|aluminum|brass|bronze|copper|titanium|nylon|rubber|neoprene|silicone|nitrile|buna-n|epdm|viton|polyurethane|acetal|delrin|pvc|polycarbonate|plastic|zinc|galvanized|hot-dipped|plain|multipurpose|general-purpose|class|grade|[a-z]+-plated|black-oxide|[\d.\-]+)$/i;
+
+/**
+ * The words in front of the product noun in the title, minus material and
+ * finish: "Ultra Low-Profile" in "Black-Oxide Alloy Steel Ultra Low-Profile
+ * Socket Head Screw". The noun table maps every socket head screw to one
+ * noun, so without this a low-profile screw was searched for as a regular
+ * one, and every link showed regular screws.
+ */
+function titleQualifier(title) {
+  if (!title) return null;
+  let first = -1;
+  for (const [re] of PART_TYPES) {
+    const m = re.exec(title);
+    if (m) {
+      first = m.index;
+      break;
+    }
+  }
+  if (first <= 0) return null;
+  const words = title
+    .slice(0, first)
+    .split(/\s+/)
+    .filter((w) => w && !MATERIAL_WORD_RE.test(w));
+  return words.length ? words.join(" ").toLowerCase() : null;
+}
+
 const SPEC_LABEL_RE =
   /\b(?:size|type|material|diameter|length|width|height|style|class|color|colour|pressure|rating|temperature|thread|od|id|gauge|voltage|current|capacity|profile|series|finish|thickness|for)\s*$/i;
 
@@ -277,8 +309,11 @@ function parseSpecsFromText(text) {
   if (drive) specs.driveType = drive;
 
   const partType = detectPartType(text);
-  if (partType) specs.partType = partType;
-  else {
+  if (partType) {
+    specs.partType = partType;
+    const qualifier = titleQualifier(productTitle(text));
+    if (qualifier) specs.qualifier = qualifier;
+  } else {
     // Nothing in the noun table fits, which is most of McMaster's catalog
     // outside hardware and stock. Keep the page's own name for the query.
     const title = productTitle(text);
@@ -335,6 +370,7 @@ const KEY_MAP = {
   "drive type": "driveType",
   "fastener head type": "headType",
   "head type": "headType",
+  "head profile": "headProfile",
   finish: "finish",
   grade: "grade",
   class: "grade",
@@ -395,7 +431,7 @@ function sanitizeSpecs(specs) {
     // partType is the manual override for what the part *is* -- the one
     // field that decides the product noun and which suppliers get asked.
     "partType", "screwSize", "insideDiameter", "durometer", "shaftDiameter",
-    "title", "extra",
+    "title", "extra", "qualifier", "headProfile",
   ];
   const out = {};
   for (const key of allowed) {
@@ -567,6 +603,19 @@ function partFamily(specs) {
  * material only -- an under-specified search beats a confidently wrong one.
  */
 function partNoun(specs, family) {
+  const noun = basePartNoun(specs, family);
+  if (!noun) return null;
+  // The spec table's "Head Profile" row says the same thing as a title's
+  // "Low-Profile", for a spec block pasted without its title.
+  const profile = specs.headProfile && !/standard/i.test(specs.headProfile) ? `${specs.headProfile} profile` : null;
+  const q = specs.qualifier || (profile && profile.toLowerCase());
+  // Skip what the noun already says ("nylon-insert" on a lock nut is
+  // fine to add; "socket" on a socket head screw is not).
+  const extra = q ? q.split(" ").filter((w) => !noun.includes(w.replace(/-/g, " ")) && !noun.includes(w)).join(" ") : "";
+  return extra ? `${extra} ${noun}` : noun;
+}
+
+function basePartNoun(specs, family) {
   // A known head type beats the title, because the title does not say what
   // the drive is: McMaster calls both of these a "Flat Head Screw", but a
   // hex-drive one is a flat head socket cap screw and a Phillips one is
@@ -800,8 +849,10 @@ function buildSupplierLinks(rawSpecs) {
   // Bolt Depot has no free-text search, so its link is a filtered category
   // browse built from the specs directly -- it doesn't follow the query and
   // stays put when the query is edited. It stocks nuts and washers as well
-  // as screws, so every threaded-hardware family gets one.
-  if (SUPPLIERS_BY_FAMILY[family] === FASTENER_SUPPLIERS) {
+  // as screws, so every threaded-hardware family gets one. Not for a
+  // qualified part, though: its category grid can only show the plain
+  // version, which is the wrong part presented as a match.
+  if (SUPPLIERS_BY_FAMILY[family] === FASTENER_SUPPLIERS && !specs.qualifier && !specs.headProfile) {
     suppliers.splice(3, 0, { name: "Bolt Depot", urlTemplate: boltDepotUrl(specs, family) });
   }
 
@@ -854,6 +905,7 @@ const api = {
   parseKeyValueText,
   detectPartType,
   productTitle,
+  titleQualifier,
   sanitizeSpecs,
   strengthGrade,
   normalizeThread,

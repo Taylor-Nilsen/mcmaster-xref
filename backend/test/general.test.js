@@ -77,3 +77,22 @@ test("a spec table read as Label<TAB>Value parses like separate lines", () => {
   const screw = parse('Black-Oxide Alloy Steel Socket Head Screw\nMaterial\tBlack-Oxide Alloy Steel\nThread Size\t1/4"-20\nLength\t3/4"\nFastener Head Type\tSocket\nDrive Style\tHex');
   assert.equal(X.buildQuery(screw), '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
 });
+
+test("an ultra low-profile socket head screw keeps what makes it one", () => {
+  const specs = parse('Black-Oxide Alloy Steel Ultra Low-Profile Socket Head Screw\nMaterial\nBlack-Oxide Alloy Steel\nThread Size\n1/4"-20\nLength\n1/2"\nFastener Head Type\nSocket\nDrive Style\nHex');
+  assert.equal(X.buildQuery(specs), '1/4"-20 x 1/2" ultra low-profile socket head cap screw Alloy Steel Black-Oxide');
+  const links = X.buildSupplierLinks(specs);
+  // Bolt Depot's category grid can only show regular socket screws.
+  assert.ok(!links.some((l) => l.name === "Bolt Depot"));
+  for (const l of links) assert.match(decodeURIComponent(l.url.replace(/\+/g, " ")), /ultra low-profile/);
+});
+
+test("a Head Profile row qualifies a pasted block with no title", () => {
+  const specs = parse('Thread Size\n10-32\nLength\n3/8"\nFastener Head Type\nSocket\nHead Profile\nLow\nMaterial\n18-8 Stainless Steel');
+  assert.equal(X.buildQuery(specs), '10-32 x 3/8" low profile socket head cap screw 18-8 Stainless Steel');
+});
+
+test("other qualifiers survive too", () => {
+  assert.match(X.buildQuery(parse('Zinc-Plated Steel Tamper-Resistant Button Head Screw\nThread Size\n1/4"-20\nLength\n1"\nFastener Head Type\nButton\nDrive Style\nTorx')), /^1\/4"-20 x 1" tamper-resistant button head socket cap screw /);
+  assert.match(X.buildQuery(parse('18-8 Stainless Steel Flanged Hex Nut\nThread Size\n5/16"-18')), /^5\/16"-18 flanged hex nut /);
+});

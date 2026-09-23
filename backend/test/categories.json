@@ -69,7 +69,7 @@
     "label": "Nylon-insert lock nut",
     "part": "90631A011",
     "pastedText": "18-8 Stainless Steel Nylon-Insert Locknut\nMaterial\n18-8 Stainless Steel\nThread\nSize\n1/4\"-20\nWidth\n7/16\"\n",
-    "expect": "1/4\"-20 lock nut 18-8 Stainless Steel"
+    "expect": "1/4\"-20 nylon-insert lock nut 18-8 Stainless Steel"
   },
   {
     "label": "Wing nut",
@@ -207,7 +207,7 @@
     "label": "Nuts — Zinc-Plated Steel Nylon-Insert Locknut",
     "part": "(shape)",
     "pastedText": "Zinc-Plated Steel Nylon-Insert Locknut\nMaterial\nZinc-Plated Steel\nThread\nSize\n3/8\"-16\nWidth\n9/16\"\n",
-    "expect": "3/8\"-16 lock nut Steel Zinc-Plated"
+    "expect": "3/8\"-16 nylon-insert lock nut Steel Zinc-Plated"
   },
   {
     "label": "Nuts — Wing Nut",
@@ -285,31 +285,31 @@
     "label": "Spacers & standoffs — Aluminum Unthreaded Spacer",
     "part": "(shape)",
     "pastedText": "Aluminum Unthreaded Spacer\nMaterial\nAluminum\nOutside Diameter\n1/4\"\nInside Diameter\n0.115\"\nLength\n1/2\"\n",
-    "expect": "Aluminum spacer 0.115\" ID 1/4\" 1/2\""
+    "expect": "Aluminum unthreaded spacer 0.115\" ID 1/4\" 1/2\""
   },
   {
     "label": "Spacers & standoffs — Hex Standoff",
     "part": "(shape)",
     "pastedText": "18-8 Stainless Steel Hex Standoff\nMaterial\n18-8 Stainless Steel\nThread\nSize\n4-40\nLength\n1/2\"\nWidth\n3/16\"\n",
-    "expect": "4-40 x 1/2\" standoff 18-8 Stainless Steel"
+    "expect": "4-40 x 1/2\" hex standoff 18-8 Stainless Steel"
   },
   {
     "label": "Spacers & standoffs — Nylon Round Spacer",
     "part": "(shape)",
     "pastedText": "Nylon Round Spacer\nMaterial\nNylon\nOutside Diameter\n3/8\"\nInside Diameter\n0.192\"\nLength\n1/4\"\n",
-    "expect": "Nylon spacer 0.192\" ID 3/8\" 1/4\""
+    "expect": "Nylon round spacer 0.192\" ID 3/8\" 1/4\""
   },
   {
     "label": "Spacers & standoffs — Brass Threaded Standoff",
     "part": "(shape)",
     "pastedText": "Brass Threaded Standoff\nMaterial\nBrass\nThread\nSize\n6-32\nLength\n3/4\"\n",
-    "expect": "6-32 x 3/4\" standoff Brass"
+    "expect": "6-32 x 3/4\" threaded standoff Brass"
   },
   {
     "label": "Spacers & standoffs — Shoulder Spacer",
     "part": "(shape)",
     "pastedText": "Steel Shoulder Spacer\nMaterial\nSteel\nOutside Diameter\n1/2\"\nLength\n3/8\"\n",
-    "expect": "Steel spacer 1/2\" 3/8\""
+    "expect": "Steel shoulder spacer 1/2\" 3/8\""
   },
   {
     "label": "Inserts — Helical Insert",
@@ -321,19 +321,19 @@
     "label": "Inserts — Brass Heat-Set Threaded Insert",
     "part": "(shape)",
     "pastedText": "Brass Heat-Set Threaded Insert\nMaterial\nBrass\nThread\nSize\n6-32\nOutside Diameter\n0.2\"\n",
-    "expect": "6-32 threaded insert Brass"
+    "expect": "6-32 heat-set threaded insert Brass"
   },
   {
     "label": "Inserts — Keylocking Threaded Insert",
     "part": "(shape)",
     "pastedText": "Steel Keylocking Threaded Insert\nMaterial\nSteel\nThread\nSize\n3/8\"-16\nLength\n1/2\"\n",
-    "expect": "3/8\"-16 x 1/2\" threaded insert Steel"
+    "expect": "3/8\"-16 x 1/2\" keylocking threaded insert Steel"
   },
   {
     "label": "Inserts — Brass Press-Fit Threaded Insert",
     "part": "(shape)",
     "pastedText": "Brass Press-Fit Threaded Insert\nMaterial\nBrass\nThread\nSize\n8-32\nLength\n1/4\"\n",
-    "expect": "8-32 x 1/4\" threaded insert Brass"
+    "expect": "8-32 x 1/4\" press-fit threaded insert Brass"
   },
   {
     "label": "Inserts — Threaded Insert",
@@ -345,31 +345,31 @@
     "label": "Retaining rings — External Retaining Ring",
     "part": "(shape)",
     "pastedText": "Steel External Retaining Ring\nMaterial\nSteel\nFor Shaft Diameter\n1/2\"\nThickness\n0.035\"\n",
-    "expect": "Steel retaining ring for 1/2\" shaft 0.035\""
+    "expect": "Steel external retaining ring for 1/2\" shaft 0.035\""
   },
   {
     "label": "Retaining rings — Internal Retaining Ring",
     "part": "(shape)",
     "pastedText": "Steel Internal Retaining Ring\nMaterial\nSteel\nInside Diameter\n1\"\nThickness\n0.042\"\n",
-    "expect": "Steel retaining ring 1\" ID 0.042\""
+    "expect": "Steel internal retaining ring 1\" ID 0.042\""
   },
   {
     "label": "Retaining rings — E-Style Retaining Ring",
     "part": "(shape)",
     "pastedText": "18-8 Stainless Steel E-Style Retaining Ring\nMaterial\n18-8 Stainless Steel\nFor Shaft Diameter\n1/4\"\n",
-    "expect": "18-8 Stainless Steel retaining ring for 1/4\" shaft"
+    "expect": "18-8 Stainless Steel e-style retaining ring for 1/4\" shaft"
   },
   {
     "label": "Retaining rings — Spiral Retaining Ring",
     "part": "(shape)",
     "pastedText": "Steel Spiral Retaining Ring\nMaterial\nSteel\nInside Diameter\n3/4\"\n",
-    "expect": "Steel retaining ring 3/4\" ID"
+    "expect": "Steel spiral retaining ring 3/4\" ID"
   },
   {
     "label": "Retaining rings — Push-On Retaining Ring",
     "part": "(shape)",
     "pastedText": "Steel Push-On Retaining Ring\nMaterial\nSteel\nFor Shaft Diameter\n3/16\"\n",
-    "expect": "Steel retaining ring for 3/16\" shaft"
+    "expect": "Steel push-on retaining ring for 3/16\" shaft"
   },
   {
     "label": "Rivets — Aluminum Blind Rivet",
@@ -531,7 +531,7 @@
     "label": "Bearings — Thrust Ball Bearing",
     "part": "(shape)",
     "pastedText": "Steel Thrust Ball Bearing\nMaterial\nSteel\nInside Diameter\n3/8\"\nOutside Diameter\n7/8\"\nWidth\n9/32\"\n",
-    "expect": "Steel ball bearing 3/8\" ID 7/8\" 9/32\""
+    "expect": "Steel thrust ball bearing 3/8\" ID 7/8\" 9/32\""
   },
   {
     "label": "Bearings — Linear Ball Bearing",
@@ -543,7 +543,7 @@
     "label": "Bushings — Oil-Embedded Bronze Sleeve Bearing",
     "part": "(shape)",
     "pastedText": "Oil-Embedded Bronze Sleeve Bearing\nMaterial\nBronze\nInside Diameter\n1/2\"\nOutside Diameter\n5/8\"\nLength\n1\"\n",
-    "expect": "Bronze sleeve bearing 1/2\" ID 5/8\" 1\""
+    "expect": "Bronze oil-embedded sleeve bearing 1/2\" ID 5/8\" 1\""
   },
   {
     "label": "Bushings — Bronze Flanged Sleeve Bearing",
@@ -561,7 +561,7 @@
     "label": "Bushings — Drill Bushing",
     "part": "(shape)",
     "pastedText": "Steel Drill Bushing\nMaterial\nSteel\nInside Diameter\n1/4\"\nOutside Diameter\n1/2\"\nLength\n5/8\"\n",
-    "expect": "Steel sleeve bearing 1/4\" ID 1/2\" 5/8\""
+    "expect": "Steel drill bushing 1/4\" ID 1/2\" 5/8\""
   },
   {
     "label": "Bushings — Bronze Thrust Washer Bearing",
@@ -579,7 +579,7 @@
     "label": "Shaft components — Aluminum Flexible Shaft Coupling",
     "part": "(shape)",
     "pastedText": "Aluminum Flexible Shaft Coupling\nMaterial\nAluminum\nInside Diameter\n1/4\"\nLength\n1-1/4\"\n",
-    "expect": "Aluminum shaft coupling 1/4\" ID 1-1/4\""
+    "expect": "Aluminum flexible shaft coupling 1/4\" ID 1-1/4\""
   },
   {
     "label": "Shaft components — Universal Joint",
@@ -627,7 +627,7 @@
     "label": "Drive components — Roller Chain Sprocket",
     "part": "(shape)",
     "pastedText": "Steel Roller Chain Sprocket\nMaterial\nSteel\nInside Diameter\n1/2\"\nOutside Diameter\n2\"\n",
-    "expect": "Steel sprocket 1/2\" ID 2\""
+    "expect": "Steel roller chain sprocket 1/2\" ID 2\""
   },
   {
     "label": "Drive components — Roller Chain",
@@ -651,7 +651,7 @@
     "label": "Springs — Conical Compression Spring",
     "part": "(shape)",
     "pastedText": "Steel Conical Compression Spring\nMaterial\nSteel\nOutside Diameter\n0.75\"\nLength\n1-1/2\"\n",
-    "expect": "Steel compression spring 0.75\" 1-1/2\""
+    "expect": "Steel conical compression spring 0.75\" 1-1/2\""
   },
   {
     "label": "Springs — 302 Stainless Steel Compression Spring",
