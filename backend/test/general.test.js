@@ -61,9 +61,13 @@ test("the frontend can load the same parser as a plain script", () => {
   assert.equal(sandbox.XrefSpecs.buildQuery({ material: "6061 Aluminum", shape: "Round Bar", diameter: '3/8"' }), '6061 Aluminum Round Bar 3/8"');
 });
 
-test("the frontend copy of the parser is the backend's file", () => {
-  const link = path.join(__dirname, "../../frontend/specs.js");
-  assert.equal(fs.realpathSync(link), fs.realpathSync(path.join(__dirname, "../lib/specs.js")));
+test("the frontend copy of the parser matches the backend's", () => {
+  // A real copy, not a symlink: symlinks break on Windows checkouts and on
+  // static hosts that serve the link text instead of the file. This test is
+  // what keeps the two from drifting. After editing lib/specs.js, run
+  // `npm run sync-frontend`.
+  const copy = fs.readFileSync(path.join(__dirname, "../../frontend/specs.js"), "utf8");
+  assert.equal(copy, fs.readFileSync(path.join(__dirname, "../lib/specs.js"), "utf8"));
 });
 
 test("a spec table read as Label<TAB>Value parses like separate lines", () => {

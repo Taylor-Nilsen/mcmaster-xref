@@ -27,8 +27,8 @@ Manual spec entry in the UI is always available as a fallback and overrides
 whatever the live render found.
 
 The parser and query builder (`backend/lib/specs.js`) also run in the
-browser: `frontend/specs.js` is a symlink to it, and the Pages workflow
-publishes a copy. A pasted spec block or hand-entered specs are answered on
+browser: `frontend/specs.js` is a copy of it (`npm run sync-frontend`
+after editing; a test fails if the two differ). A pasted spec block or hand-entered specs are answered on
 the device with no backend call, so that path is instant, skips the cold
 start, and works offline. Only a bare part number goes to the backend.
 
