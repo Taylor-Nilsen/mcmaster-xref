@@ -50,7 +50,9 @@ function readManualSpecs() {
 }
 
 async function runLookup() {
-  const partNumber = document.getElementById("partNumber").value.trim();
+  const partInput = document.getElementById("partNumber");
+  const partNumber = partInput.value.trim().toUpperCase();
+  partInput.value = partNumber;
   const specs = readManualSpecs();
   const pastedText = document.getElementById("pastedText").value.trim();
 
@@ -59,7 +61,20 @@ async function runLookup() {
     return;
   }
 
-  if (typeof BACKEND_URL !== "string" || BACKEND_URL.includes("YOUR-SERVICE-NAME")) {
+  rememberPart(partNumber);
+
+  // Pasted text or hand-entered specs need nothing from the backend: the
+  // same parser it runs is loaded on this page. Answering here is instant,
+  // skips the cold start entirely, and works with no signal at all. Only a
+  // bare part number has to go out, because only the backend can render
+  // McMaster's page.
+  const local = localXref(partNumber, specs, pastedText);
+  if (local && (!partNumber || local.source.includes("pasted"))) {
+    renderResults(local);
+    return;
+  }
+
+  if (!backendConfigured()) {
     setStatus(
       "Backend URL isn't configured yet. Edit frontend/config.js after deploying the backend (see backend/README.md).",
       true
@@ -104,6 +119,12 @@ async function runLookup() {
     renderResults(data);
   } catch (err) {
     const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
+    // Hand-entered specs still make a usable answer with the backend down.
+    if (local && local.source !== "none") {
+      local.mcmasterFetchError = timedOut ? "backend timed out" : `backend unreachable: ${err.message}`;
+      renderResults(local);
+      return;
+    }
     setStatus(
       timedOut
         ? `Lookup timed out after ${LOOKUP_TIMEOUT_MS / 1000}s. The backend may be starting up -- try again, or paste the spec block below to skip the live render.`
@@ -141,12 +162,13 @@ function setStatus(msg, isError = false) {
 function renderResults(data) {
   const specEntries = Object.entries(data.specs || {});
 
+  showMcMasterLink(data.partNumber);
+
   if (specEntries.length === 0) {
     setStatus(data.mcmasterFetchError || "No specs found. Try manual entry.", true);
     // Nothing came back, so the only way forward is manual entry -- open it
     // rather than leaving the user to find the toggle.
-    manualPanel.hidden = false;
-    manualPanel.open = true;
+    openManual();
     return;
   }
 
@@ -166,6 +188,9 @@ function renderResults(data) {
   renderLinks(data);
 
   resultsPanel.hidden = false;
+  // On a phone the manual panel alone is taller than the screen, so the
+  // answer would land out of sight below it.
+  if (resultsPanel.scrollIntoView) resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /**
@@ -208,30 +233,13 @@ function renderLinks(data) {
       // Same rule the backend applied when it built these links: a
       // cut-to-order stock house indexes a product by material and form and
       // sells the sizes as options on it, so a dimension in the search string
-      // matches no product name and returns nothing. Mirrored here so the
-      // transform survives an edit rather than being undone by the first
-      // keystroke.
-      const linkQuery = link.dimensionless ? stripDimensions(q) || q : q;
-      a.href = link.urlTemplate
-        .replace("{plus}", encodeURIComponent(linkQuery).replace(/%20/g, "+"))
-        .replace("{q}", encodeURIComponent(linkQuery));
+      // matches no product name and returns nothing. Same function the
+      // backend used, so the transform survives an edit rather than being
+      // undone by the first keystroke.
+      const linkQuery = link.dimensionless ? Xref().stripDimensions(q) || q : q;
+      a.href = Xref().applyTemplate(link.urlTemplate, linkQuery);
     });
   });
-}
-
-// Drops the dimension tokens from a query: anything carrying a digit and
-// ending in an inch mark. Kept identical to stripDimensions in
-// backend/lib/specs.js -- the two files share no module, so the rule is
-// written out in both.
-function stripDimensions(query) {
-  return String(query || "")
-    .replace(/\S*[0-9][^\s]*"/g, "")
-    // Dimensions are joined by "x" ('1/2" x 0.035"'), so removing them can
-    // leave the separator behind. These searches are a strict AND over the
-    // product name, and a stray "x" is a term that matches nothing.
-    .replace(/(^|\s)x(?=\s|$)/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function escapeHtml(str) {
@@ -241,3 +249,108 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+function Xref() {
+  return globalThis.XrefSpecs;
+}
+
+function backendConfigured() {
+  return typeof BACKEND_URL === "string" && !BACKEND_URL.includes("YOUR-SERVICE-NAME");
+}
+
+/**
+ * The backend's /api/xref, run on this page. Same merge order (pasted, then
+ * manual on top) and same response shape, so renderResults can't tell
+ * which one answered. Null if the shared parser failed to load, in which
+ * case the backend still does the job.
+ */
+function localXref(partNumber, manualSpecs, pastedText) {
+  const X = Xref();
+  if (!X) return null;
+  const pastedSpecs = pastedText
+    ? { ...X.parseSpecsFromText(pastedText), ...X.parseKeyValueText(pastedText) }
+    : {};
+  const manual = X.sanitizeSpecs(manualSpecs);
+  const specs = { ...pastedSpecs, ...manual };
+  const hasAnySpec = Object.keys(specs).length > 0;
+  const source =
+    [Object.keys(pastedSpecs).length && "pasted", Object.keys(manual).length && "manual"].filter(Boolean).join("+") ||
+    "none";
+  return {
+    partNumber: partNumber || null,
+    source,
+    specs,
+    query: hasAnySpec ? X.buildQuery(specs) : null,
+    mcmasterFetchError: pastedText && !Object.keys(pastedSpecs).length ? "Nothing recognizable in the pasted text." : null,
+    mcmasterErrorCode: null,
+    links: hasAnySpec ? X.buildSupplierLinks(specs) : [],
+  };
+}
+
+function openManual() {
+  manualPanel.hidden = false;
+  manualPanel.open = true;
+}
+
+// When the backend is refused a part, the person's own browser usually
+// isn't, so the fastest way out is one tap to the part and a paste back.
+const mcmasterLink = document.getElementById("mcmasterLink");
+function showMcMasterLink(partNumber) {
+  if (!mcmasterLink) return;
+  mcmasterLink.hidden = !partNumber;
+  if (partNumber) mcmasterLink.href = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
+}
+
+// Paste straight from the clipboard, then look up. On a phone, long-press
+// paste into a small textarea is the fiddliest step of the gated path.
+const pasteBtn = document.getElementById("pasteBtn");
+if (pasteBtn) {
+  if (navigator.clipboard && typeof navigator.clipboard.readText === "function") {
+    pasteBtn.hidden = false;
+    pasteBtn.addEventListener("click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!text.trim()) return setStatus("Clipboard is empty.", true);
+        document.getElementById("pastedText").value = text;
+        runLookup();
+      } catch {
+        setStatus("The browser blocked clipboard access. Long-press the box and paste instead.", true);
+      }
+    });
+  }
+}
+
+// ?pn=91251A540 in the URL runs that lookup on load, so a lookup can be
+// bookmarked, shared, or saved to a phone home screen.
+function rememberPart(partNumber) {
+  try {
+    const url = new URL(location.href);
+    if (partNumber) url.searchParams.set("pn", partNumber);
+    else url.searchParams.delete("pn");
+    history.replaceState(null, "", url);
+  } catch {
+    // file:// and some embedded views refuse this; nothing depends on it
+  }
+}
+
+(function init() {
+  // The free backend sleeps after 15 minutes idle and takes most of a
+  // minute to wake. Waking it the moment the page opens overlaps that with
+  // the time spent typing a part number, instead of adding to it.
+  if (backendConfigured()) fetch(`${BACKEND_URL}/`, { mode: "cors" }).catch(() => {});
+
+  let pn = null;
+  try {
+    pn = new URL(location.href).searchParams.get("pn");
+  } catch {
+    // no usable URL; nothing to prefill
+  }
+  if (pn) {
+    document.getElementById("partNumber").value = pn;
+    runLookup();
+  }
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+})();

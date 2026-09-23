@@ -41,7 +41,9 @@ app.use(express.json());
 app.get("/", (_req, res) => res.json({ status: "ok" }));
 
 app.post("/api/xref", async (req, res) => {
-  const partNumber = (req.body.partNumber || "").trim();
+  // McMaster part numbers are case-insensitive; one spelling keeps the
+  // caches from holding the same part twice.
+  const partNumber = String(req.body.partNumber || "").trim().toUpperCase();
   const manualSpecs = sanitizeSpecs(req.body.specs || {});
   const pastedText = typeof req.body.pastedText === "string" ? req.body.pastedText.slice(0, 20000) : "";
 
@@ -142,6 +144,10 @@ const specCache = new Map();
 const GATED_TTL_MS = 5 * 60 * 1000;
 const gatedCache = new Map();
 
+// One lookup per part at a time. A double-tapped button, or two people on
+// the same part, would otherwise spend two page views on one answer.
+const inFlight = new Map();
+
 /**
  * Renders the live McMaster product page in a real headless browser and
  * parses the fully-rendered text. Throws LoginWallError when McMaster is
@@ -149,13 +155,19 @@ const gatedCache = new Map();
  * treats both as "unavailable, fall back to manual entry" but reports them
  * differently, since one is temporary and not the user's fault.
  */
-async function fetchMcMasterSpecsLive(partNumber) {
+function fetchMcMasterSpecsLive(partNumber) {
   const cached = specCache.get(partNumber);
   if (cached) {
     console.log(`[xref] part=${partNumber} served from cache`);
-    return cached;
+    return Promise.resolve(cached);
   }
+  if (!inFlight.has(partNumber)) {
+    inFlight.set(partNumber, fetchUncached(partNumber).finally(() => inFlight.delete(partNumber)));
+  }
+  return inFlight.get(partNumber);
+}
 
+async function fetchUncached(partNumber) {
   const gatedAt = gatedCache.get(partNumber);
   if (gatedAt && Date.now() - gatedAt < GATED_TTL_MS) {
     console.log(`[xref] part=${partNumber} known gated, not re-rendering`);
@@ -165,8 +177,9 @@ async function fetchMcMasterSpecsLive(partNumber) {
   // The gate is intermittent rather than absolute: in one verification run
   // of three parts, spaced 20s apart, the middle one came back with all 8
   // fields while the other two were gated. A second attempt with a fresh
-  // browser and a short pause is therefore worth real success rate, and
-  // costs nothing when the first attempt works.
+  // browser context (new cookies, new storage) and a short pause is
+  // therefore worth real success rate, and costs nothing when the first
+  // attempt works.
   let lastError;
   for (let attempt = 1; attempt <= 2; attempt++) {
     if (attempt > 1) await new Promise((r) => setTimeout(r, 4000));
@@ -191,11 +204,14 @@ async function renderMcMasterPage(partNumber, attempt) {
   // keeping, but note they were never the blocker: the page renders fine
   // for this exact browser setup until the view allowance runs out, and no
   // amount of fingerprint masking buys more views.
-  const browser = await chromium.launch({
-    args: ["--disable-blink-features=AutomationControlled"],
-  });
+  const browser = await getBrowser();
+  const context = await newStealthContext(browser);
   try {
-    const context = await newStealthContext(browser);
+    // Pictures, fonts and video are most of the bytes on a product page and
+    // none of the spec text. Skipping them shortens every render.
+    await context.route("**/*", (route) =>
+      BLOCKED_RESOURCES.has(route.request().resourceType()) ? route.abort() : route.continue()
+    );
     const page = await context.newPage();
     const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
 
@@ -235,7 +251,18 @@ async function renderMcMasterPage(partNumber, attempt) {
       // proceed with whatever rendered -- classified below
     }
 
-    const text = await page.evaluate(() => document.body.innerText);
+    // The product name is the page's main heading. Putting it first lets the
+    // parser read it as the title whatever else the page frame puts above
+    // it, and the title is what names a part the noun table doesn't know.
+    const { text: bodyText, heading } = await page.evaluate(() => {
+      const h = document.querySelector("h1") || document.querySelector("h2");
+      return { text: document.body.innerText, heading: h ? h.innerText.trim() : "" };
+    });
+    const headingWords = heading.split(/\s+/).length;
+    const text =
+      heading && headingWords >= 2 && headingWords <= 12 && !/mcmaster/i.test(heading) && !(bodyText || "").trimStart().startsWith(heading)
+        ? `${heading}\n${bodyText}`
+        : bodyText;
     console.log(
       `[xref] part=${partNumber} attempt=${attempt} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
     );
@@ -266,8 +293,33 @@ async function renderMcMasterPage(partNumber, attempt) {
 
     return specs;
   } finally {
-    await browser.close();
+    await context.close().catch(() => {});
   }
+}
+
+const BLOCKED_RESOURCES = new Set(["image", "media", "font"]);
+
+// Launching Chromium costs a second or two on a free instance, and every
+// lookup used to pay it. One browser now stays up for the life of the
+// process; each render still gets its own context, so no cookie or storage
+// is shared between lookups, which is what McMaster would see.
+let browserPromise = null;
+function getBrowser() {
+  if (!browserPromise) {
+    browserPromise = chromium
+      .launch({ args: ["--disable-blink-features=AutomationControlled"] })
+      .then((b) => {
+        b.on("disconnected", () => {
+          browserPromise = null;
+        });
+        return b;
+      })
+      .catch((err) => {
+        browserPromise = null;
+        throw err;
+      });
+  }
+  return browserPromise;
 }
 
 // Re-exported for convenience; the logic itself lives in lib/specs.js and

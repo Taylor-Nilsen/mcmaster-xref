@@ -5,6 +5,10 @@
  * server. server.js is the only place that touches the outside world.
  */
 
+
+// Wrapped so that, loaded as a browser <script>, none of these names land
+// in the page's global scope.
+(function () {
 const MATERIALS = [
   "18-8 stainless steel", "316 stainless steel", "stainless steel",
   "carbon fiber", "aluminum", "brass", "bronze", "copper", "titanium",
@@ -146,6 +150,7 @@ const PART_TYPES = [
   [/(?:pipe|tube) tee|\btee\b/i, "tee fitting", "fitting"],
   [/compression (?:tube )?fitting/i, "compression fitting", "fitting"],
   [/barbed (?:hose |tube )?fitting/i, "barbed fitting", "fitting"],
+  [/push.?to.?connect/i, "push-to-connect fitting", "fitting"],
   [/hose fitting|tube fitting|pipe fitting/i, "fitting", "fitting"],
   [/quick.?disconnect/i, "quick-disconnect coupling", "fitting"],
 
@@ -169,16 +174,81 @@ const NOUN_FAMILY = new Map(PART_TYPES.map(([, noun, family]) => [noun, family])
  * those would rename the part to whatever it sits next to in the catalog.
  */
 function detectPartType(text) {
-  const head = String(text || "")
+  const lines = String(text || "")
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)
-    .slice(0, 5)
-    .join(" | ");
+    .slice(0, 5);
+
+  // The title line says what the part is; check it on its own first, so a
+  // word further down cannot outvote it.
+  const title = productTitle(text);
+  if (title) {
+    for (const [re, noun] of PART_TYPES) {
+      if (re.test(title)) return noun;
+    }
+  }
+
+  // Spec labels sit in these same top lines, and a label names a property,
+  // not the part: "Pipe Size" on a ball valve made it a "tube" and sent it
+  // to the metal suppliers.
+  const head = lines.filter((l) => l !== title && !SPEC_LABEL_RE.test(l)).join(" | ");
   for (const [re, noun] of PART_TYPES) {
     if (re.test(head)) return noun;
   }
   return null;
+}
+
+const SPEC_LABEL_RE =
+  /\b(?:size|type|material|diameter|length|width|height|style|class|color|colour|pressure|rating|temperature|thread|od|id|gauge|voltage|current|capacity|profile|series|finish|thickness|for)\s*$/i;
+
+// Lines McMaster's page frame can put above the product name.
+const PAGE_CHROME_RE = /^(?:forward|print|share|find alternative|add to order|order|log ?in|sign in|home|products?|cad|\d+ in stock)\b/i;
+
+/**
+ * The product name, read from the first line when that line looks like one:
+ * a few words of text that are not a spec label, a value or page chrome.
+ * This is what names a part the noun table has never heard of -- a "Brass
+ * Ball Valve" or "Swivel Caster" is searchable as exactly that, which beats
+ * a query built from sizes alone or none at all.
+ */
+function productTitle(text) {
+  const first = String(text || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .find(Boolean);
+  if (!first || first.length > 90 || !/[a-z]{3}/i.test(first)) return null;
+  const words = first.split(/\s+/);
+  if (words.length < 2 || words.length > 12) return null;
+  if (KEY_MAP[first.toLowerCase()] || SPEC_LABEL_RE.test(first) || PAGE_CHROME_RE.test(first) || /:\s*$/.test(first)) return null;
+  return first;
+}
+
+// Labels whose value is the size a buyer would search for on a part the
+// noun table does not know. Only read for title-named parts.
+const EXTRA_LABEL_RE =
+  /^(?:(?:nominal |trade |pipe |tube |hose |wire |drill |bit |wheel |mill |shank |port |bore |fits? )?(?:size|od|gauge|diameter)|stroke length|voltage|current|amperage|capacity|load capacity|number of flutes|series|horsepower|speed|flow rate|maximum pressure|pressure rating|thread type)$/i;
+
+const EXTRA_UNITS = [
+  [/wire gauge/i, "AWG"],
+  [/flutes/i, "flute"],
+  [/series/i, "series"],
+];
+
+function titleExtras(text) {
+  const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
+  const out = [];
+  for (let i = 0; i < lines.length - 1 && out.length < 3; i++) {
+    if (!EXTRA_LABEL_RE.test(lines[i]) || KEY_MAP[lines[i].toLowerCase()]) continue;
+    let v = lines[i + 1];
+    if (v.length > 20 || EXTRA_LABEL_RE.test(v) || SPEC_LABEL_RE.test(v)) continue;
+    // A bare number means nothing without the unit the label carried.
+    const unit = /^\d+$/.test(v) && EXTRA_UNITS.find(([re]) => re.test(lines[i]));
+    if (unit) v = `${v} ${unit[1]}`;
+    if (!out.includes(v)) out.push(v);
+    i++;
+  }
+  return out.join(" ");
 }
 
 function parseSpecsFromText(text) {
@@ -197,6 +267,16 @@ function parseSpecsFromText(text) {
 
   const partType = detectPartType(text);
   if (partType) specs.partType = partType;
+  else {
+    // Nothing in the noun table fits, which is most of McMaster's catalog
+    // outside hardware and stock. Keep the page's own name for the query.
+    const title = productTitle(text);
+    if (title) {
+      specs.title = title;
+      const extra = titleExtras(text);
+      if (extra) specs.extra = extra;
+    }
+  }
 
   const finish = FINISHES.find((f) => lower.includes(f));
   if (finish) specs.finish = finish;
@@ -225,6 +305,7 @@ const KEY_MAP = {
   diameter: "diameter",
   "outside diameter": "diameter",
   od: "diameter",
+  "tube od": "diameter",
   // A washer's defining spec is the screw it fits, and an o-ring's is its
   // inside diameter. Both were dropped on the floor, which left those
   // parts searching on nothing but a material.
@@ -302,6 +383,7 @@ function sanitizeSpecs(specs) {
     // partType is the manual override for what the part *is* -- the one
     // field that decides the product noun and which suppliers get asked.
     "partType", "screwSize", "insideDiameter", "durometer", "shaftDiameter",
+    "title", "extra",
   ];
   const out = {};
   for (const key of allowed) {
@@ -451,6 +533,10 @@ function partFamily(specs) {
   if (category.includes("stock")) return "rawstock";
 
   if (specs.headType) return "fastener";
+  // A page title the noun table doesn't know means the part is none of the
+  // families below. A pneumatic cylinder has a thread size too, and reading
+  // it as a screw is the confidently wrong answer this function avoids.
+  if (specs.title) return "other";
   if (specs.screwSize) return "washer";
   if (specs.threadSize) return "fastener";
   if (specs.shape) return "rawstock";
@@ -479,6 +565,23 @@ function partNoun(specs, family) {
   if (specs.partType) return specs.partType;
   if (family === "fastener") return fastenerNoun(specs);
   return null;
+}
+
+// A title already carries its material ("Brass Ball Valve"); repeating it
+// adds a term that narrows nothing.
+function titleQuery(specs) {
+  const title = specs.title;
+  const lower = title.toLowerCase();
+  const material = specs.material && !lower.includes(specs.material.toLowerCase()) ? specs.material : null;
+  return joinTerms([
+    material,
+    title,
+    specs.extra,
+    specs.threadSize,
+    specs.insideDiameter && `${specs.insideDiameter} ID`,
+    specs.diameter,
+    specs.length,
+  ]);
 }
 
 // Kept for callers that only care whether a part is threaded hardware.
@@ -548,6 +651,8 @@ function buildQuery(rawSpecs) {
   if (family === "rawstock") {
     return joinTerms([specs.material, specs.shape || noun, specs.diameter, specs.thickness, specs.width, specs.finish]);
   }
+
+  if (!noun && specs.title) return titleQuery(specs);
 
   // Bearings, springs, dowel pins. Inside diameter is a bearing's defining
   // spec and length is a pin's, so neither may be dropped here the way the
@@ -732,10 +837,11 @@ function boltDepotUrl(specs, family) {
   return `https://boltdepot.com/Browse?${params.toString()}`;
 }
 
-module.exports = {
+const api = {
   parseSpecsFromText,
   parseKeyValueText,
   detectPartType,
+  productTitle,
   sanitizeSpecs,
   strengthGrade,
   normalizeThread,
@@ -752,3 +858,11 @@ module.exports = {
   buildSupplierLinks,
   boltDepotUrl,
 };
+
+// Loaded two ways: required by the Node backend, and as a plain <script>
+// by the frontend, which runs the same parser and query builder in the
+// browser. A pasted spec block or manual entry then never leaves the phone:
+// no backend round trip, no cold start, and it works offline.
+if (typeof module !== "undefined" && module.exports) module.exports = api;
+else globalThis.XrefSpecs = api;
+})();
