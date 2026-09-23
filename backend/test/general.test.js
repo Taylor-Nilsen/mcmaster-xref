@@ -65,3 +65,11 @@ test("the frontend copy of the parser is the backend's file", () => {
   const link = path.join(__dirname, "../../frontend/specs.js");
   assert.equal(fs.realpathSync(link), fs.realpathSync(path.join(__dirname, "../lib/specs.js")));
 });
+
+test("a spec table read as Label<TAB>Value parses like separate lines", () => {
+  // What innerText gives for a <table>, and so what the bookmarklet sends.
+  const tabbed = parse("Brass Ball Valve\nPipe Size\t1/2\nThread Type\tNPT\nMaterial\tBrass");
+  assert.equal(X.buildQuery(tabbed), "Brass Ball Valve 1/2 NPT");
+  const screw = parse('Black-Oxide Alloy Steel Socket Head Screw\nMaterial\tBlack-Oxide Alloy Steel\nThread Size\t1/4"-20\nLength\t3/4"\nFastener Head Type\tSocket\nDrive Style\tHex');
+  assert.equal(X.buildQuery(screw), '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
+});

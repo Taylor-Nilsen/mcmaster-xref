@@ -165,6 +165,13 @@ const PART_TYPES = [
   [/\btub(?:e|ing)\b|\bpipe\b/i, "tube", "rawstock"],
 ];
 
+// A spec table read with innerText comes out "Label<TAB>Value" on one line;
+// McMaster's own layout, and a copy off it, puts them on separate lines.
+// Both mean the same thing, so tabs are line breaks here.
+function asLines(text) {
+  return String(text || "").replace(/\r/g, "").replace(/[ \t]*\t[ \t]*/g, "\n");
+}
+
 const NOUN_FAMILY = new Map(PART_TYPES.map(([, noun, family]) => [noun, family]));
 
 /**
@@ -174,6 +181,7 @@ const NOUN_FAMILY = new Map(PART_TYPES.map(([, noun, family]) => [noun, family])
  * those would rename the part to whatever it sits next to in the catalog.
  */
 function detectPartType(text) {
+  text = asLines(text);
   const lines = String(text || "")
     .split("\n")
     .map((l) => l.trim())
@@ -213,6 +221,7 @@ const PAGE_CHROME_RE = /^(?:forward|print|share|find alternative|add to order|or
  * a query built from sizes alone or none at all.
  */
 function productTitle(text) {
+  text = asLines(text);
   const first = String(text || "")
     .split("\n")
     .map((l) => l.trim())
@@ -236,6 +245,7 @@ const EXTRA_UNITS = [
 ];
 
 function titleExtras(text) {
+  text = asLines(text);
   const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
   const out = [];
   for (let i = 0; i < lines.length - 1 && out.length < 3; i++) {
@@ -252,6 +262,7 @@ function titleExtras(text) {
 }
 
 function parseSpecsFromText(text) {
+  text = asLines(text);
   const lower = text.toLowerCase();
   const specs = {};
 
@@ -346,6 +357,7 @@ const GROUP_SUBFIELDS = {
  * this override it.
  */
 function parseKeyValueText(text) {
+  text = asLines(text);
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
   const specs = {};
 

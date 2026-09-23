@@ -339,6 +339,23 @@ function rememberPart(partNumber) {
   // the time spent typing a part number, instead of adding to it.
   if (backendConfigured()) fetch(`${BACKEND_URL}/`, { mode: "cors" }).catch(() => {});
 
+  setupBookmarklet();
+
+  // Text sent over by the bookmarklet. It rides in the hash, which never
+  // leaves the device, and is cleared once read so a reload doesn't rerun it.
+  const sent = readSentPage();
+  if (sent) {
+    if (sent.pn) document.getElementById("partNumber").value = sent.pn;
+    document.getElementById("pastedText").value = sent.text;
+    try {
+      history.replaceState(null, "", location.pathname + location.search);
+    } catch {
+      // nothing depends on clearing it
+    }
+    runLookup();
+    return;
+  }
+
   let pn = null;
   try {
     pn = new URL(location.href).searchParams.get("pn");
@@ -354,3 +371,49 @@ function rememberPart(partNumber) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
 })();
+
+function readSentPage() {
+  const m = /^#t=([\s\S]*)$/.exec(location.hash || "");
+  if (!m) return null;
+  let text;
+  try {
+    text = decodeURIComponent(m[1]);
+  } catch {
+    return null;
+  }
+  // The bookmarklet puts the page's URL on the first line so the part
+  // number comes along with the specs.
+  const lines = text.split("\n");
+  const pnMatch = /mcmaster\.com\/(?:[^\s]*\/)?([0-9]{3,5}[A-Z][0-9]{1,4})\b/i.exec(lines[0] || "");
+  if (pnMatch) lines.shift();
+  return { pn: pnMatch ? pnMatch[1].toUpperCase() : null, text: lines.join("\n") };
+}
+
+/**
+ * The bookmarklet reads a McMaster product page in the person's own
+ * browser, where McMaster serves the page normally (and in full, when they
+ * are logged in), and hands the text to this page. That is the one read of
+ * McMaster that works for every part: the backend's render comes from a
+ * datacenter address, and McMaster walls those. The text is parsed here,
+ * on the device, the same way a paste is.
+ */
+function setupBookmarklet() {
+  const link = document.getElementById("bookmarklet");
+  if (!link) return;
+  const app = location.origin + location.pathname;
+  const code =
+    "(()=>{const h=document.querySelector('h1');" +
+    "const t=location.href+'\\n'+(h?h.innerText.trim()+'\\n':'')+document.body.innerText;" +
+    `location.href=${JSON.stringify(app)}+'#t='+encodeURIComponent(t.slice(0,20000))})()`;
+  link.href = `javascript:${code}`;
+  const copy = document.getElementById("bookmarkletCopy");
+  if (copy && navigator.clipboard) {
+    copy.hidden = false;
+    copy.addEventListener("click", () =>
+      navigator.clipboard.writeText(link.href).then(
+        () => setStatus("Bookmarklet copied. Save it as a bookmark's URL (steps below)."),
+        () => setStatus("Couldn't copy. Long-press the link and copy it instead.", true)
+      )
+    );
+  }
+}

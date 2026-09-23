@@ -32,6 +32,24 @@
       </button>
     </div>
 
+    <details class="panel" id="bookmarkletPanel">
+      <summary>Works on every McMaster part: the one-tap bookmarklet</summary>
+      <p class="hint">
+        McMaster blocks lookups from servers, not from you. This bookmark
+        reads the part page open in your own browser and sends it here.
+        Nothing is stored anywhere.
+      </p>
+      <p>
+        <a id="bookmarklet" class="bookmarklet" href="#">McMaster Xref</a>
+        <button id="bookmarkletCopy" class="secondary" type="button" hidden>Copy bookmarklet</button>
+      </p>
+      <ul class="hint steps">
+        <li><b>Desktop:</b> drag "McMaster Xref" to the bookmarks bar. On a part page, click it.</li>
+        <li><b>iPhone / iPad (Safari):</b> bookmark any page, tap Copy bookmarklet, then edit that bookmark and paste over its address. On a part page, open Bookmarks and tap it.</li>
+        <li><b>Android (Chrome):</b> bookmark any page, tap Copy bookmarklet, edit the bookmark, paste it as the URL, and name it "McMaster Xref". On a part page, type "McMaster Xref" in the address bar and tap the bookmark.</li>
+      </ul>
+    </details>
+
     <details id="manualPanel" class="panel" hidden>
       <summary>Manual spec entry (use if auto-fetch fails or the part is unusual)</summary>
 

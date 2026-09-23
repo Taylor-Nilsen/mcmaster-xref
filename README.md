@@ -32,6 +32,16 @@ publishes a copy. A pasted spec block or hand-entered specs are answered on
 the device with no backend call, so that path is instant, skips the cold
 start, and works offline. Only a bare part number goes to the backend.
 
+**The bookmarklet is the path that works for every part.** McMaster walls
+lookups from datacenter addresses: a 19-lookup sweep of non-hardware parts
+(valves, wire, fuses, switches, sensors, motors, PPE, adhesives) through the
+Render backend on 23 Sep 2026 came back LOGIN_WALL or FETCH_FAILED on every
+one. The bookmarklet reads the part page in the person's own browser,
+where McMaster serves it normally (in full, when logged in), and sends the
+text to this page in the URL hash, which never leaves the device. The page
+parses it locally. Setup steps for desktop, iPhone and Android are on the
+page itself.
+
 On a phone: the page installs to the home screen (manifest + service
 worker), has a "Paste from clipboard and look up" button for gated parts,
 links straight to the part on mcmaster.com, and `?pn=91251A540` in the URL
