@@ -49,13 +49,18 @@
  *     `value-cell--table` cells, and `child-attr--table` marking an
  *     indented (grouped) row.
  *
- * The McMaster DOM can't be loaded from this sandbox to check exact cell
- * class names on the current markup, so the React-table reader is written
- * defensively: it prefers a cell whose own class hints "name"/"value", and
- * falls back to first-cell/last-cell; it treats a class containing
- * "indent" or "child" -- on the row or either cell -- as the indent
- * signal. If McMaster's markup drifts, this degrades to reading the table
- * positionally rather than failing outright.
+ * Verified 25 Sep 2026 against a live page (91251A540) rendered in a real
+ * browser: the current React table's `<td>`s both carry the same class
+ * (`_tableCell_<hash>`; "name"/"value" only appears on an inner `<div>`,
+ * not the cell itself), so the reader's positional fallback
+ * (first-cell/last-cell) is what actually does the work, not the
+ * class-hint check -- and an indented row's own class does contain
+ * "indented" ("_product-detail-spec-table-row-indented_<hash>"), so that
+ * signal fires as written. All 30 TableEntries this produced for that page
+ * matched McMaster's own captured ItmPrsnttnWebPart JSON exactly (name,
+ * value, group/indent). See backend/test/fixtures/mcmaster/91251A540.dom.html
+ * (the captured page) and backend/test/bookmarklet.live.test.js (the test
+ * that replays it). The legacy markup is unverified from a live page still.
  */
 
 // Where the built record is opened. GitHub Pages URL for this repo
@@ -190,18 +195,30 @@ function extractPartNumber(doc, loc) {
   return "";
 }
 
+// McMaster's real product page splits the title across two headings: an
+// h1 with the bare product name ("Black-Oxide Alloy Steel Socket Head
+// Screw") and an h3 right after it with the rest ("US Origin, 1/4"-20
+// Thread Size, 3/4" Long") -- together, comma-joined, they reproduce
+// McMaster's own TitleTxt exactly (verified against a live page's captured
+// ItmPrsnttnWebPart JSON). When only one of the two is present, that one
+// alone is used.
 function extractTitle(doc) {
-  var h1 = doc.querySelector("h1");
-  var h1Text = textOf(h1);
-  if (h1Text) return h1Text;
-  var h3 = doc.querySelector("h3");
-  return textOf(h3);
+  var h1Text = textOf(doc.querySelector("h1"));
+  var h3Text = textOf(doc.querySelector("h3"));
+  if (h1Text && h3Text) return h1Text + ", " + h3Text;
+  return h1Text || h3Text;
 }
 
-// A few reasonable, independent guesses at the breadcrumb container --
-// unverifiable from this sandbox, so several are tried and the results
-// merged (deduped) rather than betting on one exact class name.
+// A live page's breadcrumb nav (verified 25 Sep 2026) is
+// `<nav id="breadcrumbsNavTag">` -- no "breadcrumb" class, so the earlier
+// class-based guesses never matched it. Its id selector is tried first;
+// the class-based guesses stay as a fallback for markup that differs.
+// (On that same live page the nav's own links carried no breadcrumb names
+// at the point the spec table rendered, matching McMaster's own
+// ReactData.Breadcrumbs, which was also empty for that record -- so an
+// empty breadcrumb list here is not itself a scraping failure.)
 var BREADCRUMB_SELECTORS = [
+  "#breadcrumbsNavTag a",
   "nav[aria-label='breadcrumb'] a",
   "nav.breadcrumb a",
   ".breadcrumb a",
