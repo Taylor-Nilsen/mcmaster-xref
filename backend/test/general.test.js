@@ -15,26 +15,28 @@ const vm = require("node:vm");
 const X = require("../lib/specs");
 
 const MRO = ["Grainger", "MSC Direct", "Amazon", "AliExpress"];
+const ELECTRICAL = ["Digi-Key", "Mouser", "Grainger", "Amazon", "AliExpress"];
+const PPE = ["Grainger", "MSC Direct", "Amazon"];
 const parse = (t) => ({ ...X.parseSpecsFromText(t), ...X.parseKeyValueText(t) });
 
 const CASES = [
   ["ball valve", "Brass Ball Valve\nPipe Size\n1/2\nThread Type\nNPT\nMaximum Pressure\n600 psi\nMaterial\nBrass", "Brass Ball Valve 1/2 NPT 600 psi"],
   ["push-to-connect", "Push-to-Connect Tube Fitting for Air\nTube OD\n1/4\"\nPipe Size\n1/8\nBody Material\nNickel-Plated Brass", '1/4" push-to-connect fitting brass'],
-  ["fuse", "Fast-Acting Glass Fuse\nCurrent\n5 A\nVoltage\n250V AC\nDiameter\n1/4\"\nLength\n1-1/4\"", 'Fast-Acting Glass Fuse 5 A 250V AC 1/4" 1-1/4"'],
-  ["safety glasses", "Safety Glasses\nLens Color\nClear\nFrame Color\nBlack", "Safety Glasses"],
+  ["fuse", "Fast-Acting Glass Fuse\nCurrent\n5 A\nVoltage\n250V AC\nDiameter\n1/4\"\nLength\n1-1/4\"", 'Fast-Acting Glass Fuse 5 A 250V AC 1/4" 1-1/4"', ELECTRICAL],
+  ["safety glasses", "Safety Glasses\nLens Color\nClear\nFrame Color\nBlack", "Safety Glasses Clear lens", PPE],
   ["gearmotor", "DC Gearmotor\nVoltage\n12V DC\nSpeed\n100 rpm\nTorque\n20 in.-lbs.", "DC Gearmotor 12V DC 100 rpm"],
   ["caster", "Swivel Caster\nWheel Diameter\n3\"\nWheel Material\nPolyurethane\nCapacity\n200 lbs.", 'Swivel Caster 3" 200 lbs.'],
   ["end mill", "Carbide End Mill\nMill Diameter\n1/4\"\nNumber of Flutes\n4\nMaterial\nCarbide", 'Carbide End Mill 1/4" 4 flute'],
   ["t-slot rail", "T-Slotted Framing Rail\nSeries\n10\nSingle Rail Profile\n1\" x 1\"\nLength\n4 ft.\nMaterial\n6063 Aluminum", "6063 Aluminum T-Slotted Framing Rail 10 series 4 ft."],
-  ["hook-up wire", "Hook-Up Wire\nWire Gauge\n18\nConductor\nStranded Copper\nLength\n100 ft.", "copper Hook-Up Wire 18 AWG 100 ft."],
+  ["hook-up wire", "Hook-Up Wire\nWire Gauge\n18\nConductor\nStranded Copper\nLength\n100 ft.", "copper Hook-Up Wire 18 AWG 100 ft.", ELECTRICAL],
   ["air cylinder", "Air Cylinder\nBore Diameter\n3/4\"\nStroke Length\n2\"\nThread Size\n1/8\"-27", 'Air Cylinder 3/4" 2" 1/8"-27'],
 ];
 
-for (const [label, text, expect] of CASES) {
+for (const [label, text, expect, suppliers = MRO] of CASES) {
   test(`${label} is searched by its own name`, () => {
     const specs = parse(text);
     assert.equal(X.buildQuery(specs), expect);
-    assert.deepEqual(X.buildSupplierLinks(specs).map((l) => l.name), MRO);
+    assert.deepEqual(X.buildSupplierLinks(specs).map((l) => l.name), suppliers);
   });
 }
 
@@ -95,4 +97,10 @@ test("a Head Profile row qualifies a pasted block with no title", () => {
 test("other qualifiers survive too", () => {
   assert.match(X.buildQuery(parse('Zinc-Plated Steel Tamper-Resistant Button Head Screw\nThread Size\n1/4"-20\nLength\n1"\nFastener Head Type\nButton\nDrive Style\nTorx')), /^1\/4"-20 x 1" tamper-resistant button head socket cap screw /);
   assert.match(X.buildQuery(parse('18-8 Stainless Steel Flanged Hex Nut\nThread Size\n5/16"-18')), /^5\/16"-18 flanged hex nut /);
+});
+
+test("a stock title the noun table doesn't know still goes to the metal suppliers", () => {
+  const specs = parse('6061 Aluminum Rod\nMaterial\n6061 Aluminum\nShape\nRound Bar\nDiameter\n3/8"');
+  assert.equal(X.buildQuery(specs), '6061 Aluminum Round Bar 3/8"');
+  assert.equal(X.buildSupplierLinks(specs)[0].name, "Speedy Metals");
 });

@@ -100,7 +100,10 @@ const PART_TYPES = [
   [/flanged (?:ball |sleeve )?bearing/i, "flanged bearing", "other"],
   [/drill bushing/i, "drill bushing", "other"],
   [/sleeve bearing|\bbushing\b/i, "sleeve bearing", "other"],
-  [/ball bearing|\bbearing\b/i, "ball bearing", "other"],
+  [/ball bearing/i, "ball bearing", "other"],
+  // Mounted, tapered-roller, cam-follower and the rest: the title's own
+  // words in front say which, so the noun stays generic.
+  [/\bbearing\b/i, "bearing", "other"],
   [/\bwasher\b/i, "washer", "washer"],
 
   // Pins before springs, or a spring pin reads as a spring.
@@ -112,7 +115,8 @@ const PART_TYPES = [
   [/\bpin\b/i, "pin", "other"],
 
   [/retaining ring|snap ring|circlip|e.?style ring|e.?clip/i, "retaining ring", "other"],
-  [/helical insert|threaded insert|keylocking insert|heat.?set insert|\binsert\b/i, "threaded insert", "fastener"],
+  // Not a bare "insert": a carbide lathe insert is cutting tooling.
+  [/helical insert|threaded insert|keylocking insert|heat.?set insert|press.?fit insert/i, "threaded insert", "fastener"],
   [/standoff/i, "standoff", "fastener"],
   [/\bspacer\b/i, "spacer", "other"],
 
@@ -126,9 +130,13 @@ const PART_TYPES = [
   [/timing belt/i, "timing belt", "other"],
   [/v.?belt/i, "v-belt", "other"],
   [/\bbelt\b/i, "belt", "other"],
-  [/spur gear|\bgear\b/i, "spur gear", "other"],
+  // Spur, bevel, miter, worm, helical: the qualifier carries the kind.
+  // Calling every gear a spur gear searched bevel gears as spur gears.
+  [/gear rack/i, "gear rack", "other"],
+  [/\bgear\b/i, "gear", "other"],
   [/sprocket/i, "sprocket", "other"],
-  [/roller chain|\bchain\b/i, "roller chain", "other"],
+  [/roller chain/i, "roller chain", "other"],
+  [/\bchain\b/i, "chain", "other"],
   [/shock absorber/i, "shock absorber", "other"],
   [/\bactuator\b/i, "actuator", "other"],
 
@@ -155,9 +163,16 @@ const PART_TYPES = [
   [/hose fitting|tube fitting|pipe fitting/i, "fitting", "fitting"],
   [/quick.?disconnect/i, "quick-disconnect coupling", "fitting"],
 
-  // Raw stock.
+  // Products whose names carry a raw-stock word without being stock.
+  [/heat.?shrink/i, "heat-shrink tubing", "other"],
+  [/(?:pipe|hose|tube) clamp/i, "clamp", "other"],
+
+  // Raw stock. On a title these only count as the last word ("6061
+  // Aluminum Sheet"), so a wall plate or plastic tubing isn't sent to the
+  // metal suppliers -- see nounInTitle.
   [/key ?stock/i, "keystock", "rawstock"],
   [/round bar|rod stock/i, "round bar", "rawstock"],
+  [/\brod\b/i, "rod", "rawstock"],
   [/hex bar/i, "hex bar", "rawstock"],
   [/square bar|rectangular bar|flat bar|\bbar stock\b/i, "bar", "rawstock"],
   [/\b(?:sheet|plate)\b/i, "sheet", "rawstock"],
@@ -192,27 +207,44 @@ function detectPartType(text) {
   // The title line says what the part is; check it on its own first, so a
   // word further down cannot outvote it.
   const title = productTitle(text);
-  if (title) {
-    for (const [re, noun] of PART_TYPES) {
-      if (re.test(title)) return noun;
-    }
-  }
+  if (title) return nounInTitle(title);
 
   // Spec labels sit in these same top lines, and a label names a property,
   // not the part: "Pipe Size" on a ball valve made it a "tube" and sent it
   // to the metal suppliers.
-  const head = lines.filter((l) => l !== title && !SPEC_LABEL_RE.test(l)).join(" | ");
+  const head = lines.filter((l) => !SPEC_LABEL_RE.test(l)).join(" | ");
   for (const [re, noun] of PART_TYPES) {
     if (re.test(head)) return noun;
   }
   return null;
 }
 
+// The noun-table entry a title names, or null for a product the table does
+// not know. A raw-stock word only counts as the title's last word: "6061
+// Aluminum Sheet" is stock, a "Wall Plate" or "Soft Plastic Tubing" is not.
+function nounInTitle(title) {
+  for (const [re, noun, family] of PART_TYPES) {
+    const m = re.exec(title);
+    if (!m) continue;
+    if (family === "rawstock") {
+      const tail = title.slice(m.index + m[0].length).replace(/[\s,]*(?:stock)?s?$/i, "");
+      if (tail.trim()) continue;
+      if (/tub|pipe/i.test(m[0]) ? !METAL_RE.test(title) : !STOCK_MATERIAL_RE.test(title)) continue;
+    }
+    return noun;
+  }
+  return null;
+}
+
+const METAL_RE = /aluminum|steel|brass|bronze|copper|titanium|iron|nickel/i;
+const STOCK_MATERIAL_RE =
+  /aluminum|steel|brass|bronze|copper|titanium|iron|nickel|plastic|acrylic|polycarbonate|nylon|acetal|delrin|hdpe|uhmw|ptfe|pvc|garolite|fiberglass|carbon fiber|rubber|foam|felt|wood/i;
+
 // Words in a title that say what the part is made of or coated with. Those
 // have their own fields; what is left in front of the noun is what makes
 // the part a *kind* of that noun.
 const MATERIAL_WORD_RE =
-  /^(?:steel|stainless|alloy|carbon|low-carbon|high-carbon|aluminum|brass|bronze|copper|titanium|nylon|rubber|neoprene|silicone|nitrile|buna-n|epdm|viton|polyurethane|acetal|delrin|pvc|polycarbonate|plastic|zinc|galvanized|hot-dipped|plain|multipurpose|general-purpose|class|grade|[a-z]+-plated|black-oxide|[\d.\-]+)$/i;
+  /^(?:metal|steel|stainless|alloy|carbon|low-carbon|high-carbon|aluminum|brass|bronze|copper|titanium|nylon|rubber|neoprene|silicone|nitrile|buna-n|epdm|viton|polyurethane|acetal|delrin|pvc|polycarbonate|plastic|zinc|galvanized|hot-dipped|plain|multipurpose|general-purpose|class|grade|[a-z]+-plated|black-oxide|[\d.\-]+)$/i;
 
 /**
  * The words in front of the product noun in the title, minus material and
@@ -246,47 +278,147 @@ const SPEC_LABEL_RE =
 const PAGE_CHROME_RE = /^(?:forward|print|share|find alternative|add to order|order|log ?in|sign in|home|products?|cad|\d+ in stock)\b/i;
 
 /**
- * The product name, read from the first line when that line looks like one:
- * a few words of text that are not a spec label, a value or page chrome.
+ * The product name. McMaster's page frame, the bookmarklet and the backend
+ * all put it near the top, but not always on the first line, and a nav
+ * link like "Socket Head Screws" can sit above it. So every line in the
+ * top of the text is scored: one that names a known product wins, then one
+ * that reads like a product name (a few words carrying a material or a
+ * catalog noun), and earlier beats later.
+ *
  * This is what names a part the noun table has never heard of -- a "Brass
- * Ball Valve" or "Swivel Caster" is searchable as exactly that, which beats
- * a query built from sizes alone or none at all.
+ * Ball Valve" or "Nitrile Disposable Glove" is searchable as exactly that.
  */
 function productTitle(text) {
   text = asLines(text);
-  const first = String(text || "")
+  const lines = String(text || "")
     .split("\n")
     .map((l) => l.trim())
-    .find(Boolean);
-  if (!first || first.length > 90 || !/[a-z]{3}/i.test(first)) return null;
-  const words = first.split(/\s+/);
-  if (words.length < 2 || words.length > 12) return null;
-  if (KEY_MAP[first.toLowerCase()] || SPEC_LABEL_RE.test(first) || PAGE_CHROME_RE.test(first) || /:\s*$/.test(first)) return null;
-  return first;
+    .filter(Boolean)
+    .slice(0, 40);
+  let best = null;
+  let bestScore = 0;
+  // The product name sits directly above its spec table; a nav link sits
+  // among other nav links. That position is the strongest signal there is,
+  // so the next few lines being spec labels counts for more than anything
+  // in the line itself.
+  const isLabel = (l) =>
+    !!l && (KEY_MAP[l.toLowerCase()] || EXTRA_LABEL_RE.test(l) || SPEC_LABEL_RE.test(l) || /^[\w -]+ type$/i.test(l));
+  lines.forEach((line, i) => {
+    const base = titleScore(line);
+    const aboveSpecs = isLabel(lines[i + 1]) ? 4 : isLabel(lines[i + 2]) ? 2 : isLabel(lines[i + 3]) ? 1 : 0;
+    const score = base + aboveSpecs - i * 0.05 + (i === 0 ? 1 : 0);
+    if (base > 0 && score > bestScore) {
+      best = line;
+      bestScore = score;
+    }
+  });
+  return best ? best.replace(/\s*[|\u2013\u2014]\s*McMaster-Carr.*$/i, "").trim() : null;
 }
 
-// Labels whose value is the size a buyer would search for on a part the
-// noun table does not know. Only read for title-named parts.
-const EXTRA_LABEL_RE =
-  /^(?:(?:nominal |trade |pipe |tube |hose |wire |drill |bit |wheel |mill |shank |port |bore |fits? )?(?:size|od|gauge|diameter)|stroke length|voltage|current|amperage|capacity|load capacity|number of flutes|series|horsepower|speed|flow rate|maximum pressure|pressure rating|thread type)$/i;
+function titleScore(line) {
+  if (line.length > 90 || !/[a-z]{3}/i.test(line) || /^https?:/i.test(line)) return 0;
+  const words = line.split(/\s+/);
+  if (words.length > 12) return 0;
+  if (KEY_MAP[line.toLowerCase()] || SPEC_LABEL_RE.test(line) || PAGE_CHROME_RE.test(line) || /:\s*$/.test(line)) return 0;
+  if (/^mcmaster/i.test(line)) return 0;
+  const known = PART_TYPES.some(([re]) => re.test(line));
+  const generic = CATALOG_NOUN_RE.test(line);
+  // A value, not a name: "Number 10", '1/4"-20', "Clear". A name has at
+  // least two real words ("18-8 Stainless Steel Hex Nut" counts), or is a
+  // single catalog noun ("Earplugs").
+  const realWords = words.filter((w) => /[a-z]{3}/i.test(w)).length;
+  if (realWords < 2 && !((known || generic) && realWords === 1)) return 0;
+  let score = 1;
+  if (known) score += 5;
+  else if (generic) score += 4;
+  if (METAL_RE.test(line) || MATERIAL_WORD_RE.test(words[0])) score += 1;
+  return score;
+}
 
+// Product nouns across the rest of McMaster's catalog -- the ones the
+// noun table has no special query shape for, but which mark a line as a
+// product name rather than a spec value or page text.
+const CATALOG_NOUN_RE =
+  /\b(?:valves?|pumps?|motors?|gearmotors?|switch(?:es)?|relays?|fuses?|breakers?|connectors?|terminals?|resistors?|capacitors?|diodes?|sensors?|transformers?|power suppl(?:y|ies)|batter(?:y|ies)|wires?|cables?|cords?|lights?|lamps?|leds?|fans?|heaters?|thermostats?|thermocouples?|gauges?|meters?|timers?|controllers?|actuators?|cylinders?|regulators?|filters?|lubricants?|greases?|oils?|adhesives?|epox(?:y|ies)|tapes?|sealants?|gloves?|glasses|goggles|earplugs?|ear ?muffs?|respirators?|masks?|hard hats?|helmets?|face ?shields?|vests?|coveralls?|aprons?|boots?|casters?|wheels?|hinges?|latch(?:es)?|handles?|knobs?|clamps?|hooks?|magnets?|brushes?|drills?|drill bits?|end mills?|taps?|dies|reamers?|saws?|blades?|wrench(?:es)?|screwdrivers?|pliers|hammers?|sockets?|bits?|files?|abrasives?|sandpaper|discs?|labels?|signs?|bins?|carts?|shelv(?:es|ing)|ladders?|containers?|bottles?|buckets?|funnels?|hoses?|couplings?|nozzles?|mufflers?|manifolds?|framing|rails?|extrusions?|slides?|guides?|bushings?|pulleys?|sprockets?|shafts?|collars?|mounts?|levelers?|bumpers?|grommets?|plugs?|caps?|ties?|straps?|chains?|ropes?|slings?|shackles?|turnbuckles?|springs?|dampers?|shocks?|struts?|locks?|padlocks?|enclosures?|boxes|cabinets?|panels?|tools?|kits?)\b/i;
+
+// Spec rows whose value is what a buyer types into a search box, across the
+// catalog: sizes, gear geometry, electrical ratings, PPE sizing. Rows the
+// main parser already maps (thread size, length, material...) are left to
+// it.
+const EXTRA_LABEL_RE = new RegExp(
+  "^(?:" +
+    [
+      "(?:nominal |trade |pipe |tube |hose |wire |drill |bit |wheel |mill |shank |port |bore |glove |fits? )?(?:size|od|gauge|diameter)",
+      "stroke length", "stroke", "drill bit size", "point angle", "extended length", "force",
+      "sensing (?:range|distance)", "niosh rating", "ansi (?:chain )?number",
+      // Gears and power transmission.
+      "(?:diametral )?pitch", "module", "number of teeth", "teeth", "pressure angle", "chain (?:size|number)", "belt (?:width|trade size)",
+      // Electrical and electronic.
+      "(?:ac |dc )?voltage", "current", "amperage", "(?:current|amperage) rating", "resistance", "capacitance",
+      "wattage", "power", "number of poles", "number of throws", "number of positions", "number of conductors",
+      "circuit", "switch action", "contact form",
+      // PPE.
+      "noise reduction rating(?: \\(nrr\\))?", "nrr", "(?:ansi )?cut level", "lens color", "lens tint",
+      // Everything else.
+      "capacity", "load capacity", "number of flutes", "series", "horsepower", "speed", "rpm",
+      "flow rate", "maximum pressure", "pressure rating", "thread type", "grit",
+    ].join("|") +
+    ")$",
+  "i"
+);
+
+// A bare number means nothing without the unit the label carried.
 const EXTRA_UNITS = [
   [/wire gauge/i, "AWG"],
   [/flutes/i, "flute"],
   [/series/i, "series"],
+  [/teeth/i, "teeth"],
+  [/pitch/i, "pitch"],
+  [/module/i, "module"],
+  [/poles/i, "pole"],
+  [/positions/i, "position"],
+  [/conductors/i, "conductor"],
+  [/grit/i, "grit"],
+  [/nrr|noise reduction/i, "dB NRR"],
 ];
+
+// A "Gear Type: Spur" row names the kind of part when the title doesn't
+// ("Metal Gear"). Only a row about the title's own noun counts -- a
+// "Thread Type" row on a gear says nothing about which gear it is.
+function typeRow(text, title) {
+  if (!title) return null;
+  const lines = asLines(text).split("\n").map((l) => l.trim()).filter(Boolean);
+  const lowerTitle = title.toLowerCase();
+  for (let i = 0; i < lines.length - 1; i++) {
+    const m = /^([a-z][a-z -]*?) type$/i.exec(lines[i]);
+    if (!m) continue;
+    const subject = m[1].toLowerCase().split(" ").pop();
+    const value = lines[i + 1];
+    if (!lowerTitle.includes(subject) || value.length > 25 || /\d/.test(value)) continue;
+    if (lowerTitle.includes(value.toLowerCase())) return null;
+    return value.toLowerCase();
+  }
+  return null;
+}
+
+// Values that say nothing a search can use.
+const EMPTY_VALUE_RE = /^(?:standard|one size|n\/a|not rated|none|yes|no|various)$/i;
 
 function titleExtras(text) {
   text = asLines(text);
   const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
   const out = [];
-  for (let i = 0; i < lines.length - 1 && out.length < 3; i++) {
+  for (let i = 0; i < lines.length - 1 && out.length < 4; i++) {
     if (!EXTRA_LABEL_RE.test(lines[i]) || KEY_MAP[lines[i].toLowerCase()]) continue;
     let v = lines[i + 1];
-    if (v.length > 20 || EXTRA_LABEL_RE.test(v) || SPEC_LABEL_RE.test(v)) continue;
+    if (v.length > 20 || EXTRA_LABEL_RE.test(v) || SPEC_LABEL_RE.test(v) || EMPTY_VALUE_RE.test(v)) continue;
     // A bare number means nothing without the unit the label carried.
     const unit = /^\d+$/.test(v) && EXTRA_UNITS.find(([re]) => re.test(lines[i]));
     if (unit) v = `${v} ${unit[1]}`;
+    // A roller chain is sold as "#40", not "40".
+    if (/ansi|chain (?:size|number)/i.test(lines[i]) && /^\d+$/.test(v)) v = `#${v}`;
+    // "Clear" on its own could be anything; "clear lens" is a search term.
+    if (/lens (?:color|tint)/i.test(lines[i])) v = `${v} lens`;
     if (!out.includes(v)) out.push(v);
     i++;
   }
@@ -308,21 +440,21 @@ function parseSpecsFromText(text) {
   const drive = /drive/i.test(text) ? DRIVE_TYPES.find((d) => lower.includes(d)) : null;
   if (drive) specs.driveType = drive;
 
+  // The page's own product name is kept whatever else is found: it is what
+  // the results show the part was read as, and for most of McMaster's
+  // catalog (anything the noun table doesn't know) it is the query.
+  const title = productTitle(text);
+  if (title) specs.title = title;
   const partType = detectPartType(text);
   if (partType) {
     specs.partType = partType;
-    const qualifier = titleQualifier(productTitle(text));
+    const qualifier = titleQualifier(title);
     if (qualifier) specs.qualifier = qualifier;
-  } else {
-    // Nothing in the noun table fits, which is most of McMaster's catalog
-    // outside hardware and stock. Keep the page's own name for the query.
-    const title = productTitle(text);
-    if (title) {
-      specs.title = title;
-      const extra = titleExtras(text);
-      if (extra) specs.extra = extra;
-    }
   }
+  const extra = titleExtras(text);
+  if (extra) specs.extra = extra;
+  const kind = typeRow(text, title);
+  if (kind) specs.qualifier = specs.qualifier ? `${kind} ${specs.qualifier}` : kind;
 
   const finish = FINISHES.find((f) => lower.includes(f));
   if (finish) specs.finish = finish;
@@ -573,6 +705,12 @@ function fastenerNoun(specs) {
  */
 function partFamily(specs) {
   const declared = NOUN_FAMILY.get(String(specs.partType || "").toLowerCase());
+  // Electronics and PPE have their own distributors. Read from the title,
+  // and only where the noun table has no stronger claim on the part.
+  if ((!declared || declared === "other") && specs.title) {
+    if (ELECTRICAL_RE.test(specs.title)) return "electrical";
+    if (PPE_RE.test(specs.title)) return "ppe";
+  }
   if (declared) return declared;
 
   // The manual-entry Category select is the person telling us directly.
@@ -584,10 +722,12 @@ function partFamily(specs) {
   // A page title the noun table doesn't know means the part is none of the
   // families below. A pneumatic cylinder has a thread size too, and reading
   // it as a screw is the confidently wrong answer this function avoids.
+  // A Shape row ("Round Bar") is raw stock's own spec, so it outranks a
+  // title the noun table doesn't know ("6061 Aluminum Rod").
+  if (specs.shape) return "rawstock";
   if (specs.title) return "other";
   if (specs.screwSize) return "washer";
   if (specs.threadSize) return "fastener";
-  if (specs.shape) return "rawstock";
   // An inside diameter used to imply a seal, which put shaft collars,
   // spacers, pulleys, gears and every other bored part in front of the
   // o-ring suppliers. It only means "this part has a hole in it". A seal
@@ -633,11 +773,13 @@ function basePartNoun(specs, family) {
 function titleQuery(specs) {
   const title = specs.title;
   const lower = title.toLowerCase();
-  const material = specs.material && !lower.includes(specs.material.toLowerCase()) ? specs.material : null;
+  // "304 Stainless Steel" on a "Stainless Steel Butt Hinge" repeats itself.
+  const materialWords = specs.material ? specs.material.toLowerCase().split(/\s+/).filter((w) => /[a-z]{3}/.test(w)) : [];
+  const material = materialWords.length && !materialWords.some((w) => lower.includes(w)) ? specs.material : null;
   return joinTerms([
     material,
     title,
-    specs.extra,
+    extraTerms(specs),
     specs.threadSize,
     specs.insideDiameter && `${specs.insideDiameter} ID`,
     specs.diameter,
@@ -729,8 +871,26 @@ function buildQuery(rawSpecs) {
     specs.width,
     specs.length,
     specs.finish,
+    // Pitch and tooth count for a gear, load rating for a caster: the spec
+    // rows that tell one of these from its neighbours.
+    extraTerms(specs),
   ]);
 }
+
+// The extras, minus anything another field already puts in the query.
+function extraTerms(specs) {
+  let extra = specs.extra || "";
+  for (const key of ["threadSize", "diameter", "insideDiameter", "length", "width", "thickness", "screwSize"]) {
+    if (specs[key]) extra = extra.split(specs[key]).join(" ");
+  }
+  return extra.replace(/\s+/g, " ").trim() || null;
+}
+
+const ELECTRICAL_RE =
+  /\b(?:switch(?:es)?|relays?|fuses?|fuse holders?|circuit breakers?|connectors?|terminal blocks?|terminals?|resistors?|capacitors?|diodes?|transistors?|leds?|sensors?|transformers?|power suppl(?:y|ies)|batter(?:y|ies)|wires?|cables?|cords?|heat.?shrink|solder|potentiometers?|thermocouples?|encoders?|contactors?|receptacles?|outlets?|electrical|electronic|circuit|indicator lights?|pilot lights?|timers?|motor controllers?|speed controls?)\b/i;
+
+const PPE_RE =
+  /\b(?:gloves?|safety glasses|glasses|goggles|earplugs?|ear ?muffs?|hearing protect\w*|respirators?|dust masks?|masks?|hard hats?|helmets?|face ?shields?|safety vests?|vests?|coveralls?|aprons?|safety boots?|boots?|sleeves?|fall.protection|harness(?:es)?|lanyards?|knee pads?)\b/i;
 
 // Each supplier's own search URL, taken from a real indexed results URL on
 // that site. {q} is the percent-encoded query, {plus} the +-separated form.
@@ -828,7 +988,29 @@ const MRO_SUPPLIERS = [
   { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
 ];
 
+// Electronics distributors index by the part's electrical ratings, which is
+// what the extras carry. Their search URLs could not be checked from a
+// server either: Digi-Key answers with a Cloudflare challenge and Mouser's
+// results render client-side.
+const ELECTRICAL_SUPPLIERS = [
+  { name: "Digi-Key", urlTemplate: "https://www.digikey.com/en/products/result?keywords={plus}" },
+  { name: "Mouser", urlTemplate: "https://www.mouser.com/c/?q={q}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+  { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
+];
+
+// Safety gear is rated gear (ANSI, NRR, cut level); the MRO houses carry
+// rated stock, and an unrated knockoff is the wrong cheaper equivalent.
+const PPE_SUPPLIERS = [
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+];
+
 const SUPPLIERS_BY_FAMILY = {
+  electrical: ELECTRICAL_SUPPLIERS,
+  ppe: PPE_SUPPLIERS,
   fastener: FASTENER_SUPPLIERS,
   nut: FASTENER_SUPPLIERS,
   washer: FASTENER_SUPPLIERS,

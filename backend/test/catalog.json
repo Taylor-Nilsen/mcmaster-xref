@@ -1,0 +1,254 @@
+[
+  {
+    "label": "low-profile SHCS",
+    "text": "Order\nOrder History\nLog in\nFastening & Joining\nSocket Head Screws\nHex Nuts\nBlack-Oxide Alloy Steel Low-Profile Socket Head Screw\nThread Size\t1/4\"-20\nLength\t1/2\"\nHead Profile\tLow\nFastener Head Type\tSocket\nDrive Style\tHex\nMaterial\tBlack-Oxide Alloy Steel\nRelated products\nHex Nuts\nFlat Washers\nRound Bar\n",
+    "title": "Black-Oxide Alloy Steel Low-Profile Socket Head Screw",
+    "query": "1/4\"-20 x 1/2\" low-profile socket head cap screw Alloy Steel Black-Oxide",
+    "family": "fastener"
+  },
+  {
+    "label": "ultra low-profile SHCS no nav",
+    "text": "Black-Oxide Alloy Steel Ultra Low-Profile Socket Head Screw\nThread Size\n#10-32\nLength\n3/8\"\nMaterial\nBlack-Oxide Alloy Steel",
+    "title": "Black-Oxide Alloy Steel Ultra Low-Profile Socket Head Screw",
+    "query": "#10-32 x 3/8\" ultra low-profile socket head cap screw Alloy Steel Black-Oxide",
+    "family": "fastener"
+  },
+  {
+    "label": "spur gear",
+    "text": "Order\nOrder History\nLog in\nFastening & Joining\nSocket Head Screws\nHex Nuts\nMetal Gear\nGear Type\tSpur\nPitch\t32\nNumber of Teeth\t24\nPressure Angle\t20°\nBore Diameter\t1/4\"\nMaterial\tSteel\nRelated products\nHex Nuts\nFlat Washers\nRound Bar\n",
+    "title": "Metal Gear",
+    "query": "Steel spur gear 32 pitch 24 teeth 20° 1/4\"",
+    "family": "other"
+  },
+  {
+    "label": "bevel gear",
+    "text": "Steel Bevel Gear\nPitch\t16\nNumber of Teeth\t30\nPressure Angle\t20°\nBore\t1/2\"\nMaterial\tSteel",
+    "title": "Steel Bevel Gear",
+    "query": "Steel bevel gear 16 pitch 30 teeth 20°",
+    "family": "other"
+  },
+  {
+    "label": "plastic gear rack",
+    "text": "Plastic Gear Rack\nPitch\t32\nPressure Angle\t20°\nLength\t2 ft.\nMaterial\tAcetal",
+    "title": "Plastic Gear Rack",
+    "query": "Acetal gear rack 2 ft. 32 pitch 20°",
+    "family": "other"
+  },
+  {
+    "label": "worm gear",
+    "text": "Bronze Worm Gear\nPitch\t24\nNumber of Teeth\t40\nMaterial\tBronze",
+    "title": "Bronze Worm Gear",
+    "query": "Bronze worm gear 24 pitch 40 teeth",
+    "family": "other"
+  },
+  {
+    "label": "mounted bearing",
+    "text": "Mounted Ball Bearing—Pillow Block\nFor Shaft Diameter\t1\"\nHousing Material\tCast Iron",
+    "title": "Mounted Ball Bearing—Pillow Block",
+    "query": "mounted ball bearing for 1\" shaft",
+    "family": "other"
+  },
+  {
+    "label": "tapered roller bearing",
+    "text": "Tapered-Roller Bearing\nInside Diameter\t1\"\nOutside Diameter\t2-1/4\"",
+    "title": "Tapered-Roller Bearing",
+    "query": "tapered-roller bearing 1\" ID 2-1/4\"",
+    "family": "other"
+  },
+  {
+    "label": "nitrile gloves",
+    "text": "Order\nOrder History\nLog in\nFastening & Joining\nSocket Head Screws\nHex Nuts\nDisposable Nitrile Gloves\nGlove Size\tLarge\nThickness\t4 mil\nColor\tBlue\nRelated products\nHex Nuts\nFlat Washers\nRound Bar\n",
+    "title": "Disposable Nitrile Gloves",
+    "query": "Disposable Nitrile Gloves Large",
+    "family": "ppe"
+  },
+  {
+    "label": "cut gloves",
+    "text": "Cut-Resistant Gloves\nANSI Cut Level\tA4\nSize\tMedium",
+    "title": "Cut-Resistant Gloves",
+    "query": "Cut-Resistant Gloves A4 Medium",
+    "family": "ppe"
+  },
+  {
+    "label": "safety glasses",
+    "text": "Safety Glasses\nLens Color\tGray\nFrame Color\tBlack\nANSI Z87.1\tYes",
+    "title": "Safety Glasses",
+    "query": "Safety Glasses Gray lens",
+    "family": "ppe"
+  },
+  {
+    "label": "earplugs",
+    "text": "Earplugs\nNoise Reduction Rating (NRR)\t32\nStyle\tFoam",
+    "title": "Earplugs",
+    "query": "Earplugs 32 dB NRR",
+    "family": "ppe"
+  },
+  {
+    "label": "respirator",
+    "text": "Disposable Respirator\nNIOSH Rating\tN95\nSize\tStandard",
+    "title": "Disposable Respirator",
+    "query": "Disposable Respirator N95",
+    "family": "ppe"
+  },
+  {
+    "label": "toggle switch",
+    "text": "Order\nOrder History\nLog in\nFastening & Joining\nSocket Head Screws\nHex Nuts\nToggle Switch\nSwitch Action\tOn-Off\nNumber of Poles\t1\nCurrent\t15A\nVoltage\t125V AC\nRelated products\nHex Nuts\nFlat Washers\nRound Bar\n",
+    "title": "Toggle Switch",
+    "query": "Toggle Switch On-Off 1 pole 15A 125V AC",
+    "family": "electrical"
+  },
+  {
+    "label": "relay",
+    "text": "General Purpose Relay\nContact Form\tSPDT\nCoil Voltage\t12V DC\nCurrent\t10A",
+    "title": "General Purpose Relay",
+    "query": "General Purpose Relay SPDT 10A",
+    "family": "electrical"
+  },
+  {
+    "label": "terminal block",
+    "text": "Terminal Block\nNumber of Positions\t12\nWire Gauge\t22-12\nCurrent\t20A",
+    "title": "Terminal Block",
+    "query": "Terminal Block 12 position 22-12 20A",
+    "family": "electrical"
+  },
+  {
+    "label": "heat shrink",
+    "text": "Heat-Shrink Tubing\nInside Diameter\t1/4\"\nShrink Ratio\t2:1\nColor\tBlack",
+    "title": "Heat-Shrink Tubing",
+    "query": "heat-shrink tubing 1/4\" ID",
+    "family": "electrical"
+  },
+  {
+    "label": "resistor",
+    "text": "Resistor\nResistance\t10k ohm\nWattage\t1/4 W",
+    "title": "Resistor",
+    "query": "Resistor 10k ohm 1/4 W",
+    "family": "electrical"
+  },
+  {
+    "label": "proximity sensor",
+    "text": "Inductive Proximity Sensor\nSensing Range\t4 mm\nVoltage\t10-30V DC\nThread Size\tM12 x 1",
+    "title": "Inductive Proximity Sensor",
+    "query": "Inductive Proximity Sensor 4 mm 10-30V DC M12-1",
+    "family": "electrical"
+  },
+  {
+    "label": "fuse",
+    "text": "Fast-Acting Glass Fuse\nCurrent\t5 A\nVoltage\t250V AC\nDiameter\t1/4\"\nLength\t1-1/4\"",
+    "title": "Fast-Acting Glass Fuse",
+    "query": "Fast-Acting Glass Fuse 5 A 250V AC 1/4\" 1-1/4\"",
+    "family": "electrical"
+  },
+  {
+    "label": "ball valve",
+    "text": "Brass Ball Valve\nPipe Size\t1/2\nThread Type\tNPT\nMaximum Pressure\t600 psi\nMaterial\tBrass",
+    "title": "Brass Ball Valve",
+    "query": "Brass Ball Valve 1/2 NPT 600 psi",
+    "family": "other"
+  },
+  {
+    "label": "plastic tubing",
+    "text": "Soft Plastic Tubing\nInside Diameter\t1/4\"\nOutside Diameter\t3/8\"\nMaterial\tPVC",
+    "title": "Soft Plastic Tubing",
+    "query": "PVC Soft Plastic Tubing 1/4\" ID 3/8\"",
+    "family": "other"
+  },
+  {
+    "label": "aluminum tube",
+    "text": "Multipurpose 6061 Aluminum Tube\nOutside Diameter\t1\"\nWall Thickness\t0.065\"\nMaterial\t6061 Aluminum",
+    "title": "Multipurpose 6061 Aluminum Tube",
+    "query": "6061 Aluminum tube 1\"",
+    "family": "rawstock"
+  },
+  {
+    "label": "wall plate",
+    "text": "Wall Plate\nNumber of Gangs\t1\nColor\tWhite",
+    "title": "Wall Plate",
+    "query": "Wall Plate",
+    "family": "other"
+  },
+  {
+    "label": "carbide insert",
+    "text": "Carbide Turning Insert\nInsert Shape\tTriangle\nGrade\tC6",
+    "title": "Carbide Turning Insert",
+    "query": "Carbide Turning Insert",
+    "family": "other"
+  },
+  {
+    "label": "lifting chain",
+    "text": "Grade 80 Lifting Chain\nTrade Size\t3/8\"\nCapacity\t7,100 lbs.",
+    "title": "Grade 80 Lifting Chain",
+    "query": "lifting chain 3/8\" 7,100 lbs.",
+    "family": "other"
+  },
+  {
+    "label": "roller chain",
+    "text": "Steel Roller Chain\nANSI Number\t40\nPitch\t1/2\"\nLength\t10 ft.",
+    "title": "Steel Roller Chain",
+    "query": "steel roller chain 10 ft. #40 1/2\"",
+    "family": "other"
+  },
+  {
+    "label": "caster",
+    "text": "Swivel Caster\nWheel Diameter\t3\"\nCapacity\t200 lbs.",
+    "title": "Swivel Caster",
+    "query": "Swivel Caster 3\" 200 lbs.",
+    "family": "other"
+  },
+  {
+    "label": "end mill",
+    "text": "Carbide End Mill\nMill Diameter\t1/4\"\nNumber of Flutes\t4",
+    "title": "Carbide End Mill",
+    "query": "Carbide End Mill 1/4\" 4 flute",
+    "family": "other"
+  },
+  {
+    "label": "drill bit",
+    "text": "Cobalt Steel Drill Bit\nDrill Bit Size\t1/4\"\nPoint Angle\t135°",
+    "title": "Cobalt Steel Drill Bit",
+    "query": "Cobalt Steel Drill Bit 1/4\" 135°",
+    "family": "other"
+  },
+  {
+    "label": "gas spring",
+    "text": "Gas Spring\nExtended Length\t10\"\nForce\t40 lbs.",
+    "title": "Gas Spring",
+    "query": "gas spring 10\" 40 lbs.",
+    "family": "other"
+  },
+  {
+    "label": "t-slot",
+    "text": "T-Slotted Framing Rail\nSeries\t10\nLength\t4 ft.\nMaterial\t6063 Aluminum",
+    "title": "T-Slotted Framing Rail",
+    "query": "6063 Aluminum T-Slotted Framing Rail 10 series 4 ft.",
+    "family": "other"
+  },
+  {
+    "label": "epoxy",
+    "text": "Loctite Epoxy Adhesive\nCure Time\t5 min.\nContainer Size\t0.85 oz.",
+    "title": "Loctite Epoxy Adhesive",
+    "query": "Loctite Epoxy Adhesive",
+    "family": "other"
+  },
+  {
+    "label": "hinge",
+    "text": "Stainless Steel Butt Hinge\nLeaf Height\t3\"\nMaterial\t304 Stainless Steel",
+    "title": "Stainless Steel Butt Hinge",
+    "query": "Stainless Steel Butt Hinge",
+    "family": "other"
+  },
+  {
+    "label": "hex nut plain",
+    "text": "18-8 Stainless Steel Hex Nut\nThread Size\t1/4\"-20\nMaterial\t18-8 Stainless Steel",
+    "title": "18-8 Stainless Steel Hex Nut",
+    "query": "1/4\"-20 hex nut 18-8 Stainless Steel",
+    "family": "nut"
+  },
+  {
+    "label": "flanged hex nut",
+    "text": "Zinc-Plated Steel Serrated Flange Hex Nut\nThread Size\t5/16\"-18\nMaterial\tZinc-Plated Steel",
+    "title": "Zinc-Plated Steel Serrated Flange Hex Nut",
+    "query": "5/16\"-18 serrated flange hex nut Steel Zinc-Plated",
+    "family": "nut"
+  }
+]

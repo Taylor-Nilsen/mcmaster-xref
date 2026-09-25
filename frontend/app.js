@@ -1,3 +1,27 @@
+// Result-row names. Defined up top: init() at the bottom can run a lookup
+// straight away (bookmarklet, ?pn=), before later declarations exist.
+const SPEC_LABELS = {
+  title: "Read as",
+  partType: "Part type",
+  qualifier: "Kind",
+  extra: "Key specs",
+  material: "Material",
+  threadSize: "Thread size",
+  length: "Length",
+  diameter: "Diameter",
+  insideDiameter: "Inside diameter",
+  screwSize: "For screw size",
+  headType: "Head type",
+  headProfile: "Head profile",
+  driveType: "Drive",
+  finish: "Finish",
+  grade: "Grade",
+  shape: "Shape",
+  thickness: "Thickness",
+  width: "Width",
+  durometer: "Durometer",
+};
+
 const SPEC_FIELD_IDS = [
   "category",
   // Part type decides the product noun in the query and which suppliers
@@ -178,10 +202,14 @@ function renderResults(data) {
   }
   setStatus(statusMsg);
 
+  // What the part was read as goes first: it is the thing to check when
+  // the links look wrong.
+  const order = (k) => (k in SPEC_LABELS ? Object.keys(SPEC_LABELS).indexOf(k) : 99);
   specsList.innerHTML = specEntries
+    .sort((a, b) => order(a[0]) - order(b[0]))
     .map(
       ([key, value]) =>
-        `<div class="spec-row"><span>${escapeHtml(key)}</span><span>${escapeHtml(value)}</span></div>`
+        `<div class="spec-row"><span>${escapeHtml(SPEC_LABELS[key] || key)}</span><span>${escapeHtml(value)}</span></div>`
     )
     .join("");
 
@@ -401,10 +429,14 @@ function setupBookmarklet() {
   const link = document.getElementById("bookmarklet");
   if (!link) return;
   const app = location.origin + location.pathname;
+  // Opens the results in a new tab so the McMaster page stays where it
+  // was. A browser that blocks the new tab gets the same tab instead,
+  // rather than nothing.
   const code =
     "(()=>{const h=document.querySelector('h1');" +
-    "const t=location.href+'\\n'+(h?h.innerText.trim()+'\\n':'')+document.body.innerText;" +
-    `location.href=${JSON.stringify(app)}+'#t='+encodeURIComponent(t.slice(0,20000))})()`;
+    "const t=location.href+'\\n'+(h?h.innerText.trim()+'\\n':'')+document.title+'\\n'+document.body.innerText;" +
+    `const u=${JSON.stringify(app)}+'#t='+encodeURIComponent(t.slice(0,20000));` +
+    "if(!window.open(u,'_blank'))location.href=u})()";
   link.href = `javascript:${code}`;
   const copy = document.getElementById("bookmarkletCopy");
   if (copy && navigator.clipboard) {
