@@ -1,640 +1,532 @@
 /**
  * McMaster-Carr Cross-Reference backend. The frontend (frontend/) is a
- * static site on GitHub Pages -- Pages can't run server code, so this
- * runs separately (Render) and the frontend calls it cross-origin, hence
- * the CORS headers below.
+ * static site on GitHub Pages -- Pages can't run server code, so this runs
+ * separately (Render) and the frontend calls it cross-origin, hence the
+ * CORS headers below.
  *
  * POST /api/xref
- *   Body: { partNumber?: string, specs?: PartialSpecs }
- *   - If partNumber is given, renders the live McMaster product page with
- *     a real headless Chrome instance (Playwright) and parses the fully-
- *     rendered text. McMaster is a JS-only SPA, so a plain HTTP fetch
- *     never sees real spec data -- confirmed directly: fetching a product
- *     URL returns 200 and ~151KB that contains the Angular shell and not
- *     one spec value. Results are cached per part number, because
- *     McMaster allows only a limited number of anonymous views before it
- *     serves a login wall instead (no credentials are stored or used
- *     here) -- see README.
- *   - specs, if given, are merged on top of (and override) anything
- *     parsed live, so manual entry always works as a fallback.
- *   Returns: { source, specs, query, links, mcmasterFetchError,
- *     mcmasterErrorCode }
+ *   Body (all optional): { partNumber?, record?, pastedText?, specs? }
+ *
+ *   Resolution order -- the first of these that is present wins, and
+ *   decides `source`:
+ *     1. `record` -- a JSON product record (or the raw captured page
+ *        fragment string) taken directly off mcmaster.com by a bookmarklet
+ *        running in the person's own browser. Parsed with
+ *        lib/product.js's parseProductRecord (via lib/mcmaster.js's
+ *        parseFragment first, when it's a raw string). source: "record".
+ *     2. `pastedText` -- spec text copied by hand off McMaster's rendered
+ *        page. Converted into a synthetic product record (see
+ *        buildProductFromPastedText below) so it runs through the exact
+ *        same classifier/query-builder as a real record. source: "pasted".
+ *     3. `partNumber` -- this server drives a headless Chromium to
+ *        mcmaster.com itself (lib/mcmaster.js's fetchProductRecord).
+ *        source: "mcmaster" on success.
+ *   If none of the three resolves a product, and `specs` (manual key/value
+ *   entry) is given, a product is synthesized from that alone.
+ *   source: "manual".
+ *
+ *   `specs`, when given, ALSO overrides attribute values by name on
+ *   whatever product was otherwise resolved (see SPEC_KEY_TO_ATTR) -- it
+ *   does not change `source` in that case, since `source` is a single enum
+ *   value naming how the product was *found*, not every way it was edited.
+ *
+ *   Why the server path goes through fetchProductRecord instead of
+ *   rendering the page and regexing its innerText (the old approach, still
+ *   in lib/specs.js): McMaster blocks server IPs by request velocity
+ *   (Akamai bot-defense) and also serves an anonymous-view login wall, and
+ *   this Render deployment has had zero successful lookups in three days.
+ *   The server path is therefore treated as an optimistic first attempt
+ *   that must fail FAST and honestly -- a failed lookup answers within
+ *   ~35s (HARD_TIMEOUT_MS below), never the ~80s the old per-request
+ *   two-attempt render used to take -- and reports a machine-readable
+ *   `error.code` the frontend can branch on to offer its own
+ *   bookmarklet-based path instead.
+ *
+ *   Returns: { partNumber, source, product, classification, queries,
+ *     links, error }
+ *   See serializeProduct/buildQueries/buildSupplierLinks below for exact
+ *   shapes.
+ *
+ * GET /api/health -> { status, uptimeSec, cacheSize, browserWarm }
+ *
+ * Batch renders (the old RUN_VERIFY / RUN_SWEEP / RUN_QUERYLAB /
+ * RUN_URLPROBE env-gated blocks) are gone from this file -- a 100-part
+ * sweep is exactly what burned through McMaster's anonymous-view budget
+ * and took the whole service down (see README). The only supported way to
+ * batch-probe McMaster now is backend/scripts/probe-mcmaster.js, run by
+ * hand, spaced out, never from the deployed service.
  */
 
+"use strict";
+
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
-const { chromium } = require("playwright");
+
 const {
   parseSpecsFromText,
   parseKeyValueText,
   sanitizeSpecs,
-  normalizeSpecs,
-  buildQuery,
-  buildSupplierLinks,
 } = require("./lib/specs");
+const {
+  parseProductRecord,
+  classifyProduct,
+  buildQueries,
+  buildSupplierLinks,
+} = require("./lib/product");
+const mcmaster = require("./lib/mcmaster");
 
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get("/", (_req, res) => res.json({ status: "ok" }));
-
-app.post("/api/xref", async (req, res) => {
-  const partNumber = (req.body.partNumber || "").trim();
-  const manualSpecs = sanitizeSpecs(req.body.specs || {});
-  const pastedText = typeof req.body.pastedText === "string" ? req.body.pastedText.slice(0, 20000) : "";
-
-  // Text copied straight off McMaster's own page needs no new parser: the
-  // label-then-value line shape it produces is exactly what parseKeyValueText
-  // was written against. It's also the way out of a gated lookup -- the
-  // person has the page open, so the specs are a copy away even when this
-  // server is refused them.
-  const pastedSpecs = pastedText
-    ? { ...parseSpecsFromText(pastedText), ...parseKeyValueText(pastedText) }
-    : {};
-
-  let mcmasterSpecs = {};
-  let mcmasterError = null;
-  let mcmasterErrorCode = null;
-
-  // Don't spend a page view re-fetching what was just pasted in. The
-  // anonymous-view allowance is the scarce resource here.
-  if (partNumber && Object.keys(pastedSpecs).length === 0) {
-    try {
-      mcmasterSpecs = await fetchMcMasterSpecsLive(partNumber);
-    } catch (err) {
-      mcmasterError = err.message;
-      mcmasterErrorCode = err.code || "FETCH_FAILED";
-    }
-  }
-
-  const specs = { ...mcmasterSpecs, ...pastedSpecs, ...manualSpecs };
-  const hasAnySpec = Object.keys(specs).length > 0;
-
-  const contributors = [
-    Object.keys(mcmasterSpecs).length && "mcmaster",
-    Object.keys(pastedSpecs).length && "pasted",
-    Object.keys(manualSpecs).length && "manual",
-  ].filter(Boolean);
-  const source = contributors.join("+") || "none";
-
-  const links = hasAnySpec ? buildSupplierLinks(specs) : [];
-
-  res.json({
-    partNumber: partNumber || null,
-    source,
-    specs,
-    query: hasAnySpec ? buildQuery(specs) : null,
-    mcmasterFetchError: mcmasterError,
-    mcmasterErrorCode,
-    links,
-  });
-});
-
-async function newStealthContext(browser) {
-  const context = await browser.newContext({
-    userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-    viewport: { width: 1280, height: 900 },
-    locale: "en-US",
-  });
-  await context.addInitScript(() => {
-    Object.defineProperty(navigator, "webdriver", { get: () => undefined });
-    window.chrome = { runtime: {} };
-    Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4, 5] });
-    Object.defineProperty(navigator, "languages", { get: () => ["en-US", "en"] });
-  });
-  return context;
-}
-
-// What McMaster serves instead of a product page once this server has spent
-// its anonymous-view allowance. Diagnosed from the rendered text itself:
-// every URL -- product pages and category pages alike -- came back as the
-// same 776-char page reading "To continue browsing, please log in." Two
-// earlier rounds of timeout tuning were chasing this as if it were a slow
-// render, because only the text *length* was ever logged.
-const LOGIN_WALL_RE = /to continue browsing,?\s*please log in|please log in to continue/i;
-
-class LoginWallError extends Error {
-  constructor() {
-    super(
-      "McMaster wants a login before it will show this part's specs. Two parts checked back to back confirm this is per-part, not a general block: 91251A329 was walled while 91251A540 returned all 8 fields from the same server seconds later. Open the part on mcmaster.com, copy its spec block, and paste it below -- that produces the same result as a successful lookup."
-    );
-    this.code = "LOGIN_WALL";
-  }
-}
+// ---------------------------------------------------------------------------
+// Legacy spec-key -> structured-attribute mapping
+// ---------------------------------------------------------------------------
 
 /**
- * Resolved specs, keyed by part number. McMaster's anonymous-view budget is
- * the scarcest resource this app has -- exhausting it is what takes the
- * whole feature down -- so a part is rendered once and then answered from
- * memory. Cleared when the instance restarts, which on a free tier happens
- * often; that's a cold-start cost, not a correctness problem.
+ * How the old flat spec object (lib/specs.js's KEY_MAP / sanitizeSpecs
+ * shape: { material, threadSize, length, ... }) maps onto the attribute
+ * names lib/product.js's byName() reads. Deliberately simple and flat: a
+ * legacy key becomes one top-level (`group: null`) attribute. That's
+ * enough, because lib/product.js's byName(name) with no group argument
+ * matches an attribute under ANY group, including null -- so a flat
+ * "Thread Size" attribute here is found by both
+ * `byName("Thread Size")` and satisfies the `||` half of
+ * `byName("Thread Size") || byName("Size", "Thread")` call sites.
+ *
+ * Two legacy keys have no mapping and are intentionally dropped:
+ *   - `partType` -- the old manual override for what the part *is*. The
+ *     new pipeline derives that from classifyProduct(), which reads
+ *     categoryPath and structured attributes (Fastener Head Type, Nut
+ *     Type, Shape, ...), not a free-text noun; there is no equivalent
+ *     single field to override it with here. A record or pastedText body
+ *     that carries a real breadcrumb trail classifies correctly on its
+ *     own; manual-only entry falls back to whatever
+ *     classifyKindFromAttributes() can infer from the mapped keys below
+ *     (e.g. threadSize alone reads as "fastener").
+ *   - `category` -- the old manual Category <select>. Same story: nothing
+ *     downstream reads a bare category string any more.
+ * Also not mapped, for the same reason (no old spec key existed for them):
+ * Nut Type, Bore, Bearing Type -- so manual entry cannot itself signal
+ * "nut" or "bearing"; it falls through to categoryPath/threadSize
+ * inference instead. Document this rather than growing sanitizeSpecs's
+ * allowlist for a manual-entry UI the other agent may replace anyway.
  */
-const specCache = new Map();
+const SPEC_KEY_TO_ATTR = {
+  material: "Material",
+  shape: "Shape",
+  driveType: "Drive Style",
+  finish: "Finish",
+  threadSize: "Thread Size",
+  length: "Length",
+  diameter: "Diameter",
+  thickness: "Thickness",
+  width: "Width",
+  grade: "Grade",
+  headType: "Fastener Head Type",
+  screwSize: "For Screw Size",
+  insideDiameter: "Inside Diameter",
+  durometer: "Durometer",
+  shaftDiameter: "For Shaft Diameter",
+};
 
-// A gated part is gated per-part, not per-request: re-rendering it just
-// spends the same two page views to be told the same thing. Without this,
-// every retry from the UI cost another full render pair, which is what a
-// phone sees as the page hanging. Short-lived, because the gate has been
-// observed to lift -- a retry a few minutes later still gets a real look.
-const GATED_TTL_MS = 5 * 60 * 1000;
-const gatedCache = new Map();
+const lc = (v) => String(v == null ? "" : v).toLowerCase();
 
-/**
- * Renders the live McMaster product page in a real headless browser and
- * parses the fully-rendered text. Throws LoginWallError when McMaster is
- * gating this server, and a plain Error on any other failure; the caller
- * treats both as "unavailable, fall back to manual entry" but reports them
- * differently, since one is temporary and not the user's fault.
- */
-async function fetchMcMasterSpecsLive(partNumber) {
-  const cached = specCache.get(partNumber);
-  if (cached) {
-    console.log(`[xref] part=${partNumber} served from cache`);
-    return cached;
-  }
-
-  const gatedAt = gatedCache.get(partNumber);
-  if (gatedAt && Date.now() - gatedAt < GATED_TTL_MS) {
-    console.log(`[xref] part=${partNumber} known gated, not re-rendering`);
-    throw new LoginWallError();
-  }
-
-  // The gate is intermittent rather than absolute: in one verification run
-  // of three parts, spaced 20s apart, the middle one came back with all 8
-  // fields while the other two were gated. A second attempt with a fresh
-  // browser and a short pause is therefore worth real success rate, and
-  // costs nothing when the first attempt works.
-  let lastError;
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    if (attempt > 1) await new Promise((r) => setTimeout(r, 4000));
-    try {
-      const specs = await renderMcMasterPage(partNumber, attempt);
-      specCache.set(partNumber, specs);
-      return specs;
-    } catch (err) {
-      lastError = err;
-      if (err.code !== "LOGIN_WALL") throw err;
-      console.log(`[xref] part=${partNumber} attempt ${attempt} gated`);
+function legacyToTableEntries(legacySpecs) {
+  const entries = [];
+  for (const [legacyKey, attrName] of Object.entries(SPEC_KEY_TO_ATTR)) {
+    const value = legacySpecs[legacyKey];
+    if (typeof value === "string" && value.trim()) {
+      entries.push({ Name: attrName, Value: value, IsIndented: false, Type: "TableEntrySpec" });
     }
   }
-  if (lastError && lastError.code === "LOGIN_WALL") gatedCache.set(partNumber, Date.now());
-  throw lastError;
+  return entries;
 }
 
-async function renderMcMasterPage(partNumber, attempt) {
-  const pageUrl = `https://www.mcmaster.com/${encodeURIComponent(partNumber)}/`;
+/** Mutates `product.attributes` in place: sets a value if that attribute
+ * already exists (by name, any group), otherwise appends a new flat one.
+ * Safe because lib/product.js's byName() closes over this same array. */
+function applyManualOverrides(product, manualSpecs) {
+  for (const [legacyKey, attrName] of Object.entries(SPEC_KEY_TO_ATTR)) {
+    const value = manualSpecs[legacyKey];
+    if (typeof value !== "string" || !value.trim()) continue;
+    const existing = product.attributes.find((a) => lc(a.name) === lc(attrName));
+    if (existing) {
+      existing.value = value;
+      existing.raw = value;
+    } else {
+      product.attributes.push({ group: null, name: attrName, value, raw: value });
+    }
+  }
+}
 
-  // These flags/patches mask the usual automation fingerprints. Worth
-  // keeping, but note they were never the blocker: the page renders fine
-  // for this exact browser setup until the view allowance runs out, and no
-  // amount of fingerprint masking buys more views.
-  const browser = await chromium.launch({
-    args: ["--disable-blink-features=AutomationControlled"],
+function firstNonEmptyLine(text) {
+  for (const line of String(text || "").split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed) return trimmed;
+  }
+  return "";
+}
+
+/** A minimal record in the exact shape parseProductRecord expects, built
+ * from pasted McMaster page text -- so the rest of the pipeline
+ * (classifyProduct/buildQueries/buildSupplierLinks) runs identically
+ * whether the product came from a live record or a paste. */
+function buildProductFromPastedText(pastedText, partNumberInput) {
+  const legacySpecs = { ...parseSpecsFromText(pastedText), ...parseKeyValueText(pastedText) };
+  const record = {
+    PartNbrTxt: partNumberInput || "",
+    TitleTxt: firstNonEmptyLine(pastedText),
+    TargetPageMetadata: { ProductFamily: null },
+    ReactData: { Breadcrumbs: [], TableEntries: legacyToTableEntries(legacySpecs), Copies: [] },
+    CtlgPgNbrs: [],
+  };
+  return parseProductRecord(record);
+}
+
+/** Same idea as buildProductFromPastedText, for a request that supplies
+ * only manual `specs` with no record/pastedText/successful partNumber
+ * lookup to attach them to. */
+function buildProductFromManualSpecs(manualSpecs, partNumberInput) {
+  const record = {
+    PartNbrTxt: partNumberInput || "",
+    TitleTxt: "",
+    TargetPageMetadata: { ProductFamily: null },
+    ReactData: { Breadcrumbs: [], TableEntries: legacyToTableEntries(manualSpecs), Copies: [] },
+    CtlgPgNbrs: [],
+  };
+  return parseProductRecord(record);
+}
+
+/** `record` input is either an already-parsed JSON product object, or the
+ * raw captured page fragment string a bookmarklet would grab straight off
+ * the ItmPrsnttnWebPart XHR (same shape as test/fixtures/mcmaster/*.raw).
+ * A raw string goes through parseFragment first, which does the
+ * length-prefix bookkeeping parseProductRecord itself doesn't attempt. */
+function buildProductFromRecordInput(recordInput) {
+  if (typeof recordInput === "string") {
+    const json = mcmaster.parseFragment(recordInput);
+    return parseProductRecord(json);
+  }
+  return parseProductRecord(recordInput);
+}
+
+function serializeProduct(product) {
+  return {
+    partNumber: product.partNumber,
+    title: product.title,
+    family: product.family,
+    categoryPath: product.categoryPath,
+    attributes: product.attributes.map((a) => ({ group: a.group, name: a.name, value: a.value })),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Error codes / messages
+// ---------------------------------------------------------------------------
+
+// Every message says, briefly, that the bookmarklet path (capturing the
+// record client-side, in the person's own browser, where McMaster doesn't
+// see a datacenter IP) works when this server's own attempt doesn't --
+// that's the actual escape hatch now, per the background above.
+const ERROR_MESSAGES = {
+  LOGIN_WALL:
+    "McMaster served this server its anonymous-view login wall for this part. The bookmarklet path (capture the page in your own browser) works when the server path is blocked.",
+  NO_DATA:
+    "McMaster's page loaded but its product data never arrived for this part. The bookmarklet path works when the server path is blocked.",
+  NOT_FOUND: "McMaster has no product page for that part number.",
+  NAV_FAILED:
+    "This server could not reach McMaster. The bookmarklet path works when the server path is blocked.",
+  FETCH_FAILED:
+    "The McMaster lookup failed for an unexpected reason. The bookmarklet path works when the server path is blocked.",
+  BUSY: "Too many McMaster lookups are already queued on this server. Try again shortly, or use the bookmarklet path.",
+  BAD_RECORD: "The captured record could not be parsed.",
+};
+
+function friendlyError(code, rawMessage) {
+  return { code, message: ERROR_MESSAGES[code] || rawMessage || "Lookup failed." };
+}
+
+function codedError(message, code) {
+  const err = new Error(message);
+  err.code = code;
+  return err;
+}
+
+// ---------------------------------------------------------------------------
+// Serialized fetch queue
+// ---------------------------------------------------------------------------
+
+/**
+ * McMaster's IP block is triggered by request *velocity* (Akamai bot
+ * score), not by any one request looking automated -- so the fix is
+ * structural: never let two navigations start less than `spacingMs` apart,
+ * and refuse to queue more than `maxDepth` requests behind whatever's
+ * already waiting rather than let a burst pile up and make things worse.
+ */
+class SerialFetchQueue {
+  constructor({ maxDepth, spacingMs }) {
+    this.maxDepth = maxDepth;
+    this.spacingMs = spacingMs;
+    this.queue = [];
+    this.pumping = false;
+    this.lastStart = 0;
+  }
+
+  get depth() {
+    return this.queue.length;
+  }
+
+  run(fn) {
+    if (this.queue.length >= this.maxDepth) {
+      return Promise.reject(codedError("too many McMaster lookups already queued", "BUSY"));
+    }
+    return new Promise((resolve, reject) => {
+      this.queue.push({ fn, resolve, reject });
+      this._pump();
+    });
+  }
+
+  async _pump() {
+    if (this.pumping) return;
+    this.pumping = true;
+    while (this.queue.length) {
+      const { fn, resolve, reject } = this.queue.shift();
+      const wait = this.spacingMs - (Date.now() - this.lastStart);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      this.lastStart = Date.now();
+      try {
+        resolve(await fn());
+      } catch (err) {
+        reject(err);
+      }
+    }
+    this.pumping = false;
+  }
+}
+
+const QUEUE_MAX_DEPTH = 5;
+const QUEUE_SPACING_MS = 3000;
+
+// A failed lookup must answer fast and honestly (see file header) --
+// fetchProductRecord's own internal budget defaults to 30s, and this wraps
+// the whole queued call (queue wait + fetch) in a hard ceiling above that
+// so a stuck browser/navigation can never turn into the old ~80s hang.
+const HARD_TIMEOUT_MS = 33000;
+
+function withHardTimeout(promise, ms) {
+  let timer;
+  const timeout = new Promise((_resolve, reject) => {
+    timer = setTimeout(() => reject(codedError(`McMaster lookup exceeded ${ms}ms hard timeout`, "FETCH_FAILED")), ms);
   });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+// ---------------------------------------------------------------------------
+// Disk cache (write-through, optional)
+// ---------------------------------------------------------------------------
+
+// Positive results only -- a negative (LOGIN_WALL/NO_DATA) result is
+// deliberately short-lived (see NEGATIVE_TTL_MS) and not worth persisting
+// across a redeploy, since the whole point of the negative cache is "don't
+// re-spend a page view on a wall that might have lifted by now".
+function loadFileCacheInto(map) {
+  const file = process.env.XREF_CACHE_FILE;
+  if (!file) return;
   try {
-    const context = await newStealthContext(browser);
-    const page = await context.newPage();
-    const response = await page.goto(pageUrl, { waitUntil: "load", timeout: 25000 });
-
-    // McMaster's Angular app fetches product data on a separate call after
-    // load, so waiting for network-quiet returns nav/footer chrome only.
-    // Wait for real content to appear instead.
-    // Two ways this wait can legitimately end: the product data arrives, or
-    // the login wall does. Waiting only for the data meant a gated part --
-    // 850 characters that will never grow -- burned the full timeout on
-    // every attempt, twice per request. That is most of the 82 seconds a
-    // gated lookup used to take before it could say it was gated.
-    try {
-      await page.waitForFunction(
-        (wallSource) => {
-          const t = document.body ? document.body.innerText : "";
-          // The wall is final the moment it appears -- nothing more is
-          // coming, so waiting out the timeout only makes a gated part slow
-          // to report that it is gated.
-          if (new RegExp(wallSource, "i").test(t)) return true;
-          // Waiting for a character count was a race: the Angular app fills
-          // the spec table progressively, and 1500 characters is reached
-          // partway through it. Two renders of 91251A540 crossed that line
-          // at 2425 and 2228 characters; the short one parsed 5 of 8 fields
-          // and its query degraded from "socket head cap screw" to "machine
-          // screw", because the head type had not arrived yet. Partial
-          // specs are worse than none, since they look like an answer. Wait
-          // for the text to stop growing instead, which is what "finished"
-          // actually means here.
-          const prev = window.__xrefTextLen;
-          window.__xrefTextLen = t.length;
-          return t.length > 1500 && prev === t.length;
-        },
-        LOGIN_WALL_RE.source,
-        { timeout: 15000, polling: 500 }
-      );
-    } catch {
-      // proceed with whatever rendered -- classified below
+    const raw = fs.readFileSync(file, "utf8");
+    const data = JSON.parse(raw);
+    if (data && typeof data === "object") {
+      for (const [part, entry] of Object.entries(data)) {
+        if (entry && entry.raw) map.set(part, { raw: entry.raw, ts: entry.ts || Date.now() });
+      }
     }
-
-    const text = await page.evaluate(() => document.body.innerText);
-    console.log(
-      `[xref] part=${partNumber} attempt=${attempt} finalUrl=${page.url()} status=${response && response.status()} textLen=${text ? text.length : 0}`
-    );
-
-    if (LOGIN_WALL_RE.test(text || "")) {
-      console.log(`[xref] part=${partNumber} LOGIN_WALL`);
-      throw new LoginWallError();
-    }
-
-    if (!text || text.trim().length < 50) {
-      throw new Error("page rendered but had no usable text");
-    }
-
-    const specs = { ...parseSpecsFromText(text), ...parseKeyValueText(text) };
-    console.log(`[xref] extractedSpecs: ${JSON.stringify(specs)}`);
-
-    if (Object.keys(specs).length === 0) {
-      console.log(`[xref] part=${partNumber} parsed nothing. text=${JSON.stringify((text || "").slice(0, 1500))}`);
-      // Gating shows up in two shapes: an explicit "please log in" page, and
-      // a product page whose chrome renders (Forward / Print / Find
-      // alternative products) while the product data never arrives. Both
-      // leave a page under ~1500 chars. Calling that "part may not exist"
-      // blames the user for a typo they didn't make, so only a page with
-      // real content on it gets that verdict.
-      if (text.trim().length < 1500) throw new LoginWallError();
-      throw new Error("the page loaded but no recognizable specs were on it -- this part may not exist, or its page is laid out differently");
-    }
-
-    return specs;
-  } finally {
-    await browser.close();
+  } catch {
+    // Missing or corrupt file: start empty and tolerate it, per spec --
+    // a disk cache is a nice-to-have on a redeploy, not a dependency.
   }
 }
 
-// Re-exported for convenience; the logic itself lives in lib/specs.js and
-// is what the tests exercise directly, with no browser or server involved.
-module.exports = { app, parseKeyValueText, parseSpecsFromText, normalizeSpecs, buildQuery, buildSupplierLinks };
+function persistFileCacheFrom(map) {
+  const file = process.env.XREF_CACHE_FILE;
+  if (!file) return;
+  try {
+    const obj = {};
+    for (const [part, entry] of map.entries()) obj[part] = entry;
+    fs.writeFileSync(file, JSON.stringify(obj));
+  } catch (err) {
+    console.error(`[xref] failed to write XREF_CACHE_FILE (${file}): ${err.message}`);
+  }
+}
+
+const NEGATIVE_TTL_MS = 5 * 60 * 1000;
+
+// ---------------------------------------------------------------------------
+// App factory
+// ---------------------------------------------------------------------------
+
+/**
+ * @param {object} [overrideDeps]
+ * @param {(partNumber: string, opts?: object) => Promise<{raw:string,json:object}>} [overrideDeps.fetchProductRecord]
+ * @param {object} [options] test-only knobs, never used in production
+ * @param {number} [options.queueMaxDepth]
+ * @param {number} [options.queueSpacingMs]
+ */
+function buildApp(overrideDeps = {}, options = {}) {
+  function defaultFetchProductRecord(partNumber, opts) {
+    // XREF_NO_BROWSER=1 skips ever launching Chromium -- used by the test
+    // suite (via api.test.js's own stubs, this is mostly belt-and-braces)
+    // and available for any environment that wants the server up without
+    // Playwright installed. It fails exactly like a real NO_DATA result.
+    if (process.env.XREF_NO_BROWSER === "1") {
+      return Promise.reject(codedError("XREF_NO_BROWSER=1: browser fetch disabled", "NO_DATA"));
+    }
+    return mcmaster.fetchProductRecord(partNumber, opts);
+  }
+
+  const deps = { fetchProductRecord: overrideDeps.fetchProductRecord || defaultFetchProductRecord };
+
+  const positiveCache = new Map(); // partNumber -> { raw: jsonRecordObject, ts }
+  const negativeCache = new Map(); // partNumber -> { code, message, ts }
+  const mcQueue = new SerialFetchQueue({
+    maxDepth: options.queueMaxDepth || QUEUE_MAX_DEPTH,
+    spacingMs: options.queueSpacingMs != null ? options.queueSpacingMs : QUEUE_SPACING_MS,
+  });
+  // Best-effort signal for /api/health: lib/mcmaster.js keeps its warm
+  // Chromium process behind a module-private variable it doesn't export,
+  // so this is a proxy -- "this instance has at least attempted a real
+  // (non-XREF_NO_BROWSER) fetch", which is when lib/mcmaster.js's
+  // getBrowser() launches it, on success OR failure.
+  let browserWarm = false;
+
+  loadFileCacheInto(positiveCache);
+
+  async function resolveViaMcMaster(partNumber) {
+    const cached = positiveCache.get(partNumber);
+    if (cached) return cached.raw;
+
+    const negative = negativeCache.get(partNumber);
+    if (negative && Date.now() - negative.ts < NEGATIVE_TTL_MS) {
+      throw codedError(negative.message, negative.code);
+    }
+
+    // Only the real (default, non-stubbed) fetch path ever touches an
+    // actual Chromium process -- see the browserWarm comment above.
+    if (deps.fetchProductRecord === defaultFetchProductRecord && process.env.XREF_NO_BROWSER !== "1") {
+      browserWarm = true;
+    }
+    try {
+      const { json } = await mcQueue.run(() => deps.fetchProductRecord(partNumber, { timeoutMs: 30000 }));
+      positiveCache.set(partNumber, { raw: json, ts: Date.now() });
+      persistFileCacheFrom(positiveCache);
+      return json;
+    } catch (err) {
+      if (err.code === "LOGIN_WALL" || err.code === "NO_DATA") {
+        negativeCache.set(partNumber, { code: err.code, message: err.message, ts: Date.now() });
+      }
+      throw err;
+    }
+  }
+
+  const app = express();
+  app.use(cors());
+  app.use(express.json({ limit: "2mb" }));
+
+  app.get("/", (_req, res) => res.json({ status: "ok" }));
+
+  app.get("/api/health", (_req, res) => {
+    res.json({
+      status: "ok",
+      uptimeSec: Math.round(process.uptime()),
+      cacheSize: positiveCache.size,
+      browserWarm,
+    });
+  });
+
+  app.post("/api/xref", async (req, res) => {
+    const body = req.body || {};
+    const partNumberInput = typeof body.partNumber === "string" ? body.partNumber.trim() : "";
+    const pastedText = typeof body.pastedText === "string" ? body.pastedText.slice(0, 20000) : "";
+    const manualSpecs = sanitizeSpecs(body.specs || {});
+
+    let product = null;
+    let source = "none";
+    let error = null;
+
+    if (body.record != null) {
+      try {
+        product = buildProductFromRecordInput(body.record);
+        source = "record";
+      } catch (err) {
+        error = friendlyError("BAD_RECORD", err.message);
+      }
+    } else if (pastedText.trim()) {
+      product = buildProductFromPastedText(pastedText, partNumberInput);
+      source = "pasted";
+    } else if (partNumberInput) {
+      try {
+        const json = await withHardTimeout(resolveViaMcMaster(partNumberInput), HARD_TIMEOUT_MS);
+        product = parseProductRecord(json);
+        source = "mcmaster";
+      } catch (err) {
+        const code = err.code || "FETCH_FAILED";
+        if (code === "BUSY") {
+          return res.status(503).json({
+            partNumber: partNumberInput || null,
+            source: "none",
+            product: null,
+            classification: { noun: null, kind: null },
+            queries: { primary: null, alternates: [] },
+            links: [],
+            error: friendlyError("BUSY", err.message),
+          });
+        }
+        error = friendlyError(code, err.message);
+      }
+    }
+
+    if (Object.keys(manualSpecs).length) {
+      if (product) {
+        applyManualOverrides(product, manualSpecs);
+      } else {
+        product = buildProductFromManualSpecs(manualSpecs, partNumberInput);
+        source = "manual";
+      }
+    }
+
+    const classification = product ? classifyProduct(product) : { noun: null, kind: null };
+    const builtQueries = product ? buildQueries(product) : { primary: null, alternates: [] };
+    const queries = { primary: builtQueries.primary || null, alternates: builtQueries.alternates || [] };
+    const links = product ? buildSupplierLinks(product) : [];
+
+    res.json({
+      partNumber: partNumberInput || (product && product.partNumber) || null,
+      source,
+      product: product ? serializeProduct(product) : null,
+      classification,
+      queries,
+      links,
+      error,
+    });
+  });
+
+  // A malformed JSON body would otherwise reach express's default error
+  // handler and come back as HTML, which is not a shape the frontend (or
+  // this API's own contract) expects.
+  app.use((err, _req, res, next) => {
+    if (err && err.type === "entity.parse.failed") {
+      return res.status(400).json({ error: { code: "BAD_REQUEST", message: "Request body must be valid JSON." } });
+    }
+    return next(err);
+  });
+
+  return app;
+}
+
+const app = buildApp();
+
+module.exports = { app, buildApp };
 
 if (require.main !== module) return;
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`mcmaster-xref listening on ${port}`);
-  if (process.env.RUN_URLPROBE === "1") runUrlProbe();
-  if (process.env.RUN_SWEEP === "1") runCategorySweep();
-  if (process.env.RUN_VERIFY === "1") runVerification();
-  if (process.env.RUN_QUERYLAB === "1") runQueryLab();
 });
-
-/**
- * Env-gated (RUN_QUERYLAB=1). Finds the query *shape* suppliers actually
- * match on, instead of assuming one.
- *
- * Of the six suppliers, five answer this server with a bot wall (Fastenal
- * 403, MSC "Pardon Our Interruption", Bolt Depot "Just a moment...",
- * Amazon 503) or a body too JS-heavy to judge, so they can tell us nothing
- * -- those links are opened from a real browser on a normal connection,
- * where they work. Grainger is the exception: it answers with a real page
- * and says plainly when a query matched nothing, which makes it the one
- * usable oracle for query wording. So: hold the part fixed, vary only the
- * phrasing, and see which shapes come back with results.
- */
-const QUERY_LAB_PART = { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' };
-
-async function runQueryLab() {
-  const variants = [
-    ["current (built)", buildQuery(QUERY_LAB_PART)],
-    ["no material/finish", '1/4"-20 x 3/4" socket head cap screw'],
-    ["no inch marks", "1/4-20 x 3/4 socket head cap screw alloy steel black oxide"],
-    ["no inch marks, no material", "1/4-20 x 3/4 socket head cap screw"],
-    ["noun first", "socket head cap screw 1/4-20 x 3/4"],
-    ["noun + size, no x", "socket head cap screw 1/4-20 3/4"],
-    ["thread only", "socket head cap screw 1/4-20"],
-    ["noun only", "socket head cap screw"],
-    ["noun + finish", "black oxide socket head cap screw 1/4-20"],
-  ];
-
-  console.log("[qlab] START");
-  for (const [label, query] of variants) {
-    const url = `https://www.grainger.com/search?searchQuery=${encodeURIComponent(query)}`;
-    try {
-      const res = await fetch(url, {
-        redirect: "follow",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-          "Accept-Language": "en-US,en;q=0.9",
-        },
-        signal: AbortSignal.timeout(20000),
-      });
-      const body = await res.text();
-      const title = ((body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || "").trim();
-      const noResults = /couldn.?t find that/i.test(title) || /couldn.?t find that/i.test(body.slice(0, 4000));
-      // Grainger puts a result count in the page when there are hits.
-      const count = (body.match(/([\d,]+)\s*(?:products?|results?)\s*(?:found|match)/i) || [])[1] || "";
-      console.log(`[qlab] ${noResults ? "NONE" : "HITS"} ${JSON.stringify(label)} q=${JSON.stringify(query)} status=${res.status} len=${body.length} count=${count} title=${JSON.stringify(title.slice(0, 70))}`);
-    } catch (err) {
-      console.log(`[qlab] ERR  ${JSON.stringify(label)} -- ${err.message}`);
-    }
-    await new Promise((r) => setTimeout(r, 1200));
-  }
-  console.log("[qlab] DONE");
-}
-
-/**
- * Env-gated (RUN_VERIFY=1) verification of the two things that can only be
- * checked against live responses.
- *
- * Deliberately small on the McMaster side. The previous version rendered
- * 100 part pages back to back, and that is what took the app down: McMaster
- * allows a limited number of anonymous views per client, the sweep spent
- * them all, and every lookup afterwards -- including real ones from the
- * actual UI -- got the login wall instead of a product page. A test that
- * destroys the thing it is testing is worse than no test, so this renders
- * three parts, spaced out, and reports the wall as a distinct outcome
- * rather than as a mysterious empty page.
- *
- * The supplier links get the opposite treatment: those sites have no such
- * budget, every generated URL is fetched for real, and a link only passes
- * if the response actually looks like a results page for the query. The
- * old check called anything that didn't match a short "no results" regex a
- * pass, which is how four unexamined Google searches and a Grainger page
- * reading "Whoops, we couldn't find that." were all counted as working.
- */
-// Overridable so a specific part can be checked against a known-good one
-// without a code change -- the question "is this part gated, or is the
-// whole allowance spent?" comes up whenever a lookup fails, and it can
-// only be answered by rendering both and comparing.
-const VERIFY_PARTS = (process.env.VERIFY_PARTS || "91251A051,91251A540,92196A106")
-  .split(",")
-  .map((p) => p.trim())
-  .filter(Boolean);
-const RENDER_SPACING_MS = 20000;
-
-async function runVerification() {
-  const started = Date.now();
-  console.log("[verify] START");
-
-  const resolved = [];
-  for (const [i, part] of VERIFY_PARTS.entries()) {
-    if (i > 0) await new Promise((r) => setTimeout(r, RENDER_SPACING_MS));
-    try {
-      const specs = await fetchMcMasterSpecsLive(part);
-      resolved.push({ part, specs });
-      console.log(`[verify] render ${part}: OK (${Object.keys(specs).length} fields) query=${JSON.stringify(buildQuery(specs))}`);
-    } catch (err) {
-      console.log(`[verify] render ${part}: ${err.code === "LOGIN_WALL" ? "LOGIN_WALL" : "FAILED"} -- ${err.message}`);
-    }
-  }
-
-  // Link checking must not depend on McMaster being reachable, or a walled
-  // run would silently verify nothing at all -- which is exactly what the
-  // last sweep did (0 parts discovered, "0 ok, 0 bad", reported as a run).
-  const cases = resolved.length
-    ? resolved
-    : [
-        { part: "91251A540(known)", specs: { material: "Black-Oxide Alloy Steel", driveType: "Hex", threadSize: '1/4"-20', length: '3/4"', grade: "Class 3", headType: "Socket", diameter: '3/8"' } },
-        { part: "92196A106(known)", specs: { material: "18-8 Stainless Steel", driveType: "Hex", threadSize: "4-40", length: '1/4"', headType: "Socket" } },
-        { part: "raw-stock(known)", specs: { material: "6061 Aluminum", shape: "Round Bar", diameter: '3/8"' } },
-      ];
-  if (!resolved.length) console.log("[verify] no live renders available; checking links against known-good specs instead");
-
-  let ok = 0;
-  let bad = 0;
-  let blocked = 0;
-  for (const { part, specs } of cases) {
-    const query = buildQuery(specs);
-    console.log(`[verify] links for ${part}: query=${JSON.stringify(query)}`);
-    const linkBrowser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
-    for (const { name, url } of buildSupplierLinks(specs)) {
-      const verdict = await checkSupplierLink(linkBrowser, name, url, specs);
-      const label = verdict.ok === null ? "BLOCKED" : verdict.ok ? "PASS" : "FAIL";
-      if (verdict.ok === null) blocked++;
-      else if (verdict.ok) ok++;
-      else bad++;
-      console.log(`[verify]   ${label} ${name}: ${verdict.detail}`);
-    }
-    await linkBrowser.close();
-  }
-
-  console.log(
-    `[verify] DONE in ${Math.round((Date.now() - started) / 1000)}s -- links ${ok} pass / ${bad} fail / ${blocked} not judgeable from this server, across ${cases.length} parts`
-  );
-}
-
-/**
- * A link passes only if the page that loads is a results page that
- * actually mentions the part's defining terms. Checking for a 200 is not
- * enough: bot walls, consent interstitials and empty-result pages all
- * return 200, and that is precisely what an earlier check scored as
- * success.
- *
- * This renders the page in the same real headless Chrome the app uses for
- * McMaster, rather than issuing a bare fetch. A plain fetch fails several
- * of these sites for a reason that says nothing about the link: it runs no
- * JavaScript, so a page that renders its results client-side, or shows a
- * "checking your browser" interstitial that clears itself on execution,
- * reads as a wall either way. A browser is what those pages are built to
- * serve, so this measures the link instead of the client.
- *
- * It is not an attempt to defeat bot detection. Where a site still refuses
- * -- a hard 403, or a challenge that wants a puzzle solved -- that is the
- * site declining to answer an automated client, and the honest result is
- * BLOCKED, not a worked-around PASS. Those links are opened from a real
- * browser on a home connection, where these sites behave normally, so the
- * person reading the results is the one positioned to judge them.
- */
-async function checkSupplierLink(browser, name, url, specs) {
-  let context;
-  try {
-    context = await newStealthContext(browser);
-    const page = await context.newPage();
-    const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-
-    // Results usually arrive after a second call, and a challenge page
-    // usually replaces itself. Give both a moment rather than judging the
-    // first paint.
-    try {
-      await page.waitForLoadState("networkidle", { timeout: 8000 });
-    } catch {
-      // whatever rendered is what gets judged
-    }
-
-    const status = response ? response.status() : 0;
-    const title = (await page.title().catch(() => "")).trim().slice(0, 90);
-    const text = await page.evaluate(() => document.body.innerText).catch(() => "");
-    const detail = `status=${status} textLen=${text.length} title=${JSON.stringify(title)}`;
-    const head = `${title}\n${text.slice(0, 4000)}`;
-
-    if (/pardon our interruption|just a moment|access denied|unusual traffic|are you a robot|before you continue|verify you are human|enable javascript/i.test(head) || status === 403 || status === 503) {
-      return { ok: null, detail: `${detail} <- refused an automated client; judge this one in a browser` };
-    }
-    if (status >= 400) return { ok: false, detail };
-    // Grainger's "Whoops, we couldn't find that." reads like a verdict on
-    // the query but isn't one: unrelated queries come back byte-identical,
-    // so it never ran the search.
-    if (/we couldn.?t find|couldn.?t find that|no results (were )?found|did not match any/i.test(head)) {
-      return { ok: null, detail: `${detail} <- served regardless of query; a block, not a verdict` };
-    }
-
-    // A page that rendered no text at all has not answered the question --
-    // it is a render that did not finish, not a judgement on the link.
-    if (!text.trim()) {
-      return { ok: null, detail: `${detail} <- rendered no text; judge this one in a browser` };
-    }
-
-    const marker = specs.threadSize || specs.shape || specs.material;
-    const normalize = (v) => v.toLowerCase().replace(/["\u201d]/g, "").replace(/\s+/g, " ");
-    if (marker && !normalize(text).includes(normalize(marker))) {
-      return { ok: false, detail: `${detail} <- no mention of ${JSON.stringify(marker)}` };
-    }
-    return { ok: true, detail };
-  } catch (err) {
-    return { ok: false, detail: `render failed -- ${err.message}` };
-  } finally {
-    if (context) await context.close().catch(() => {});
-  }
-}
-
-/**
- * Env-gated (RUN_SWEEP=1). Runs the category matrix through *this*
- * deployment and reports any phrase that drifted from what the tests pin.
- *
- * The local suite proves the code in the repo is right; this proves the
- * code actually running in production is the same code. Those came apart
- * once already -- the service spent five days deploying a branch nobody
- * was pushing to -- and nothing in the test suite could have caught it.
- *
- * Costs no McMaster page views: every case posts its own spec block, which
- * is the path that skips the live fetch.
- */
-async function runCategorySweep() {
-  let cases;
-  try {
-    cases = require("./test/categories.json");
-  } catch {
-    console.log("[sweep] category matrix not deployed with this build");
-    return;
-  }
-
-  console.log(`[sweep] START ${cases.length} cases against this instance`);
-  let pass = 0;
-  const failures = [];
-  for (const c of cases) {
-    const specs = { ...parseSpecsFromText(c.pastedText), ...parseKeyValueText(c.pastedText) };
-    const actual = buildQuery(specs);
-    if (actual === c.expect) {
-      pass++;
-    } else {
-      failures.push(c.label);
-      console.log(`[sweep] FAIL ${c.label} (${c.part})`);
-      console.log(`[sweep]   expected ${JSON.stringify(c.expect)}`);
-      console.log(`[sweep]   actual   ${JSON.stringify(actual)}`);
-    }
-  }
-  console.log(`[sweep] DONE ${pass}/${cases.length} pass${failures.length ? ` -- failed: ${failures.join(", ")}` : ""}`);
-}
-
-/**
- * Env-gated (RUN_URLPROBE=1). Finds suppliers whose search actually answers
- * a browser, instead of assuming one does.
- *
- * The link table was built from plausible-looking URLs, and two of them --
- * both metal suppliers -- turned out to 404 on every query, so every
- * raw-stock lookup handed out dead links. The lesson is that a supplier
- * belongs in the table only once something has opened its search and seen
- * the part come back.
- *
- * Each candidate is opened in a real browser and scored on what rendered:
- * HITS means the page came back with the query's own terms in it, 200
- * means it answered but without them (usually a redirect to a homepage),
- * WALL means the site refused an automated client, and BAD is a 404 or
- * worse. Only HITS earns a place in the table.
- */
-const PROBE_QUERIES = {
-  rawstock: { q: "6061 aluminum round bar", terms: [/6061/i, /\b(bar|rod)\b/i] },
-  fastener: { q: "1/4-20 socket head cap screw", terms: [/1\/4/, /socket|cap screw/i] },
-};
-
-// Path shapes are grouped by the ecommerce platform that uses them, since
-// most of these sites are a stock Shopify, Magento or BigCommerce store
-// underneath and share one search route.
-const PROBE_TARGETS = [
-  ["eBay", "fastener", "https://www.ebay.com/sch/i.html?_nkw={q}"],
-  ["eBay", "rawstock", "https://www.ebay.com/sch/i.html?_nkw={q}"],
-  ["Zoro", "fastener", "https://www.zoro.com/search?q={q}"],
-  ["Zoro", "rawstock", "https://www.zoro.com/search?q={q}"],
-  ["Global Industrial", "fastener", "https://www.globalindustrial.com/search?searchTerm={q}"],
-  ["Accu", "fastener", "https://www.accu.co.uk/en/search?search_query={q}"],
-  ["Albany County Fasteners", "fastener", "https://www.albanycountyfasteners.com/search?q={q}"],
-  ["Bolt Dropper", "fastener", "https://boltdropper.com/search?q={q}"],
-  ["Fastener SuperStore", "fastener", "https://www.fastenersuperstore.com/search?keywords={q}"],
-  ["Tanner Bolt", "fastener", "https://www.tannerbolt.com/search?q={q}"],
-  ["Metals Depot", "rawstock", "https://www.metalsdepot.com/search?q={q}"],
-  ["Metals Depot", "rawstock", "https://www.metalsdepot.com/catalogsearch/result/?q={q}"],
-  ["Midwest Steel Supply", "rawstock", "https://www.midweststeelsupply.com/search?q={q}"],
-  ["Discount Steel", "rawstock", "https://www.discountsteel.com/search?q={q}"],
-  ["Industrial Metal Supply", "rawstock", "https://www.industrialmetalsupply.com/catalogsearch/result/?q={q}"],
-  ["Metal Supermarkets", "rawstock", "https://www.metalsupermarkets.com/?s={q}"],
-  ["Alro", "rawstock", "https://www.alro.com/search?q={q}"],
-  // Both of these were resolved on 20 Sep 2026 and are in the link table
-  // now: speedymetals.com/search.aspx?SearchTerm= answers with product rows,
-  // and metalsupermarkets.com/?s= reports its own result count. Online
-  // Metals is left here rather than in the table -- it answers a datacenter
-  // client with a Cloudflare challenge on every path, so neither parameter
-  // can be told apart from the other from a server.
-  ["OnlineMetals ?q", "rawstock", "https://www.onlinemetals.com/en/search?q={q}"],
-  ["OnlineMetals ?text", "rawstock", "https://www.onlinemetals.com/en/search?text={q}"],
-  ["VXB Bearings", "fastener", "https://www.vxb.com/search?q={q}"],
-  ["The O-Ring Store", "fastener", "https://www.theoringstore.com/search?q={q}"],
-  ["Marco Rubber", "fastener", "https://www.marcorubber.com/search?q={q}"],
-];
-
-async function runUrlProbe() {
-  console.log(`[probe] START ${PROBE_TARGETS.length} candidates`);
-  const browser = await chromium.launch({ args: ["--disable-blink-features=AutomationControlled"] });
-  const winners = [];
-  try {
-    for (const [name, family, template] of PROBE_TARGETS) {
-      const { q, terms } = PROBE_QUERIES[family];
-      const url = template.replace("{q}", encodeURIComponent(q));
-      let context;
-      try {
-        context = await newStealthContext(browser);
-        const page = await context.newPage();
-        const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
-        try {
-          await page.waitForLoadState("networkidle", { timeout: 8000 });
-        } catch {
-          // judge whatever rendered
-        }
-        const status = response ? response.status() : 0;
-        const title = (await page.title().catch(() => "")).trim().slice(0, 60);
-        const text = (await page.evaluate(() => document.body.innerText).catch(() => "")) || "";
-
-        let verdict;
-        if (/just a moment|access denied|pardon our interruption|unusual traffic|are you a robot|verify you are human/i.test(`${title}\n${text.slice(0, 3000)}`) || status === 403 || status === 503) {
-          verdict = "WALL";
-        } else if (status >= 400) {
-          verdict = "BAD ";
-        } else if (!text.trim()) {
-          verdict = "EMPTY";
-        } else if (terms.every((re) => re.test(text))) {
-          verdict = "HITS";
-          winners.push(`${name} [${family}] ${template}`);
-        } else {
-          verdict = "200 ";
-        }
-        console.log(`[probe] ${verdict} ${name} [${family}] status=${status} textLen=${text.length} title=${JSON.stringify(title)} ${url}`);
-      } catch (err) {
-        console.log(`[probe] ERR  ${name} [${family}] ${url} -- ${err.message}`);
-      } finally {
-        if (context) await context.close().catch(() => {});
-      }
-      await new Promise((r) => setTimeout(r, 1200));
-    }
-  } finally {
-    await browser.close();
-  }
-  console.log(`[probe] VERIFIED ${winners.length}:`);
-  for (const w of winners) console.log(`[probe]   + ${w}`);
-  console.log("[probe] DONE");
-}
