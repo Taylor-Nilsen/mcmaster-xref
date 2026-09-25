@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - "frontend/**"
+      - "backend/lib/product.js"
+      - "scripts/sync-frontend.sh"
+      - "scripts/build-bookmarklet.js"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -25,6 +28,14 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # backend/lib/product.js is the one source of truth for the parse/
+      # classify/query/link logic; this copies it into frontend/vendor/ so
+      # the static site can load it as a plain <script> tag (no bundler).
+      # Also (re)builds the bookmarklet's javascript: URL into
+      # frontend/index.html -- normally a no-op since that's committed
+      # already, but this keeps a stale commit from ever shipping.
+      - name: Sync frontend (vendor product.js, build bookmarklet)
+        run: bash scripts/sync-frontend.sh
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

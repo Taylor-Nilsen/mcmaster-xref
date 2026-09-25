@@ -174,12 +174,20 @@ function singularize(word) {
  *   lib/mcmaster.js captures the page.
  * @returns {Product}
  */
+// `Buffer` only exists under Node; guarded so this file stays loadable as a
+// plain browser <script> (see the window.McmXref attachment at the bottom)
+// without changing Node behavior at all -- isNodeBuffer is just false, never
+// thrown, in a browser.
+function isNodeBuffer(value) {
+  return typeof Buffer !== "undefined" && Buffer.isBuffer(value);
+}
+
 function parseProductRecord(input) {
   let record;
-  if (input && typeof input === "object" && !Buffer.isBuffer(input)) {
+  if (input && typeof input === "object" && !isNodeBuffer(input)) {
     record = input;
   } else {
-    const text = Buffer.isBuffer(input) ? input.toString("utf8") : String(input);
+    const text = isNodeBuffer(input) ? input.toString("utf8") : String(input);
     const start = text.indexOf("{");
     if (start === -1) throw new Error("parseProductRecord: no JSON object found in input");
     const jsonText = extractJsonObject(text, start);
@@ -782,7 +790,7 @@ function buildSupplierLinks(product) {
   });
 }
 
-module.exports = {
+const McmXref = {
   extractJsonObject,
   stripHtml,
   decodeEntities,
@@ -798,3 +806,15 @@ module.exports = {
   normalizeGauge,
   normalizeScrewSizeWord,
 };
+
+// Node: `require("./product")` keeps working exactly as before.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = McmXref;
+}
+// Browser: loaded via a plain <script> tag (see frontend/vendor/product.js,
+// synced from this file -- one source of truth, no bundler), this is the
+// only environment where `window` exists, so the same API lands there as
+// `window.McmXref` for frontend/app.js and the bookmarklet's consumer to use.
+if (typeof window !== "undefined") {
+  window.McmXref = McmXref;
+}
