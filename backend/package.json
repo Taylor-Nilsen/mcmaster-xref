@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "sync-frontend": "cp lib/specs.js ../frontend/specs.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -179,3 +179,47 @@ footer {
   text-align: center;
   margin-top: 2rem;
 }
+
+#pasteBtn {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+#mcmasterLink {
+  color: var(--accent);
+}
+
+/* Notched phones in standalone (home screen) mode draw under the status
+   bar and home indicator unless the page pads for them. */
+body {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(4rem, env(safe-area-inset-bottom));
+}
+
+/* Two columns leave ~160px per field on a phone, which cuts off every
+   placeholder. One column below that. */
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bookmarklet {
+  display: inline-block;
+  padding: 0.55rem 0.9rem;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: 0.5rem;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.steps li {
+  margin-bottom: 0.4rem;
+}
