@@ -1,0 +1,249 @@
+{
+  "partNumber": "57155K573",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "57155K573",
+    "title": "Steel Flanged Ball Bearing, Shielded, Trade #685-2Z",
+    "family": "Ball Bearings",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "For Shaft Type",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "Bearing Seal Type",
+        "value": "Shielded"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "For Shaft Diameter",
+        "value": "5 mm"
+      },
+      {
+        "group": null,
+        "name": "For Housing ID",
+        "value": "11 mm"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "5 mm"
+      },
+      {
+        "group": null,
+        "name": "Width Tolerance",
+        "value": "-0.12 mm to 0 mm"
+      },
+      {
+        "group": "Flange",
+        "name": "OD",
+        "value": "12.5 mm"
+      },
+      {
+        "group": "Flange",
+        "name": "Thk.",
+        "value": "1 mm"
+      },
+      {
+        "group": null,
+        "name": "ABEC Rating",
+        "value": "3"
+      },
+      {
+        "group": null,
+        "name": "Dynamic Radial Load Capacity",
+        "value": "160 lb."
+      },
+      {
+        "group": null,
+        "name": "Maximum Rotation Speed",
+        "value": "54,000 rpm"
+      },
+      {
+        "group": "Temperature Range",
+        "name": "Minimum",
+        "value": "-50° F"
+      },
+      {
+        "group": "Temperature Range",
+        "name": "Max.",
+        "value": "300° F"
+      },
+      {
+        "group": null,
+        "name": "Inner Ring Type",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Bearing Trade Number",
+        "value": "685-2Z"
+      },
+      {
+        "group": null,
+        "name": "Ball Bearing Profile",
+        "value": "Flanged"
+      },
+      {
+        "group": null,
+        "name": "Ball Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "Bearing Construction",
+        "value": "Single Row"
+      },
+      {
+        "group": null,
+        "name": "Bearing Type",
+        "value": "Ball"
+      },
+      {
+        "group": null,
+        "name": "Cage Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "For Load Direction",
+        "value": "Radial"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "5 mm"
+      },
+      {
+        "group": null,
+        "name": "ID Tolerance",
+        "value": "-0.007 mm to 0 mm"
+      },
+      {
+        "group": null,
+        "name": "Lubricant",
+        "value": "Grease"
+      },
+      {
+        "group": null,
+        "name": "Lubrication",
+        "value": "Lubricated"
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "11 mm"
+      },
+      {
+        "group": null,
+        "name": "OD Tolerance",
+        "value": "-0.007 mm to 0 mm"
+      },
+      {
+        "group": null,
+        "name": "Radial Clearance",
+        "value": "0.005 mm to 0.01 mm"
+      },
+      {
+        "group": null,
+        "name": "Shaft Mount Type",
+        "value": "Press Fit"
+      },
+      {
+        "group": null,
+        "name": "Shield Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "Static Radial Load Capacity",
+        "value": "60 lb."
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Japan"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "1C999"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/27/2024, 241 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848210.5044"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "ball bearing",
+    "kind": "bearing"
+  },
+  "queries": {
+    "primary": "5 mm bore 12.5 mm OD 5 mm wide ball bearing Steel",
+    "alternates": [
+      "5 mm bore 12.5 mm OD 5 mm wide ball bearing"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=5%20mm%20bore%2012.5%20mm%20OD%205%20mm%20wide%20ball%20bearing%20Steel",
+      "query": "5 mm bore 12.5 mm OD 5 mm wide ball bearing Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=5+mm+bore+12.5+mm+OD+5+mm+wide+ball+bearing+Steel",
+      "query": "5 mm bore 12.5 mm OD 5 mm wide ball bearing Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=5%20mm%20bore%2012.5%20mm%20OD%205%20mm%20wide%20ball%20bearing%20Steel",
+      "query": "5 mm bore 12.5 mm OD 5 mm wide ball bearing Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=5+mm+bore+12.5+mm+OD+5+mm+wide+ball+bearing+Steel",
+      "query": "5 mm bore 12.5 mm OD 5 mm wide ball bearing Steel",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

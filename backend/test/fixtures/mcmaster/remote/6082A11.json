@@ -1,0 +1,164 @@
+{
+  "partNumber": "6082A11",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6082A11",
+    "title": "Draw Latch, Screw on, 304 Stainless Steel, 1-5/8\" Long x 15/16\" Wide",
+    "family": "Draw Latches",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": "Mounting",
+        "name": "Type",
+        "value": "Screw On"
+      },
+      {
+        "group": "Mounting",
+        "name": "Location",
+        "value": "Surface"
+      },
+      {
+        "group": "Mounting",
+        "name": "Fasteners Included",
+        "value": "No"
+      },
+      {
+        "group": "Mounting",
+        "name": "Screw Size",
+        "value": "M3"
+      },
+      {
+        "group": null,
+        "name": "Style",
+        "value": "N"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "304 Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Appearance",
+        "value": "Polished"
+      },
+      {
+        "group": null,
+        "name": "Latching Distance",
+        "value": "15/16\""
+      },
+      {
+        "group": "Overall",
+        "name": "Length",
+        "value": "1 5/8\""
+      },
+      {
+        "group": "Overall",
+        "name": "Width",
+        "value": "15/16\""
+      },
+      {
+        "group": null,
+        "name": "Projection",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Weight Capacity",
+        "value": "85 lb."
+      },
+      {
+        "group": null,
+        "name": "Draw Latch Type",
+        "value": "Nonlocking"
+      },
+      {
+        "group": null,
+        "name": "Latching Distance Adjustability",
+        "value": "Fixed"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United Kingdom"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "830249.7500"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "draw latche",
+    "kind": "washer"
+  },
+  "queries": {
+    "primary": "M3 draw latche 304 Stainless Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=M3+draw+latche+304+Stainless+Steel",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=M3%20draw%20latche%20304%20Stainless%20Steel",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=M3+draw+latche+304+Stainless+Steel",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Browse?Category=Washers&Units=US",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=M3+draw+latche+304+Stainless+Steel",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/w/wholesale-m3-draw-latche-304-stainless-steel.html",
+      "query": "M3 draw latche 304 Stainless Steel",
+      "verified": "renders"
+    }
+  ],
+  "error": null
+}

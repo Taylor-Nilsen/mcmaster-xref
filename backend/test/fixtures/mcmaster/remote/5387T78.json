@@ -1,0 +1,100 @@
+{
+  "partNumber": "5387T78",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5387T78",
+    "title": "Ratchet Suspension for Vented Hard Hat& Hard Hat with Rain-Trough Brim",
+    "family": "Hard Hat Suspensions",
+    "categoryPath": [
+      "Safety Equipment",
+      "Personal Protective Equipment"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Adjustment Mechanism",
+        "value": "Ratchet"
+      },
+      {
+        "group": null,
+        "name": "Includes",
+        "value": "Sweatband"
+      },
+      {
+        "group": null,
+        "name": "Number of Suspension Points",
+        "value": "4"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "650700.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "hard hat suspension",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "hard hat suspension",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=hard%20hat%20suspension",
+      "query": "hard hat suspension",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=hard+hat+suspension",
+      "query": "hard hat suspension",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=hard%20hat%20suspension",
+      "query": "hard hat suspension",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=hard+hat+suspension",
+      "query": "hard hat suspension",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

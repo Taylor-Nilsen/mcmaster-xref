@@ -1,0 +1,154 @@
+{
+  "partNumber": "6484K509",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6484K509",
+    "title": "XL Series Timing Belt, Trade No. 370XL025",
+    "family": "Timing Belts",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Tooth Profile",
+        "value": "Trapezoidal"
+      },
+      {
+        "group": null,
+        "name": "Tooth Location",
+        "value": "One Side"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Neoprene"
+      },
+      {
+        "group": null,
+        "name": "Belt Trade Size",
+        "value": "XL"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Outer Circle",
+        "value": "37\""
+      },
+      {
+        "group": null,
+        "name": "Number of Teeth",
+        "value": "185"
+      },
+      {
+        "group": null,
+        "name": "Pitch",
+        "value": "0.200\""
+      },
+      {
+        "group": null,
+        "name": "Reinforcement Material",
+        "value": "Fiberglass"
+      },
+      {
+        "group": null,
+        "name": "Tooth Finish",
+        "value": "Nylon Coated"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-22° F to 212° F"
+      },
+      {
+        "group": null,
+        "name": "Belt Trade Number",
+        "value": "370XL025"
+      },
+      {
+        "group": null,
+        "name": "Belt Type",
+        "value": "Timing"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Black"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/14/2023, 235 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "401035.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "timing belt",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "Neoprene timing belt",
+    "alternates": [
+      "timing belt"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=Neoprene%20timing%20belt",
+      "query": "Neoprene timing belt",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=Neoprene+timing+belt",
+      "query": "Neoprene timing belt",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=Neoprene%20timing%20belt",
+      "query": "Neoprene timing belt",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=Neoprene+timing+belt",
+      "query": "Neoprene timing belt",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

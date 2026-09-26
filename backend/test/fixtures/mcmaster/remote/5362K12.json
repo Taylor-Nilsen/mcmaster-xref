@@ -1,0 +1,184 @@
+{
+  "partNumber": "5362K12",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5362K12",
+    "title": "Worm-Drive Clamps with Thumb Screw, for Firm Hose and Tube, 1/2\" to 29/32\" Clamp ID Range",
+    "family": "Hose and Tube Clamps",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Clamp Type",
+        "value": "Worm Drive"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "300 Series Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Screw Material",
+        "value": "410 Stainless Steel"
+      },
+      {
+        "group": "Clamp ID Range",
+        "name": "Inch",
+        "value": "1/2\" to 29/32\""
+      },
+      {
+        "group": "Clamp ID Range",
+        "name": "Metric",
+        "value": "13 mm to 23 mm"
+      },
+      {
+        "group": "Band",
+        "name": "Width",
+        "value": "9/16\""
+      },
+      {
+        "group": "Band",
+        "name": "Thickness",
+        "value": "0.023\""
+      },
+      {
+        "group": null,
+        "name": "SAE Hose Clamp Size",
+        "value": "8"
+      },
+      {
+        "group": "Temperature Range",
+        "name": "Minimum",
+        "value": "-50° F"
+      },
+      {
+        "group": "Temperature Range",
+        "name": "Maximum",
+        "value": "250° F"
+      },
+      {
+        "group": null,
+        "name": "Drive Style",
+        "value": "Thumb"
+      },
+      {
+        "group": null,
+        "name": "Connects To",
+        "value": "Hose, Firm Tube"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "SAE J1508"
+      },
+      {
+        "group": null,
+        "name": "Band Type",
+        "value": "Slotted"
+      },
+      {
+        "group": null,
+        "name": "Edge Type",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Housing Material",
+        "value": "300 Series Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Chemical Resistant, Corrosion Resistant, Easy Turn, Reusable"
+      },
+      {
+        "group": null,
+        "name": "Reusable",
+        "value": "Yes"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "732690.8695"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "hose and tube clamp",
+    "kind": "fastener"
+  },
+  "queries": {
+    "primary": "hose and tube clamp 300 Series Stainless Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=hose+and+tube+clamp+300+Series+Stainless+Steel",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=hose%20and%20tube%20clamp%20300%20Series%20Stainless%20Steel",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=hose+and+tube+clamp+300+Series+Stainless+Steel",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Catalog-Tabs",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=hose+and+tube+clamp+300+Series+Stainless+Steel",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/w/wholesale-hose-and-tube-clamp-300-series-stainless-steel.html",
+      "query": "hose and tube clamp 300 Series Stainless Steel",
+      "verified": "renders"
+    }
+  ],
+  "error": null
+}

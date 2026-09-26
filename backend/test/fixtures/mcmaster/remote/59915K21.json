@@ -1,0 +1,184 @@
+{
+  "partNumber": "59915K21",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "59915K21",
+    "title": "Corrosion-Resistant Ball Joint Rod End, 10-32 Thread",
+    "family": "Rod Ends",
+    "categoryPath": [
+      "Power Transmission",
+      "Rod Ends and Linkages",
+      "Rod Ends",
+      "Corrosion-Resistant Ball Joint Rod Ends"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Rod End Type",
+        "value": "Ball Joint"
+      },
+      {
+        "group": "Shank",
+        "name": "Thread Size",
+        "value": "10-32"
+      },
+      {
+        "group": "Shank",
+        "name": "Center Length",
+        "value": "1 1/4\""
+      },
+      {
+        "group": "Shank",
+        "name": "Thread Length",
+        "value": "3/4\""
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "3/16\""
+      },
+      {
+        "group": null,
+        "name": "ID Tolerance",
+        "value": "-0.0005\" to 0.0025\""
+      },
+      {
+        "group": null,
+        "name": "Maximum Ball Swivel",
+        "value": "20°"
+      },
+      {
+        "group": null,
+        "name": "Overall Width",
+        "value": "5/8\""
+      },
+      {
+        "group": null,
+        "name": "Overall Thickness",
+        "value": "5/16\""
+      },
+      {
+        "group": null,
+        "name": "Static Radial Load Capacity",
+        "value": "910 lb."
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "303 Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Ball Material",
+        "value": "440C Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Liner Material",
+        "value": "PTFE"
+      },
+      {
+        "group": null,
+        "name": "Lubrication",
+        "value": "Not Required"
+      },
+      {
+        "group": null,
+        "name": "Shank Gender",
+        "value": "Male"
+      },
+      {
+        "group": null,
+        "name": "Shank Threading",
+        "value": "Fully Threaded"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (11/07/2024, 242 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848330.8055"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "corrosion-resistant ball joint rod end",
+    "kind": "fastener"
+  },
+  "queries": {
+    "primary": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=10-32+corrosion-resistant+ball+joint+rod+end+303+Stainless+Steel",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=10-32%20corrosion-resistant%20ball%20joint%20rod%20end%20303%20Stainless%20Steel",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=10-32+corrosion-resistant+ball+joint+rod+end+303+Stainless+Steel",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Catalog-Tabs",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=10-32+corrosion-resistant+ball+joint+rod+end+303+Stainless+Steel",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/w/wholesale-10-32-corrosion-resistant-ball-joint-rod-end-303-stainless-steel.html",
+      "query": "10-32 corrosion-resistant ball joint rod end 303 Stainless Steel",
+      "verified": "renders"
+    }
+  ],
+  "error": null
+}

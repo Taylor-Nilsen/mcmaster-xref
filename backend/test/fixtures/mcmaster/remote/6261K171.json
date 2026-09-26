@@ -1,0 +1,144 @@
+{
+  "partNumber": "6261K171",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6261K171",
+    "title": "Roller Chain, Single Strand, ANSI Number 25, 1/4\" Pitch",
+    "family": "Roller Chain and Links",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Roller Chain Type",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Strand Type",
+        "value": "Single"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "Component",
+        "value": "Chain"
+      },
+      {
+        "group": "Roller Chain",
+        "name": "Trade Number",
+        "value": "25"
+      },
+      {
+        "group": "Roller Chain",
+        "name": "Standard",
+        "value": "ANSI"
+      },
+      {
+        "group": null,
+        "name": "Pitch",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Roller Diameter",
+        "value": "0.130\""
+      },
+      {
+        "group": null,
+        "name": "Roller Width",
+        "value": "1/8\""
+      },
+      {
+        "group": null,
+        "name": "Working Load",
+        "value": "140 lb."
+      },
+      {
+        "group": null,
+        "name": "Chain Pitch Type",
+        "value": "Single"
+      },
+      {
+        "group": null,
+        "name": "Chain Style",
+        "value": "Roller"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Japan"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731511.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "roller chain and link",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "Steel roller chain and link",
+    "alternates": [
+      "roller chain and link"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=Steel%20roller%20chain%20and%20link",
+      "query": "Steel roller chain and link",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=Steel+roller+chain+and+link",
+      "query": "Steel roller chain and link",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=Steel%20roller%20chain%20and%20link",
+      "query": "Steel roller chain and link",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=Steel+roller+chain+and+link",
+      "query": "Steel roller chain and link",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

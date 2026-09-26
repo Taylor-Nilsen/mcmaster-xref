@@ -1,0 +1,194 @@
+{
+  "partNumber": "5233K56",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5233K56",
+    "title": "Soft Masterkleer PVC Tubing for Air&Water, 1/4\" ID, 3/8\" OD",
+    "family": "Tubing",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Tube Hardness Rating",
+        "value": "Soft"
+      },
+      {
+        "group": null,
+        "name": "Trade Name",
+        "value": "Masterkleer"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Wall Thickness",
+        "value": "1/16\""
+      },
+      {
+        "group": null,
+        "name": "Bend Radius",
+        "value": "1\""
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Durometer 70A"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure @ Temperature",
+        "value": "35 psi @ 72° F"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-40° F to 140° F"
+      },
+      {
+        "group": null,
+        "name": "Compatible Fitting Connection",
+        "value": "Barbed"
+      },
+      {
+        "group": null,
+        "name": "Flexibility",
+        "value": "Flexible"
+      },
+      {
+        "group": null,
+        "name": "Clarity",
+        "value": "Clear"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Clear"
+      },
+      {
+        "group": null,
+        "name": "Connects To",
+        "value": "Tube"
+      },
+      {
+        "group": null,
+        "name": "End Type",
+        "value": "Without Fittings"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "Air, Water"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "PVC"
+      },
+      {
+        "group": null,
+        "name": "Maximum Vacuum @ Temperature",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Pressure Rating",
+        "value": "Low Pressure"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Round Tube"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "391732.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "tubing round tube",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "3/8\" OD x 1/4\" ID x 1/16\" wall tubing round tube",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=tubing+round+tube",
+      "query": "tubing round tube",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=tubing+round+tube",
+      "query": "tubing round tube",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=3%2F8%22+OD+x+1%2F4%22+ID+x+1%2F16%22+wall+tubing+round+tube",
+      "query": "3/8\" OD x 1/4\" ID x 1/16\" wall tubing round tube",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=3%2F8%22%20OD%20x%201%2F4%22%20ID%20x%201%2F16%22%20wall%20tubing%20round%20tube",
+      "query": "3/8\" OD x 1/4\" ID x 1/16\" wall tubing round tube",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=tubing%20round%20tube",
+      "query": "tubing round tube",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

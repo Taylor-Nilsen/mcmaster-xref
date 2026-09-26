@@ -1,0 +1,194 @@
+{
+  "partNumber": "7488K14",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "7488K14",
+    "title": "Ultra-Low-Friction Dry-Running Thrust Bearing, for 3/4\" Shaft Diameter, Rulon J",
+    "family": "Thrust Bearings",
+    "categoryPath": [
+      "Power Transmission",
+      "Bearings",
+      "Thrust Bearings",
+      "Dry-Running Thrust Bearings"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Bearing Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Lubrication",
+        "value": "Not Required"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Rulon J"
+      },
+      {
+        "group": null,
+        "name": "For Shaft Diameter",
+        "value": "3/4\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "1 3/8\""
+      },
+      {
+        "group": null,
+        "name": "OD Tolerance",
+        "value": "-0.003\" to 0\""
+      },
+      {
+        "group": null,
+        "name": "Thickness",
+        "value": "1/8\""
+      },
+      {
+        "group": null,
+        "name": "Thickness Tolerance",
+        "value": "-0.003\" to 0.003\""
+      },
+      {
+        "group": null,
+        "name": "Dynamic Thrust Load Capacity @ Speed",
+        "value": "360 lb. @ 60 rpm"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Gold"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-400° F to 550° F"
+      },
+      {
+        "group": null,
+        "name": "For Load Direction",
+        "value": "Thrust"
+      },
+      {
+        "group": null,
+        "name": "For Shaft Type",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "0.75\""
+      },
+      {
+        "group": null,
+        "name": "ID Tolerance",
+        "value": "0\" to 0.005\""
+      },
+      {
+        "group": null,
+        "name": "P Max",
+        "value": "750 psi"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Dry Running, Ultra Low Friction, Ultra Chemical Resistant, High Temperature, Low Temperature"
+      },
+      {
+        "group": null,
+        "name": "Plain Bearing Type",
+        "value": "Thrust"
+      },
+      {
+        "group": null,
+        "name": "PV Max",
+        "value": "7,500"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "V Max",
+        "value": "400 sfpm"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Mexico"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848330.8090"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "dry-running thrust bearing",
+    "kind": "bearing"
+  },
+  "queries": {
+    "primary": "3/4\" bore 1 3/8\" OD dry-running thrust bearing Rulon J",
+    "alternates": [
+      "3/4\" bore 1 3/8\" OD dry-running thrust bearing"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=3%2F4%22%20bore%201%203%2F8%22%20OD%20dry-running%20thrust%20bearing%20Rulon%20J",
+      "query": "3/4\" bore 1 3/8\" OD dry-running thrust bearing Rulon J",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=3%2F4%22+bore+1+3%2F8%22+OD+dry-running+thrust+bearing+Rulon+J",
+      "query": "3/4\" bore 1 3/8\" OD dry-running thrust bearing Rulon J",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=3%2F4%22%20bore%201%203%2F8%22%20OD%20dry-running%20thrust%20bearing%20Rulon%20J",
+      "query": "3/4\" bore 1 3/8\" OD dry-running thrust bearing Rulon J",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=3%2F4%22+bore+1+3%2F8%22+OD+dry-running+thrust+bearing+Rulon+J",
+      "query": "3/4\" bore 1 3/8\" OD dry-running thrust bearing Rulon J",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

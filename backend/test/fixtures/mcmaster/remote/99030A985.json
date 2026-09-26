@@ -1,0 +1,169 @@
+{
+  "partNumber": "99030A985",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "99030A985",
+    "title": "1018 Carbon Steel Precision Acme Lead Screw, Right Hand, 1/4\"-20 Thread Size, 3 Feet Long",
+    "family": "Precision Lead Screws and Nuts",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Component",
+        "value": "Lead Screw"
+      },
+      {
+        "group": null,
+        "name": "Thread Direction",
+        "value": "Right Hand"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "1018 Low-Carbon Steel"
+      },
+      {
+        "group": null,
+        "name": "Thread Size",
+        "value": "1/4\"-20"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "3 ft."
+      },
+      {
+        "group": null,
+        "name": "Thread Type",
+        "value": "Acme"
+      },
+      {
+        "group": null,
+        "name": "Speed Ratio",
+        "value": "1:1"
+      },
+      {
+        "group": null,
+        "name": "Number of Thread Starts",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Travel Distance per Turn",
+        "value": "0.05\""
+      },
+      {
+        "group": null,
+        "name": "Accuracy for Travel Distance per Turn",
+        "value": "±0.009\"/1 ft."
+      },
+      {
+        "group": null,
+        "name": "Thread Fit",
+        "value": "Acme Class 2C"
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Tensile Strength",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Threading",
+        "value": "Fully Threaded"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848340.9000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "precision lead screws and nut",
+    "kind": "fastener"
+  },
+  "queries": {
+    "primary": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=1%2F4%22-20+x+3+ft.+precision+lead+screws+and+nut+1018+Low-Carbon+Steel",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%2F4%22-20%20x%203%20ft.%20precision%20lead%20screws%20and%20nut%201018%20Low-Carbon%20Steel",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1%2F4%22-20+x+3+ft.+precision+lead+screws+and+nut+1018+Low-Carbon+Steel",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Catalog-Tabs",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=1%2F4%22-20+x+3+ft.+precision+lead+screws+and+nut+1018+Low-Carbon+Steel",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/w/wholesale-1-4-20-x-3-ft-precision-lead-screws-and-nut-1018-low-carbon-steel.html",
+      "query": "1/4\"-20 x 3 ft. precision lead screws and nut 1018 Low-Carbon Steel",
+      "verified": "renders"
+    }
+  ],
+  "error": null
+}

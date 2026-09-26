@@ -1,0 +1,229 @@
+{
+  "partNumber": "2834T11",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "2834T11",
+    "title": "Threaded-Stem Swivel Caster, Low-Profile, 3/8\"-16 Thread, 1-5/8\" Diameter 80A Rubber Wheel",
+    "family": "Casters",
+    "categoryPath": [
+      "Material Handling",
+      "Casters and Wheels",
+      "Casters",
+      "Low-Profile Threaded-Stem Casters with Rubber Wheels"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Stem Thread Size",
+        "value": "3/8\"-16"
+      },
+      {
+        "group": null,
+        "name": "Wheel Color",
+        "value": "Black"
+      },
+      {
+        "group": null,
+        "name": "Wheel Type",
+        "value": "Solid"
+      },
+      {
+        "group": null,
+        "name": "Hardness Rating",
+        "value": "Soft"
+      },
+      {
+        "group": null,
+        "name": "Caster Type",
+        "value": "Swivel"
+      },
+      {
+        "group": "Wheel",
+        "name": "Diameter",
+        "value": "1 5/8\""
+      },
+      {
+        "group": "Wheel",
+        "name": "Width",
+        "value": "3/4\""
+      },
+      {
+        "group": "Wheel",
+        "name": "Number of",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Mount Height",
+        "value": "2 3/16\""
+      },
+      {
+        "group": null,
+        "name": "Weight Capacity per Caster",
+        "value": "70 lb."
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Durometer 80A"
+      },
+      {
+        "group": "Stem",
+        "name": "Type",
+        "value": "Threaded"
+      },
+      {
+        "group": "Stem",
+        "name": "Shape",
+        "value": "Round"
+      },
+      {
+        "group": "Stem",
+        "name": "Length",
+        "value": "1 1/2\""
+      },
+      {
+        "group": "Wheel Bearing",
+        "name": "Type",
+        "value": "Plain"
+      },
+      {
+        "group": "Wheel Bearing",
+        "name": "Material",
+        "value": "Acetal"
+      },
+      {
+        "group": "Wheel Bearing",
+        "name": "Seal Type",
+        "value": "Open"
+      },
+      {
+        "group": "Wheel Bearing",
+        "name": "Plain Type",
+        "value": "Flanged Sleeve"
+      },
+      {
+        "group": "Frame",
+        "name": "Fabrication",
+        "value": "Stamped"
+      },
+      {
+        "group": "Frame",
+        "name": "Material",
+        "value": "Zinc-Plated Steel"
+      },
+      {
+        "group": null,
+        "name": "Swivel Bearing Type",
+        "value": "Without Bearing"
+      },
+      {
+        "group": null,
+        "name": "Caster Swivel Construction",
+        "value": "Kingpin"
+      },
+      {
+        "group": null,
+        "name": "For Surface Type",
+        "value": "Asphalt, Brick, Concrete, Hardwood, Linoleum, Steel, Tile"
+      },
+      {
+        "group": null,
+        "name": "Mount Type",
+        "value": "Stem"
+      },
+      {
+        "group": null,
+        "name": "Nonmarking Wheels",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Tread Style",
+        "value": "Flat"
+      },
+      {
+        "group": null,
+        "name": "Wheel/Tread Material",
+        "value": "Rubber"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "China"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "830220.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "caster round",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "1 5/8\" 3/4\" caster round",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=1+caster+round",
+      "query": "1 caster round",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=1+caster+round",
+      "query": "1 caster round",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1+5%2F8%22+3%2F4%22+caster+round",
+      "query": "1 5/8\" 3/4\" caster round",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%205%2F8%22%203%2F4%22%20caster%20round",
+      "query": "1 5/8\" 3/4\" caster round",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=1%20caster%20round",
+      "query": "1 caster round",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}
