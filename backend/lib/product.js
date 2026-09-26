@@ -259,8 +259,36 @@ const KIND_RULES = [
   { kind: "sealing", test: (p) => p.some((s) => /\bseal|o-ring|gasket/.test(s)) },
   { kind: "fitting", test: (p) => p.some((s) => /fitting|nipple|coupling|valve|adapter/.test(s)) },
   { kind: "rawstock", test: (p) => p.some((s) => s.includes("raw material")) },
-  { kind: "fastener", test: (p) => p.some((s) => /screw|bolt|rivet|anchor|\bstud\b|fastening/.test(s)) },
 ];
+
+// Screws/bolts/rivets/anchors/studs named in a *specific* breadcrumb
+// segment ("Screws and Bolts", "Blind Rivets") really are a fastener no
+// matter what else the record says. The catch-all top-level category
+// ("Fastening and Joining"), though, also files pins, retaining rings and
+// springs that are not threaded fasteners at all -- so a match on that
+// bare top-level segment alone (whether it's the word "fastening" or one
+// of the keywords themselves sitting at the top) only counts once the
+// record shows an actual threaded-fastener signal. Otherwise a dowel pin
+// or an extension spring, both filed under "Fastening and Joining", would
+// be classified "fastener" and run through fastenerQuery, which only
+// knows to read Thread Size/Length/Material -- dropping the pin's
+// diameter or the spring's wire/OD/free-length entirely.
+const FASTENER_KEYWORD_RE = /screw|bolt|rivet|anchor|\bstud\b/;
+
+function hasThreadedFastenerSignal(product) {
+  return Boolean(
+    product.byName("Thread Size") ||
+    product.byName("Size", "Thread") ||
+    product.byName("Fastener Head Type") ||
+    product.byName("Head Type")
+  );
+}
+
+function isFastenerCategory(path, product) {
+  if (path.slice(1).some((s) => FASTENER_KEYWORD_RE.test(s))) return true;
+  const topLevelMatch = path.some((s) => FASTENER_KEYWORD_RE.test(s) || s.includes("fastening"));
+  return topLevelMatch && hasThreadedFastenerSignal(product);
+}
 
 /**
  * Structural fallback for a record with a thin or missing breadcrumb trail
@@ -274,7 +302,10 @@ function classifyKindFromAttributes(product) {
   if (product.byName("Nut Type")) return "nut";
   if (product.byName("For Screw Size") || product.byName("Screw Size")) return "washer";
   if (product.byName("Thread Size") || product.byName("Size", "Thread")) return "fastener";
-  if (product.byName("Bore") || product.byName("Bearing Type")) return "bearing";
+  // "For Shaft Diameter" is what McMaster calls a shaft collar's bore --
+  // a distinct field name from "Bore", but the same kind of part (a
+  // bore-and-OD size, no thread), so it gets routed the same way.
+  if (product.byName("Bore") || product.byName("Bearing Type") || product.byName("For Shaft Diameter")) return "bearing";
   if (product.byName("Shape")) return "rawstock";
   return "other";
 }
@@ -284,6 +315,7 @@ function classifyKind(product) {
   for (const rule of KIND_RULES) {
     if (rule.test(path)) return rule.kind;
   }
+  if (isFastenerCategory(path, product)) return "fastener";
   return classifyKindFromAttributes(product);
 }
 
@@ -475,6 +507,31 @@ function normalizeLength(value) {
 
 const joinTerms = (parts) => parts.filter((p) => p != null && String(p).trim() !== "").join(" ").trim();
 
+// baseNoun sometimes prefers the more specific breadcrumb leaf precisely
+// because it already carries the material ("Steel Socket Head Screws" over
+// the family "Socket Head Screws"), and a headless fastener's own family
+// name is often just the material-and-shape phrase itself ("316 Stainless
+// Steel Threaded Rod"). Appending Material (or Finish/Grade) again after a
+// noun like that would duplicate it in the query text. Every per-kind
+// builder runs its material/finish/grade terms through this right before
+// joining them in, so a term already spelled out in the noun is dropped.
+function dedupeAgainstNoun(noun, ...terms) {
+  const nounLower = lc(noun);
+  return terms.map((t) => {
+    const clean = t == null ? "" : String(t).trim();
+    return clean && nounLower.includes(lc(clean)) ? null : t;
+  });
+}
+
+// A trade/catalog number (a ball bearing's "6203", a roller chain's ANSI
+// "40") sometimes only appears in the page's title text, not a labeled
+// spec row -- McMaster's title is the trade name and spells it out
+// directly ("6203 Two-Shield Ball Bearing").
+function findFirstMatch(text, re) {
+  const m = String(text || "").match(re);
+  return m ? m[1] : null;
+}
+
 /**
  * The first word in a material string that carries a digit and is not
  * itself part of the family name -- "52100" out of "52100 Alloy Steel"
@@ -513,9 +570,12 @@ function fastenerQuery(product, noun) {
   const finish = product.byName("Finish") || derivedFinish;
   const grade = product.byName("Grade") || materialGrade;
 
-  const size = joinTerms([threadSize, length && `x ${length}`]);
-  const primary = joinTerms([size, noun, material, finish, grade]);
-  const alternates = [joinTerms([size, noun, material])];
+  // "x" only belongs between two dimensions -- with no thread size to
+  // join it to, a bare length is not "x 1"", it's just "1"".
+  const size = joinTerms([threadSize, length && (threadSize ? `x ${length}` : length)]);
+  const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
+  const primary = joinTerms([size, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
+  const alternates = [joinTerms([size, noun, dedupeAgainstNoun(noun, material)[0]])];
   return {
     primary,
     alternates,
@@ -530,8 +590,9 @@ function nutQuery(product, noun) {
   const { material, finish: derivedFinish, grade } = splitMaterial(materialRaw);
   const finish = product.byName("Finish") || derivedFinish;
 
-  const primary = joinTerms([threadSize, noun, material, finish, grade]);
-  const alternates = [joinTerms([threadSize, noun, material])];
+  const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
+  const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
+  const alternates = [joinTerms([threadSize, noun, dedupeAgainstNoun(noun, material)[0]])];
   return { primary, alternates, terms: { noun, threadSize, material, finish, grade } };
 }
 
@@ -542,8 +603,9 @@ function washerQuery(product, noun) {
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
   const finish = product.byName("Finish") || derivedFinish;
 
-  const primary = joinTerms([screwSize, noun, material, finish]);
-  const alternates = [joinTerms([screwSize, noun, material])];
+  const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
+  const primary = joinTerms([screwSize, noun, dedupedMaterial, dedupedFinish]);
+  const alternates = [joinTerms([screwSize, noun, dedupeAgainstNoun(noun, material)[0]])];
   return { primary, alternates, terms: { noun, screwSize, material, finish } };
 }
 
@@ -553,17 +615,32 @@ function rawstockQuery(product, noun) {
   const diameter = product.byName("Diameter");
   const thickness = product.byName("Thickness");
   const width = product.byName("Width");
+  const od = product.byName("OD") || product.byName("Outside Diameter");
+  const insideDiameter = product.byName("ID") || product.byName("Inside Diameter");
+  const wallThickness = product.byName("Wall Thickness");
   // Deliberately no Length: McMaster's is the length of the stick it
   // ships ("6 ft."), while a metal supplier cuts to order, so carrying it
   // over narrows the search with a number that means something else on
   // the other site (see lib/specs.js buildQuery's rawstock branch).
-  const dims = [diameter, thickness, width].filter(Boolean);
+  //
+  // Round/square bar and sheet stock carry Diameter/Thickness/Width; tube
+  // and pipe stock instead carry OD (plus ID and/or Wall Thickness) -- a
+  // size prefix on the noun either way, joined with "x" the same way a
+  // fastener's thread size and length are ("1" OD x 0.065" wall ...").
+  const tubeDims = [od && `${od} OD`, insideDiameter && `${insideDiameter} ID`, wallThickness && `${wallThickness} wall`]
+    .filter(Boolean);
+  const dims = tubeDims.length ? [tubeDims.join(" x ")] : [diameter, thickness, width].filter(Boolean);
 
-  const primary = joinTerms([...dims, grade, noun]);
+  const [dedupedGrade] = dedupeAgainstNoun(noun, grade);
+  const primary = joinTerms([...dims, dedupedGrade, noun]);
   const alternates = [joinTerms([...dims, noun])];
   const aka = findAka(product.copies);
   if (aka) alternates.push(joinTerms([...dims, aka, noun.replace(/^\S+\s*/, "")]));
-  return { primary, alternates, terms: { noun, grade, diameter, thickness, width, material: materialRaw || null } };
+  return {
+    primary,
+    alternates,
+    terms: { noun, grade, diameter, thickness, width, od, insideDiameter, wallThickness, material: materialRaw || null },
+  };
 }
 
 function sealingQuery(product, noun) {
@@ -574,7 +651,8 @@ function sealingQuery(product, noun) {
   const durometer = product.byName("Durometer") || product.byName("Hardness");
 
   const size = joinTerms([insideDiameter && `${insideDiameter} ID`, width && `${width} wide`]);
-  const primary = joinTerms([size, noun, material, durometer]);
+  const [dedupedMaterial] = dedupeAgainstNoun(noun, material);
+  const primary = joinTerms([size, noun, dedupedMaterial, durometer]);
   const alternates = [joinTerms([size, noun])];
   return { primary, alternates, terms: { noun, insideDiameter, width, material, durometer } };
 }
@@ -585,11 +663,29 @@ function bearingQuery(product, noun) {
   const width = product.byName("Width");
   const materialRaw = product.byName("Material");
   const { material } = splitMaterial(materialRaw);
+  const [dedupedMaterial] = dedupeAgainstNoun(noun, material);
 
   const size = joinTerms([bore && `${bore} bore`, od && `${od} OD`, width && `${width} wide`]);
-  const primary = joinTerms([size, noun, material]);
+  const sizeForm = joinTerms([size, noun, dedupedMaterial]);
+
+  // A ball bearing's own trade/catalog number ("Trade Number"/"Bearing
+  // Number", or a bare 4-5 digit token in the title -- "6203 Two-Shield
+  // Ball Bearing") is how a distributor actually indexes it; bore/OD/
+  // width is offered as the fallback (and stays the primary for anything
+  // that isn't a ball bearing, or has no trade number of its own -- a
+  // shaft collar's bore, routed here the same way, has no trade number).
+  const tradeNumber =
+    product.byName("Trade Number") ||
+    product.byName("Bearing Number") ||
+    findFirstMatch(product.title, /\b(\d{4,5})\b/);
+  if (tradeNumber && /ball bearing/.test(lc(noun))) {
+    const primary = joinTerms([tradeNumber, "ball bearing"]);
+    const alternates = [sizeForm];
+    return { primary, alternates, terms: { noun, bore, od, width, material, tradeNumber } };
+  }
+
   const alternates = [joinTerms([size, noun])];
-  return { primary, alternates, terms: { noun, bore, od, width, material } };
+  return { primary: sizeForm, alternates, terms: { noun, bore, od, width, material } };
 }
 
 function fittingQuery(product, noun) {
@@ -600,35 +696,68 @@ function fittingQuery(product, noun) {
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
   const finish = product.byName("Finish") || derivedFinish;
 
-  const primary = joinTerms([threadSize, noun, material, finish]);
+  const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
+  const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish]);
   const alternates = [joinTerms([threadSize, noun])];
   return { primary, alternates, terms: { noun, threadSize, material, finish } };
 }
 
-// Bearings, springs, dowel pins, and anything else that doesn't fit one of
-// the named buckets above. Inside diameter, wire diameter and free length
-// are each some part's defining spec, so all are offered and simply left
-// out (via joinTerms) when the attribute isn't there.
+// Springs, dowel pins, roller chain, and anything else that doesn't fit
+// one of the named buckets above. Inside diameter, wire diameter and free
+// length are each some part's defining spec, so all are offered and
+// simply left out (via joinTerms) when the attribute isn't there.
 function otherQuery(product, noun) {
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
   const finish = product.byName("Finish") || derivedFinish;
 
+  // Roller chain's own ANSI chain number ("ANSI Number"/"Chain Number"/
+  // "Chain Size", or a "#40"-style token in the title when McMaster
+  // doesn't break it out as its own field) is the identifier a supplier
+  // catalog is actually built around, so it leads the query rather than
+  // trailing the noun the way every other "other"-kind part's size does.
+  const chainNumberRaw =
+    product.byName("ANSI Number") || product.byName("Chain Number") || product.byName("Chain Size");
+  const chainNumberFromTitle = chainNumberRaw ? null : findFirstMatch(product.title, /#\s*(\d{1,4})\b/);
+  const chainNumber = chainNumberRaw
+    ? (/^\d+$/.test(String(chainNumberRaw).trim()) ? `#${String(chainNumberRaw).trim()}` : String(chainNumberRaw).trim())
+    : chainNumberFromTitle && `#${chainNumberFromTitle}`;
+  if (chainNumber && /chain/.test(lc(noun))) {
+    const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
+    const primary = joinTerms([chainNumber, noun, dedupedMaterial, dedupedFinish]);
+    const alternates = [joinTerms([noun, dedupeAgainstNoun(noun, material)[0]])];
+    return { primary, alternates, terms: { noun, material, finish, chainNumber } };
+  }
+
   const wireDiameter = product.byName("Wire Diameter");
   const od = product.byName("OD") || product.byName("Outside Diameter");
   const insideDiameter = product.byName("Inside Diameter") || product.byName("ID");
   const diameter = product.byName("Diameter");
-  const freeLength = product.byName("Free Length") || product.byName("Overall Length") || product.byName("Length");
+  const length = product.byName("Length");
+  const freeLength = product.byName("Free Length") || product.byName("Overall Length");
+
+  // A plain diameter + length part -- a dowel/cotter/clevis/taper pin, or
+  // anything else here with no wire/OD/ID spec of its own -- reads as a
+  // catalog size prefix, "1/4" x 1"", the same "size, noun, material"
+  // order every other per-kind builder uses (not the material-first,
+  // dims-after phrasing a spring's wire/OD/free-length reads as below).
+  if (!wireDiameter && !od && !insideDiameter && (diameter || length)) {
+    const size = joinTerms([diameter, length && (diameter ? `x ${length}` : length)]);
+    const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
+    const primary = joinTerms([size, noun, dedupedMaterial, dedupedFinish]);
+    const alternates = [joinTerms([size, noun])];
+    return { primary, alternates, terms: { noun, material, finish, diameter, length } };
+  }
 
   const dims = [
     wireDiameter && `${wireDiameter} wire`,
     od && `${od} OD`,
     insideDiameter && `${insideDiameter} ID`,
-    !wireDiameter && !od && !insideDiameter ? diameter : null,
-    freeLength,
+    freeLength || length,
   ].filter(Boolean);
 
-  const primary = joinTerms([material, noun, ...dims, finish]);
+  const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
+  const primary = joinTerms([dedupedMaterial, noun, ...dims, dedupedFinish]);
   const alternates = [joinTerms([noun, ...dims])];
   return { primary, alternates, terms: { noun, material, finish, wireDiameter, od, insideDiameter, diameter, freeLength } };
 }

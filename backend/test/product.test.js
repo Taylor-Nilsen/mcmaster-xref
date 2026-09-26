@@ -339,6 +339,265 @@ test("synthetic: compression spring -- falls through to the generic 'other' kind
   assert.match(primary, /0\.035" wire/);
 });
 
+test("synthetic: dowel pin under 'Fastening and Joining' -- 'other' kind, not fastener; keeps its diameter", () => {
+  const product = parseProductRecord(
+    record({
+      part: "90145A123",
+      title: 'Alloy Steel Dowel Pin, 1/4" Diameter, 1" Length',
+      family: "Dowel Pins",
+      breadcrumbs: [
+        crumb("Fastening and Joining", "product-category"),
+        crumb("Pins", "product-line-1"),
+        crumb("Dowel Pins", "product-family"),
+      ],
+      entries: [
+        specRow("Diameter", '1/4"', false),
+        specRow("Length", '1"', false),
+        specRow("Material", "Alloy Steel", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  // Before the fix, the bare top-level "Fastening and Joining" segment
+  // matched the fastener keyword regex on its own, so this classified as
+  // "fastener" and went through fastenerQuery -- which only reads Thread
+  // Size/Length/Material, dropping the pin's diameter and leaving a
+  // stray leading "x" ("x 1" dowel pin Alloy Steel").
+  assert.equal(kind, "other");
+  assert.equal(noun, "dowel pin");
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /^1\/4" x 1" dowel pin/i);
+  assert.match(primary, /alloy steel/i);
+  assert.ok(!/^x /i.test(primary), `expected no stray leading "x", got ${JSON.stringify(primary)}`);
+});
+
+test("synthetic: extension spring under 'Fastening and Joining' -- 'other' kind, keeps wire/OD/free length", () => {
+  const product = parseProductRecord(
+    record({
+      part: "9662K25",
+      title: 'Music Wire Extension Spring, 3/8" OD, 2" Long',
+      family: "Extension Springs",
+      breadcrumbs: [
+        crumb("Fastening and Joining", "product-category"),
+        crumb("Springs", "product-line-1"),
+        crumb("Extension Springs", "product-family"),
+      ],
+      entries: [
+        specRow("Wire Diameter", '0.035"', false),
+        specRow("OD", '3/8"', false),
+        specRow("Free Length", '2"', false),
+        specRow("Material", "Music Wire", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  // Before the fix this also misclassified as "fastener" off the bare
+  // "Fastening and Joining" segment and lost every dimension --
+  // fastenerQuery has no idea what "Wire Diameter"/"OD"/"Free Length" are.
+  assert.equal(kind, "other");
+  assert.equal(noun, "extension spring");
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /extension spring/i);
+  assert.match(primary, /0\.035" wire/);
+  assert.match(primary, /3\/8" OD/);
+  assert.match(primary, /2"/);
+});
+
+test("synthetic: fastenerQuery has no stray leading 'x' when thread size is missing but length is present", () => {
+  const product = parseProductRecord(
+    record({
+      part: "91257A123",
+      title: 'Steel Hex Bolt, 2" Long',
+      family: "Hex Bolts",
+      breadcrumbs: [
+        crumb("Fastening and Joining", "product-category"),
+        crumb("Screws and Bolts", "product-line-2"),
+        crumb("Hex Bolts", "product-family"),
+      ],
+      entries: [specRow("Length", '2"', false), specRow("Material", "Steel", false)],
+    })
+  );
+
+  const { kind } = classifyProduct(product);
+  // "Screws and Bolts" is a non-first breadcrumb segment naming bolts, so
+  // this is a fastener even with no thread-size signal at all.
+  assert.equal(kind, "fastener");
+
+  const { primary, terms } = buildQueries(product);
+  assert.equal(terms.threadSize, null);
+  assert.equal(terms.length, '2"');
+  assert.ok(!/^x\b/i.test(primary), `expected no stray leading "x", got ${JSON.stringify(primary)}`);
+  assert.match(primary, /^2" hex bolt/i);
+});
+
+test("synthetic: headless fastener -- Material is not appended when the noun already spells it out", () => {
+  const product = parseProductRecord(
+    record({
+      part: "98750A031",
+      title: '316 Stainless Steel Threaded Rod, 1/2"-13 Thread Size, 3 feet Long',
+      family: "Threaded Rods",
+      breadcrumbs: [
+        crumb("Fastening and Joining", "product-category"),
+        crumb("Screws and Bolts", "product-line-2"),
+        crumb("Threaded Rods", "product-family"),
+        crumb("316 Stainless Steel Threaded Rods", "presentation"),
+      ],
+      entries: [
+        groupHeader("Thread"),
+        specRow("Size", '1/2"-13', true),
+        specRow("Length", "3 feet", false),
+        specRow("Material", "316 Stainless Steel", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "316 stainless steel threaded rod");
+
+  const { primary } = buildQueries(product);
+  // Before the fix: '1/2"-13 x 3 feet 316 stainless steel threaded rod
+  // 316 Stainless Steel' -- the material duplicated because the noun
+  // itself (chosen from the more specific breadcrumb leaf) already
+  // carries it.
+  const materialMatches = primary.match(/316 stainless steel/gi) || [];
+  assert.equal(materialMatches.length, 1, `expected "316 stainless steel" once, got ${JSON.stringify(primary)}`);
+});
+
+test("synthetic: 304 stainless round tube -- rawstock keeps OD and wall thickness", () => {
+  const product = parseProductRecord(
+    record({
+      part: "89785K21",
+      title: '304 Stainless Steel Round Tube, 1" OD, 0.065" Wall Thickness, 6 feet Long',
+      family: "Stainless Steel",
+      breadcrumbs: [
+        crumb("Raw Materials", "product-category"),
+        crumb("Metals", "product-line-1"),
+        crumb("Stainless Steel", "product-family"),
+        crumb("Stainless Steel Round Tubes", "presentation"),
+      ],
+      entries: [
+        specRow("Material", "304 Stainless Steel", false),
+        specRow("Shape", "Round Tube", false),
+        specRow("OD", '1"', false),
+        specRow("Wall Thickness", '0.065"', false),
+        specRow("Length", "6 feet", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "rawstock");
+  assert.equal(noun, "stainless steel round tube");
+
+  const { primary } = buildQueries(product);
+  // Before the fix, rawstockQuery only read Diameter/Thickness/Width, so
+  // this lost its size entirely: '304 stainless steel round tube'.
+  assert.equal(primary, '1" OD x 0.065" wall 304 stainless steel round tube');
+});
+
+test("synthetic: shaft collar -- routed to bearing kind, bore comes before the OD", () => {
+  const product = parseProductRecord(
+    record({
+      part: "6432K11",
+      title: 'One-Piece Clamping Shaft Collar, 1/2" For Shaft Diameter, 1" OD',
+      family: "Shaft Collars",
+      breadcrumbs: [
+        crumb("Power Transmission", "product-category"),
+        crumb("Shaft Collars", "product-line-1"),
+      ],
+      entries: [
+        specRow("For Shaft Diameter", '1/2"', false),
+        specRow("OD", '1"', false),
+        specRow("Material", "Steel", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "bearing");
+  assert.equal(noun, "shaft collar");
+
+  const { primary } = buildQueries(product);
+  const boreIndex = primary.indexOf('1/2"');
+  const odIndex = primary.indexOf('1" OD');
+  assert.ok(boreIndex !== -1 && odIndex !== -1 && boreIndex < odIndex, `expected bore before OD, got ${JSON.stringify(primary)}`);
+});
+
+test("synthetic: roller chain -- ANSI chain number leads the query, from a labeled attribute", () => {
+  const product = parseProductRecord(
+    record({
+      part: "6261K17",
+      title: 'Steel Roller Chain, ANSI 40',
+      family: "Roller Chain",
+      breadcrumbs: [
+        crumb("Power Transmission", "product-category"),
+        crumb("Chain, Sprockets, and Accessories", "product-line-1"),
+        crumb("Roller Chain", "product-family"),
+      ],
+      entries: [specRow("Chain Number", "40", false), specRow("Material", "Steel", false)],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "other");
+  assert.equal(noun, "roller chain");
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /^#40 roller chain/);
+});
+
+test("synthetic: roller chain -- ANSI chain number leads the query, recovered from the title", () => {
+  const product = parseProductRecord(
+    record({
+      part: "6261K18",
+      title: 'Steel Roller Chain, #50',
+      family: "Roller Chain",
+      breadcrumbs: [
+        crumb("Power Transmission", "product-category"),
+        crumb("Chain, Sprockets, and Accessories", "product-line-1"),
+        crumb("Roller Chain", "product-family"),
+      ],
+      entries: [specRow("Material", "Steel", false)],
+    })
+  );
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /^#50 roller chain/);
+});
+
+test("synthetic: ball bearing -- leads with its trade number when the title has one, bore/OD/width as an alternate", () => {
+  const product = parseProductRecord(
+    record({
+      part: "60355K33",
+      title: '6203 Two-Shield Ball Bearing, 1/2" Bore, 1-1/8" OD',
+      family: "Ball Bearings",
+      breadcrumbs: [crumb("Bearings", "product-category"), crumb("Ball Bearings", "product-family")],
+      entries: [
+        specRow("Bore", '1/2"', false),
+        specRow("OD", "1-1/8\"", false),
+        specRow("Width", '5/16"', false),
+        specRow("Material", "440C Stainless Steel", false),
+      ],
+    })
+  );
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "bearing");
+  assert.equal(noun, "ball bearing");
+
+  const { primary, alternates } = buildQueries(product);
+  assert.equal(primary, "6203 ball bearing");
+  assert.ok(
+    alternates.some((a) => /1\/2" bore/.test(a) && /1-1\/8" OD/.test(a)),
+    `expected a bore/OD alternate, got ${JSON.stringify(alternates)}`
+  );
+});
+
 // ---------------------------------------------------------------------------
 // Small unit checks on the standalone helpers
 // ---------------------------------------------------------------------------
