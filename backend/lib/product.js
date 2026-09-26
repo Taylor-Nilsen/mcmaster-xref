@@ -56,12 +56,20 @@
  * bar"), not as a trailing modifier, so its query keeps that order.
  *
  * `buildSupplierLinks` reuses the exact search URL formats already
- * verified (in a browser, not from this sandbox -- see lib/specs.js for
- * why a datacenter fetch cannot check most of these) for the suppliers
- * lib/specs.js already carries, and adds a small number of new ones the
- * caller asked for by name (Banggood, Zoro, Online Metals) using their
- * documented/well-known search URL shape -- flagged in comments below as
- * unverified from here, same as every fastener-supplier link already was.
+ * verified for the suppliers lib/specs.js already carries, and adds a
+ * small number of new ones the caller asked for by name (Zoro, Online
+ * Metals) using their documented/well-known search URL shape. Every
+ * returned link also carries `verified`: "renders" for a supplier a real
+ * headless-Chromium check (backend/scripts/check-supplier-links.js,
+ * evidence in backend/test/fixtures/suppliers/results.json) confirmed
+ * actually answers a server from this sandbox with a results page
+ * (AliExpress, Speedy Metals, Metal Supermarkets), or "browser-only" for
+ * the seven that wall every datacenter-IP request outright (Fastenal,
+ * Grainger, MSC, Bolt Depot, Amazon, Online Metals, Zoro) -- neither label
+ * says the results themselves are good, only whether the page loads at
+ * all for a checker; only a person's own browser can judge the match. A
+ * link may also carry `note` (currently just Metal Supermarkets: its
+ * search is a category page until a store is picked, not per-SKU prices).
  */
 
 // ---------------------------------------------------------------------------
@@ -935,49 +943,103 @@ function buildQueries(product) {
 // buildSupplierLinks
 // ---------------------------------------------------------------------------
 
+// A slug is a single path segment (AliExpress's canonical
+// /w/wholesale-<slug>.html, see aliExpressWholesaleUrl below), so anything
+// that isn't a letter, digit, existing hyphen or whitespace has to go, and
+// a literal "/" from a fraction ("1/4") is turned into a hyphen rather than
+// dropped, or it reads as extra path segments and breaks the URL entirely
+// (this is the exact bug that made the old
+// /wholesale?SearchText=...1%2F4... path 301-redirect into a
+// double-encoded, edge-rejected URL -- see aliExpressWholesaleUrl).
+function toSlug(query) {
+  return String(query)
+    .trim()
+    .toLowerCase()
+    .replace(/"/g, "")
+    .replace(/[^a-z0-9/\s-]/g, "")
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function applyTemplate(urlTemplate, query) {
   const encoded = encodeURIComponent(query);
   const plus = encoded.replace(/%20/g, "+");
-  // A slug is a single path segment (Banggood's /search/<slug>.html), so a
-  // literal "/" from a fraction ("1/4") has to go too, or it reads as
-  // extra path segments and breaks the URL entirely.
-  const slug = String(query)
-    .trim()
-    .toLowerCase()
-    .replace(/["]/g, "")
-    .replace(/\//g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/-{2,}/g, "-");
+  const slug = toSlug(query);
   return urlTemplate.replace("{plus}", plus).replace("{q}", encoded).replace("{slug}", slug);
+}
+
+// AliExpress's own /wholesale?SearchText=<query> path 301-redirects to this
+// exact canonical form (https://www.aliexpress.com/w/wholesale-<slug>.html)
+// for a query with no "/" in it -- but a query built from an inch fraction
+// ("1/4\"-20 x 3/4\" socket head cap screw...") has a literal "/", and
+// AliExpress's own redirect double-encodes it into "%252F" (and the "-" in
+// "1/4"-20" into a triple-encoded "%2525252d"), which its edge then rejects
+// outright ("request rejected: path contains encoded separator") -- see
+// backend/test/fixtures/suppliers/AliExpress-91251A540.txt. Building the
+// canonical slug URL directly, the way AliExpress's own redirect would if it
+// didn't mangle the slash, skips that broken redirect entirely. Verified in
+// a real Chromium browser (Playwright, this sandbox's proxy) against the
+// 91251A540 fixture query on 26 Sep 2026: renders a normal results page,
+// not a rejection -- see backend/test/fixtures/suppliers/results.json /
+// AliExpress-91251A540-canonical-slug.txt.
+function aliExpressWholesaleUrl(query) {
+  return `https://www.aliexpress.com/w/wholesale-${toSlug(query)}.html`;
 }
 
 // Drops the dimension tokens from a query: anything carrying a digit and
 // ending in an inch mark ('3/8"', '0.063"'). A cut-to-order stock house
 // indexes by material, grade and form, not by a size it sells as an
-// option, so those are all that's left. Ported from lib/specs.js.
+// option -- but stripping just the numbers leaves the unit word that was
+// attached to them dangling on its own ('1" OD x 0.065" wall 304 stainless
+// steel round tube' -> 'OD wall 304 stainless steel round tube', not
+// '304 stainless steel round tube'). Every dimension label the query
+// builders above ever attach a number to (OD/ID/wall/bore/dia/wide/
+// thick/long) is stripped too, along with any "x" a dimension pairing left
+// stranded (single or repeated, from a tube's OD x ID x wall chain).
+// Ported from lib/specs.js, plus the dangling-word cleanup.
+const DANGLING_UNIT_WORDS_RE = /\b(od|id|wall|long|thick|wide|dia|bore)\b/gi;
+
 function stripDimensions(query) {
   return String(query || "")
     .replace(/\S*[0-9][^\s]*"/g, "")
+    .replace(DANGLING_UNIT_WORDS_RE, "")
     .replace(/(^|\s)x(?=\s|$)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-// Same URL formats as lib/specs.js FASTENER_SUPPLIERS (measured 20 Sep
-// 2026 by opening each search in a real browser -- see that file for why a
-// datacenter fetch can't confirm them). Banggood is new here: its search
-// page takes the query as a hyphenated path segment
-// (https://www.banggood.com/search/hex-nut.html), which is the documented/
-// observed shape of its storefront search, not something checked from this
-// sandbox -- same caveat as every other supplier in this list already
-// carries.
+// Every supplier link now carries a `verified` field, set from a real
+// check.result (backend/scripts/check-supplier-links.js against real
+// Chromium, evidence in backend/test/fixtures/suppliers/results.json,
+// measured 26 Sep 2026):
+//   "renders" -- answers a server from this sandbox with an actual results
+//     page (AliExpress via aliExpressWholesaleUrl, Speedy Metals, Metal
+//     Supermarkets).
+//   "browser-only" -- walls every request from a datacenter IP (403/bot
+//     page/challenge) regardless of query, confirmed on each supplier's
+//     bare homepage too (an "IP-level check" job in results.json), so only
+//     a person's own browser can tell whether the search actually matches.
+// Neither label claims the *results* were judged good -- only whether the
+// page itself loads for a checker at all. See the frontend's own line
+// under the supplier list, and README.md.
 const FASTENER_SUPPLIERS = [
-  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}" },
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
-  { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
-  { name: "Banggood", urlTemplate: "https://www.banggood.com/search/{slug}.html" },
+  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}", verified: "browser-only" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}", verified: "browser-only" },
+  // `build` (a query -> full URL function) takes priority over urlTemplate
+  // in buildSupplierLinks -- AliExpress's own canonical slug URL
+  // (aliExpressWholesaleUrl), not the /wholesale?SearchText= path that
+  // 301-redirects into a broken double-encoded one for any query with a
+  // "/" in it. Banggood, which used to be here, is gone: it returned zero
+  // results for every fastener query this tool ever generated, including
+  // a bare size+noun with nothing else to trip up its matcher
+  // (backend/test/fixtures/suppliers/results.json, e.g.
+  // Banggood-91251A540-wording-bare.txt), so it was never a usable link in
+  // the first place.
+  { name: "AliExpress", build: aliExpressWholesaleUrl, verified: "renders" },
 ];
 
 // lib/specs.js RAW_STOCK_SUPPLIERS, plus Online Metals. lib/specs.js
@@ -989,11 +1051,25 @@ const FASTENER_SUPPLIERS = [
 // on request, flagged as unverified rather than left with a guessed path
 // known to be wrong.
 const RAW_STOCK_SUPPLIERS = [
-  { name: "Speedy Metals", urlTemplate: "https://www.speedymetals.com/search.aspx?SearchTerm={plus}", dimensionless: true },
-  { name: "Metal Supermarkets", urlTemplate: "https://www.metalsupermarkets.com/?s={plus}", dimensionless: true },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?q={q}", dimensionless: true },
+  {
+    name: "Speedy Metals",
+    urlTemplate: "https://www.speedymetals.com/search.aspx?SearchTerm={plus}",
+    dimensionless: true,
+    verified: "renders",
+    // See speedyMetalsQuery below -- its own wording, not the shared
+    // dimensionless-stripped primary query.
+    buildQuery: speedyMetalsQuery,
+  },
+  {
+    name: "Metal Supermarkets",
+    urlTemplate: "https://www.metalsupermarkets.com/?s={plus}",
+    dimensionless: true,
+    verified: "renders",
+    note: "category page; pick a store for prices",
+  },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?q={q}", dimensionless: true, verified: "browser-only" },
 ];
 
 // Everything that is neither threaded hardware nor a length of metal --
@@ -1002,11 +1078,43 @@ const RAW_STOCK_SUPPLIERS = [
 // consistent with how the rest of its site is structured) alongside the
 // MRO_SUPPLIERS lib/specs.js already used.
 const MRO_SUPPLIERS = [
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Zoro", urlTemplate: "https://www.zoro.com/search?q={q}" },
-  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Zoro", urlTemplate: "https://www.zoro.com/search?q={q}", verified: "browser-only" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}", verified: "browser-only" },
 ];
+
+// Speedy Metals' own catalog never spells out "Bar" in a product title or
+// its own Shape taxonomy -- round stock is titled/shaped "Rd", flat stock
+// "Flat" (see backend/test/fixtures/suppliers/Speedy-Metals-alum-3-*.txt,
+// -steel-3-*.txt, -steel-5-*.txt), so its search (an AND match across
+// title/material/shape) matches nothing for the exact wording
+// buildQueries/rawstockQuery produces for bar stock ("6061 aluminum round
+// bar", "1018 steel flat bar") even though it stocks 60+ matching SKUs --
+// while the same query with just the word "bar" dropped ("6061 aluminum
+// round", "1018 steel flat") matches every time. Verified in a real
+// browser (Playwright) against five wordings each for an aluminum round
+// bar, a steel flat bar and a stainless round bar on 26 Sep 2026:
+//
+//   query                          | aluminum round bar | steel flat bar | stainless round bar
+//   ------------------------------ | ------------------- | -------------- | --------------------
+//   "<material> <shape> bar"       | no match            | no match       | no match
+//   "<grade> <shape> bar"          | no match            | no match       | no match
+//   "<material> <shape>" (no bar)  | MATCH               | MATCH          | MATCH
+//   "<shape> <material> <grade>"   | no match            | no match       | no match
+//   "<grade> <material> <shape>"   | MATCH               | MATCH          | MATCH
+//
+// (exact wordings and result counts in the report; evidence in
+// backend/test/fixtures/suppliers/results.json and the Speedy-Metals-*.txt
+// files with a nonzero textLength above the ~1.3KB "no matches" page).
+// Tube stock is untouched -- "tube"/"tubing" appears in Speedy Metals'
+// actual product titles, so it is not part of this problem.
+function speedyMetalsQuery(query) {
+  return String(query || "")
+    .replace(/\bbars?\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 // Bolt Depot has no free-text search, only a filtered category browse
 // (pattern taken from real indexed URLs, e.g.
@@ -1037,7 +1145,7 @@ function boltDepotUrl(kind, terms) {
 
 /**
  * @param {Product} product
- * @returns {{supplier: string, url: string, query: string}[]}
+ * @returns {{supplier: string, url: string, query: string, verified: string, note?: string}[]}
  */
 function buildSupplierLinks(product) {
   const { kind } = classifyProduct(product);
@@ -1046,11 +1154,11 @@ function buildSupplierLinks(product) {
 
   let suppliers;
   if (kind === "fastener" || kind === "nut" || kind === "washer") {
-    // Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress, Banggood --
-    // Bolt Depot's category-browse link is spliced in after the three
+    // Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress -- Bolt
+    // Depot's category-browse link is spliced in after the three
     // free-text suppliers, same placement as lib/specs.js.
     suppliers = FASTENER_SUPPLIERS.slice(0, 3)
-      .concat([{ name: "Bolt Depot", urlTemplate: boltDepotUrl(kind, terms) }])
+      .concat([{ name: "Bolt Depot", urlTemplate: boltDepotUrl(kind, terms), verified: "browser-only" }])
       .concat(FASTENER_SUPPLIERS.slice(3));
   } else if (kind === "rawstock") {
     suppliers = RAW_STOCK_SUPPLIERS;
@@ -1059,8 +1167,16 @@ function buildSupplierLinks(product) {
   }
 
   return suppliers.map((s) => {
-    const supplierQuery = s.dimensionless ? stripDimensions(query) || query : query;
-    return { supplier: s.name, url: applyTemplate(s.urlTemplate, supplierQuery), query: supplierQuery };
+    // A supplier-specific wording rewrite (Speedy Metals' own "drop 'bar'"
+    // shape -- see speedyMetalsQuery) runs on top of, not instead of, the
+    // shared dimensionless-stripped query, so `query` on the returned link
+    // always shows exactly what was sent, whichever transforms produced it.
+    let supplierQuery = s.dimensionless ? stripDimensions(query) || query : query;
+    if (typeof s.buildQuery === "function") supplierQuery = s.buildQuery(supplierQuery, terms) || supplierQuery;
+    const url = typeof s.build === "function" ? s.build(supplierQuery) : applyTemplate(s.urlTemplate, supplierQuery);
+    const link = { supplier: s.name, url, query: supplierQuery, verified: s.verified || "browser-only" };
+    if (s.note) link.note = s.note;
+    return link;
   });
 }
 
@@ -1079,6 +1195,9 @@ const McmXref = {
   normalizeThread,
   normalizeGauge,
   normalizeScrewSizeWord,
+  toSlug,
+  aliExpressWholesaleUrl,
+  speedyMetalsQuery,
 };
 
 // Node: `require("./product")` keeps working exactly as before.

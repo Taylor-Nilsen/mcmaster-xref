@@ -31,6 +31,10 @@ const {
   normalizeThread,
   normalizeGauge,
   extractJsonObject,
+  stripDimensions,
+  toSlug,
+  aliExpressWholesaleUrl,
+  speedyMetalsQuery,
 } = require("../lib/product");
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "mcmaster");
@@ -127,7 +131,7 @@ test("buildSupplierLinks routes fasteners/nuts/washers to the fastener supplier 
   const product = loadFixture("91251A540");
   const links = buildSupplierLinks(product);
   const names = links.map((l) => l.supplier);
-  assert.deepEqual(names, ["Fastenal", "Grainger", "MSC Direct", "Bolt Depot", "Amazon", "AliExpress", "Banggood"]);
+  assert.deepEqual(names, ["Fastenal", "Grainger", "MSC Direct", "Bolt Depot", "Amazon", "AliExpress"]);
   for (const link of links) assert.match(link.url, /^https:\/\//);
   const boltDepot = links.find((l) => l.supplier === "Bolt Depot");
   assert.match(boltDepot.url, /Category=Socket_screws/);
@@ -142,6 +146,118 @@ test("buildSupplierLinks routes raw stock to the metal suppliers, dropping dimen
   assert.ok(!/3\/16/.test(speedy.query), "dimensionless supplier should have the size stripped");
   const msc = links.find((l) => l.supplier === "MSC Direct");
   assert.ok(/3\/16/.test(msc.query), "a distributor that indexes dimensions should keep them");
+});
+
+test("buildSupplierLinks: every link carries a verified field, and Metal Supermarkets carries a note", () => {
+  const fastenerLinks = buildSupplierLinks(loadFixture("91251A540"));
+  for (const link of fastenerLinks) assert.ok(link.verified, `${link.supplier} link is missing a verified field`);
+  const fastenal = fastenerLinks.find((l) => l.supplier === "Fastenal");
+  assert.equal(fastenal.verified, "browser-only");
+  const aliExpress = fastenerLinks.find((l) => l.supplier === "AliExpress");
+  assert.equal(aliExpress.verified, "renders");
+
+  const rawLinks = buildSupplierLinks(loadFixture("9528K13"));
+  const speedy = rawLinks.find((l) => l.supplier === "Speedy Metals");
+  assert.equal(speedy.verified, "renders");
+  assert.equal(speedy.note, undefined);
+  const metalSupermarkets = rawLinks.find((l) => l.supplier === "Metal Supermarkets");
+  assert.equal(metalSupermarkets.verified, "renders");
+  assert.equal(metalSupermarkets.note, "category page; pick a store for prices");
+});
+
+// ---------------------------------------------------------------------------
+// AliExpress: canonical slug URL (avoids the broken /wholesale?SearchText=
+// redirect for a query with an inch fraction -- a literal "/" gets
+// double-encoded by AliExpress's own 301 into a path its edge rejects).
+// See backend/test/fixtures/suppliers/results.json (AliExpress-91251A540
+// vs. AliExpress-91251A540-wording-decimal) for the real-browser evidence,
+// and the report for a live check of the built URL below.
+// ---------------------------------------------------------------------------
+
+test("toSlug: lowercases, drops inch marks and other punctuation, turns '/' and whitespace into '-', collapses repeats", () => {
+  assert.equal(
+    toSlug('1/4"-20 x 3/4" socket head cap screw Alloy Steel black oxide'),
+    "1-4-20-x-3-4-socket-head-cap-screw-alloy-steel-black-oxide"
+  );
+  assert.equal(toSlug("4-40 hex nut Steel Zinc-Plated"), "4-40-hex-nut-steel-zinc-plated");
+  assert.equal(toSlug('O-Ring, 1/4" ID!'), "o-ring-1-4-id");
+  assert.equal(toSlug("  extra   spaces  "), "extra-spaces");
+});
+
+test("aliExpressWholesaleUrl: builds the canonical /w/wholesale-<slug>.html form directly, no SearchText param and no literal '/'", () => {
+  const product = loadFixture("91251A540");
+  const { primary } = buildQueries(product);
+  const url = aliExpressWholesaleUrl(primary);
+  assert.equal(url, "https://www.aliexpress.com/w/wholesale-1-4-20-x-3-4-socket-head-cap-screw-alloy-steel-black-oxide.html");
+  assert.ok(!url.includes("/wholesale?SearchText="), "must not use the broken SearchText redirect path");
+  assert.equal((url.match(/\//g) || []).length, 4, "no stray '/' from the inch fraction -- only https:// and the /w/ path segment");
+});
+
+test("buildSupplierLinks: AliExpress link for a fastener with an inch fraction uses the canonical slug URL", () => {
+  const links = buildSupplierLinks(loadFixture("91251A540"));
+  const aliExpress = links.find((l) => l.supplier === "AliExpress");
+  assert.match(aliExpress.url, /^https:\/\/www\.aliexpress\.com\/w\/wholesale-[a-z0-9-]+\.html$/);
+  assert.doesNotMatch(aliExpress.url, /SearchText/);
+});
+
+// ---------------------------------------------------------------------------
+// stripDimensions: dangling unit words left behind once the numbers
+// they're attached to are stripped out.
+// ---------------------------------------------------------------------------
+
+test("stripDimensions drops dangling unit words (OD/ID/wall/bore/dia/wide/thick/long), not just the numbers", () => {
+  assert.equal(
+    stripDimensions('1" OD x 0.065" wall 304 stainless steel round tube'),
+    "304 stainless steel round tube"
+  );
+  assert.equal(stripDimensions('1/2" bore 1-1/8" OD 5/16" wide ball bearing 440C Stainless Steel'), "ball bearing 440C Stainless Steel");
+  assert.equal(stripDimensions('3/16" dia steel rod'), "steel rod");
+  assert.equal(stripDimensions('2" long dowel pin'), "dowel pin");
+  assert.equal(stripDimensions('1/8" thick gasket material'), "gasket material");
+});
+
+// ---------------------------------------------------------------------------
+// Speedy Metals: dropping "bar" from the wording (its own catalog never
+// spells it out -- see the report for the real-browser check across an
+// aluminum round bar, a steel flat bar and a stainless round bar).
+// ---------------------------------------------------------------------------
+
+test("speedyMetalsQuery drops 'bar' but leaves everything else (including 'tube') alone", () => {
+  assert.equal(speedyMetalsQuery("6061 aluminum round bar"), "6061 aluminum round");
+  assert.equal(speedyMetalsQuery("1018 steel flat bar"), "1018 steel flat");
+  assert.equal(speedyMetalsQuery("304 stainless round bar"), "304 stainless round");
+  assert.equal(speedyMetalsQuery("304 stainless steel round tube"), "304 stainless steel round tube");
+  assert.equal(speedyMetalsQuery("52100 steel ball"), "52100 steel ball");
+});
+
+test("buildSupplierLinks: Speedy Metals link for '... round bar' rawstock drops 'bar', query field shows what was actually sent", () => {
+  const product = parseProductRecord(
+    record({
+      part: "8975K261",
+      title: 'Multipurpose 6061 Aluminum Round Bar, 1/2" Diameter, 3 ft. Long',
+      family: "Aluminum",
+      breadcrumbs: [
+        crumb("Raw Materials", "product-category"),
+        crumb("Metals", "product-line-1"),
+        crumb("Aluminum", "product-family"),
+        crumb("Aluminum Round Bar", "presentation"),
+      ],
+      entries: [
+        specRow("Material", "6061 Aluminum", false),
+        specRow("Shape", "Round Bar", false),
+        specRow("Diameter", '1/2"', false),
+        specRow("Length", "3 ft.", false),
+      ],
+    })
+  );
+  const links = buildSupplierLinks(product);
+  const speedy = links.find((l) => l.supplier === "Speedy Metals");
+  assert.equal(speedy.query, "6061 aluminum round");
+  assert.match(speedy.url, /SearchTerm=6061\+aluminum\+round$/);
+  // A supplier that isn't Speedy Metals keeps the ordinary dimensionless
+  // (but un-rewritten) query -- the "bar" rewrite is Speedy Metals-only.
+  const msc = links.find((l) => l.supplier === "MSC Direct");
+  assert.match(msc.query, /round bar/i);
 });
 
 // ---------------------------------------------------------------------------
