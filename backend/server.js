@@ -5,7 +5,7 @@
  * CORS headers below.
  *
  * POST /api/xref
- *   Body (all optional): { partNumber?, record?, pastedText?, specs? }
+ *   Body (all optional): { partNumber?, record?, pastedText?, specs?, debug? }
  *
  *   Resolution order -- the first of these that is present wins, and
  *   decides `source`:
@@ -46,6 +46,13 @@
  *     links, error }
  *   See serializeProduct/buildQueries/buildSupplierLinks below for exact
  *   shapes.
+ *
+ *   `debug: true` adds a `raw` field, omitted entirely otherwise: the full
+ *   parsed McMaster JSON record backing `product` (from the `record` or
+ *   `partNumber` path), or, when the `partNumber` path fails with a
+ *   NO_DATA validation error (see lib/mcmaster.js's validateProductRecord
+ *   -- the JSON parsed but wasn't a product record), the record that
+ *   failed validation.
  *
  * GET /api/health -> { status, uptimeSec, cacheSize, browserWarm }
  *
@@ -199,13 +206,12 @@ function buildProductFromManualSpecs(manualSpecs, partNumberInput) {
  * raw captured page fragment string a bookmarklet would grab straight off
  * the ItmPrsnttnWebPart XHR (same shape as test/fixtures/mcmaster/*.raw).
  * A raw string goes through parseFragment first, which does the
- * length-prefix bookkeeping parseProductRecord itself doesn't attempt. */
+ * length-prefix bookkeeping parseProductRecord itself doesn't attempt.
+ * Returns both the parsed product and the underlying JSON record so the
+ * caller can echo the latter back under `debug: true` without re-parsing. */
 function buildProductFromRecordInput(recordInput) {
-  if (typeof recordInput === "string") {
-    const json = mcmaster.parseFragment(recordInput);
-    return parseProductRecord(json);
-  }
-  return parseProductRecord(recordInput);
+  const json = typeof recordInput === "string" ? mcmaster.parseFragment(recordInput) : recordInput;
+  return { product: parseProductRecord(json), json };
 }
 
 function serializeProduct(product) {
@@ -230,7 +236,7 @@ const ERROR_MESSAGES = {
   LOGIN_WALL:
     "McMaster served this server its anonymous-view login wall for this part. The bookmarklet path (capture the page in your own browser) works when the server path is blocked.",
   NO_DATA:
-    "McMaster's page loaded but its product data never arrived for this part. The bookmarklet path works when the server path is blocked.",
+    "McMaster answered, but not with a product record for this part number. Check the number on mcmaster.com, or use the bookmarklet.",
   NOT_FOUND: "McMaster has no product page for that part number.",
   NAV_FAILED:
     "This server could not reach McMaster. The bookmarklet path works when the server path is blocked.",
@@ -459,11 +465,26 @@ function buildApp(overrideDeps = {}, options = {}) {
         const { json } = await mcQueue.run(() =>
           withHardTimeout(deps.fetchProductRecord(partNumber, { timeoutMs: 30000 }), HARD_TIMEOUT_MS),
         );
+        // Defense in depth: lib/mcmaster.js's own fetchProductRecord already
+        // validates a record shape before returning it (see
+        // validateProductRecord), but `deps.fetchProductRecord` can be a
+        // test/override stub that skips that check entirely -- so a record
+        // whose product would have zero attributes is never cached, and is
+        // reported as a normal NO_DATA error rather than a silent
+        // `source: "mcmaster", error: null` "success".
+        mcmaster.validateProductRecord(json);
         positiveCache.set(partNumber, { raw: json, ts: Date.now() });
         persistFileCacheFrom(positiveCache);
         return json;
       } catch (err) {
-        if (err.code === "LOGIN_WALL" || err.code === "NO_DATA") {
+        // A validation failure (err.record set -- see validateProductRecord)
+        // means McMaster answered with *something*, just not a product
+        // record for this part number; unlike a bot-defense wall or a page
+        // that never rendered its data at all (the negative cache's actual
+        // purpose -- see the comment above loadFileCacheInto), there's no
+        // reason to believe a retry within NEGATIVE_TTL_MS is any less
+        // likely to succeed, so it is deliberately never negative-cached.
+        if ((err.code === "LOGIN_WALL" || err.code === "NO_DATA") && err.record === undefined) {
           negativeCache.set(partNumber, { code: err.code, message: err.message, ts: Date.now() });
         }
         throw err;
@@ -496,14 +517,22 @@ function buildApp(overrideDeps = {}, options = {}) {
     const partNumberInput = typeof body.partNumber === "string" ? body.partNumber.trim() : "";
     const pastedText = typeof body.pastedText === "string" ? body.pastedText.slice(0, 20000) : "";
     const manualSpecs = sanitizeSpecs(body.specs || {});
+    const debug = body.debug === true;
 
     let product = null;
     let source = "none";
     let error = null;
+    // Only populated on the `record` and `partNumber` paths, whose whole
+    // point is a real McMaster JSON record to echo back -- see the `debug`
+    // flag doc in this file's header comment. Left undefined (never sent)
+    // unless `debug: true` is set on the request.
+    let rawRecord;
 
     if (body.record != null) {
       try {
-        product = buildProductFromRecordInput(body.record);
+        const built = buildProductFromRecordInput(body.record);
+        product = built.product;
+        rawRecord = built.json;
         source = "record";
       } catch (err) {
         error = friendlyError("BAD_RECORD", err.message);
@@ -515,6 +544,7 @@ function buildApp(overrideDeps = {}, options = {}) {
       try {
         const json = await resolveViaMcMaster(partNumberInput);
         product = parseProductRecord(json);
+        rawRecord = json;
         source = "mcmaster";
       } catch (err) {
         const code = err.code || "FETCH_FAILED";
@@ -530,6 +560,12 @@ function buildApp(overrideDeps = {}, options = {}) {
           });
         }
         error = friendlyError(code, err.message);
+        // A NO_DATA validation failure (see lib/mcmaster.js's
+        // validateProductRecord) carries the raw JSON McMaster actually
+        // sent back on `err.record` -- surface that under `debug: true` so
+        // the next unrecognized page shape can be diagnosed without a
+        // separate capture.
+        if (err.record !== undefined) rawRecord = err.record;
       }
     }
 
@@ -547,7 +583,7 @@ function buildApp(overrideDeps = {}, options = {}) {
     const queries = { primary: builtQueries.primary || null, alternates: builtQueries.alternates || [] };
     const links = product ? buildSupplierLinks(product) : [];
 
-    res.json({
+    const response = {
       partNumber: partNumberInput || (product && product.partNumber) || null,
       source,
       product: product ? serializeProduct(product) : null,
@@ -555,7 +591,13 @@ function buildApp(overrideDeps = {}, options = {}) {
       queries,
       links,
       error,
-    });
+    };
+    // Kept out of the response entirely unless asked -- it's the full raw
+    // McMaster JSON record (or, on a NO_DATA validation failure, the record
+    // that failed validation), useful for diagnosing an unrecognized page
+    // shape but not something every caller needs on every response.
+    if (debug && rawRecord !== undefined) response.raw = rawRecord;
+    res.json(response);
   });
 
   // A malformed JSON body would otherwise reach express's default error

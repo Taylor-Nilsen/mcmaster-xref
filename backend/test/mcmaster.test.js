@@ -9,7 +9,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const path = require("path");
 
-const { parseFragment, attemptFetch } = require("../lib/mcmaster");
+const { parseFragment, validateProductRecord, attemptFetch } = require("../lib/mcmaster");
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "mcmaster");
 
@@ -74,6 +74,32 @@ test("attemptFetch closes the context even when page creation itself throws (no 
 
   await assert.rejects(() => attemptFetch("91251A540", 5000, fakeBrowser), /boom: simulated newPage failure/);
   assert.equal(contextClosed, true, "the context created before the throw must still be closed");
+});
+
+// ---------------------------------------------------------------------------
+// validateProductRecord - guards against a fragment that parses as JSON but
+// is not a product record (see server.js's file header / the file-level
+// comment above validateProductRecord in lib/mcmaster.js for the live defect
+// this covers).
+// ---------------------------------------------------------------------------
+
+test("validateProductRecord accepts a real fixture's parsed record", () => {
+  const raw = fs.readFileSync(path.join(FIXTURES_DIR, fixtureFiles[0]));
+  const json = parseFragment(raw);
+  assert.doesNotThrow(() => validateProductRecord(json));
+});
+
+test("validateProductRecord rejects a family-listing-shaped record with NO_DATA, naming the page type", () => {
+  const notAProduct = { NewStyleIndicator: true, TargetPageMetadata: { Type: "product_family" } };
+  assert.throws(
+    () => validateProductRecord(notAProduct),
+    (err) => {
+      assert.equal(err.code, "NO_DATA");
+      assert.match(err.message, /product_family/);
+      assert.equal(err.record, notAProduct);
+      return true;
+    },
+  );
 });
 
 test("parseFragment handles multi-byte characters in the length-prefixed JSON", () => {

@@ -1,0 +1,178 @@
+{
+  "partNumber": "94000A330",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "94000A330",
+    "title": "18-8 Stainless Steel Cap Nut, M3 x 0.5 mm Thread Size",
+    "family": "Cap Nuts",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Cap Nut Profile",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "18-8 Stainless Steel"
+      },
+      {
+        "group": "Thread",
+        "name": "Size",
+        "value": "M3 × 0.5 mm"
+      },
+      {
+        "group": "Thread",
+        "name": "Depth",
+        "value": "3.8 mm"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "5.5 mm"
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "6 mm"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "group": null,
+        "name": "Drive Style",
+        "value": "External Hex"
+      },
+      {
+        "group": null,
+        "name": "Nut Type",
+        "value": "Cap, Hex"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Corrosion Resistant"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "DIN 1587"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Thread Direction",
+        "value": "Right Hand"
+      },
+      {
+        "group": null,
+        "name": "Thread Fit",
+        "value": "Metric Class 6H"
+      },
+      {
+        "group": null,
+        "name": "Thread Spacing",
+        "value": "Coarse"
+      },
+      {
+        "group": null,
+        "name": "Thread Type",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Brazil, China, India, Taiwan, Thailand"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Not Specialty Metals Compliant"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731816.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "cap, hex cap nut",
+    "kind": "nut"
+  },
+  "queries": {
+    "primary": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=M3-0.5+cap%2C+hex+cap+nut+18-8+Stainless+Steel",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=M3-0.5%20cap%2C%20hex%20cap%20nut%2018-8%20Stainless%20Steel",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=M3-0.5+cap%2C+hex+cap+nut+18-8+Stainless+Steel",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Browse?Category=Nuts&Units=US",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=M3-0.5+cap%2C+hex+cap+nut+18-8+Stainless+Steel",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/wholesale?SearchText=M3-0.5+cap%2C+hex+cap+nut+18-8+Stainless+Steel",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Banggood",
+      "url": "https://www.banggood.com/search/m3-0.5-cap,-hex-cap-nut-18-8-stainless-steel.html",
+      "query": "M3-0.5 cap, hex cap nut 18-8 Stainless Steel"
+    }
+  ],
+  "error": null
+}

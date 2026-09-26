@@ -236,6 +236,58 @@ class McmasterError extends Error {
 }
 
 /**
+ * Some part numbers resolve to a JSON fragment that parses cleanly but is
+ * not a product record at all -- a family-listing page, or some other page
+ * type whose spec data (if any) doesn't live where a product page's does.
+ * Left unchecked, that fragment sails through parseFragment and
+ * parseProductRecord as a "successful" product with an empty partNumber,
+ * empty title, no family, no categoryPath, and zero attributes -- reported
+ * to the caller as `source: "mcmaster"`, `error: null`, and cached. This is
+ * the actual defect this validates against (see the two live parts
+ * captured in test/fixtures/mcmaster/remote/).
+ *
+ * A record earns "looks like a product" by having a real name for itself
+ * (TitleTxt or PartNbrTxt) AND at least one spec row in its table. Anything
+ * short of that throws NO_DATA with a message describing the JSON's actual
+ * shape (its top-level keys, TargetPageMetadata.Type/.World if present, and
+ * NewStyleIndicator) so the next capture of a not-yet-seen page type tells
+ * us what to add support for, and with the raw parsed JSON attached as
+ * `err.record` (never folded into the message string) so a caller wants it
+ * -- e.g. for a debug echo -- without re-fetching anything.
+ */
+function describeRecordShape(json) {
+  const keys = json && typeof json === "object" ? Object.keys(json) : [];
+  const bits = [`top-level keys: [${keys.join(", ")}]`];
+  const meta = json && typeof json === "object" ? json.TargetPageMetadata : null;
+  if (meta && typeof meta === "object") {
+    if (meta.Type != null) bits.push(`TargetPageMetadata.Type: ${meta.Type}`);
+    if (meta.World != null) bits.push(`TargetPageMetadata.World: ${meta.World}`);
+  }
+  if (json && typeof json === "object" && json.NewStyleIndicator != null) {
+    bits.push(`NewStyleIndicator: ${json.NewStyleIndicator}`);
+  }
+  return bits.join(", ");
+}
+
+function validateProductRecord(json) {
+  const title = json && typeof json.TitleTxt === "string" ? json.TitleTxt.trim() : "";
+  const partNbr = json && typeof json.PartNbrTxt === "string" ? json.PartNbrTxt.trim() : "";
+  const reactData = json && typeof json === "object" ? json.ReactData : null;
+  const tableEntries =
+    reactData && Array.isArray(reactData.TableEntries) ? reactData.TableEntries : [];
+  const hasSpecRow = tableEntries.some((e) => e && e.Type === "TableEntrySpec");
+
+  if ((title || partNbr) && hasSpecRow) return json;
+
+  const err = new McmasterError(
+    `McMaster JSON did not look like a product record (${describeRecordShape(json)})`,
+    "NO_DATA",
+  );
+  err.record = json;
+  throw err;
+}
+
+/**
  * Fetch a product's data fragment from McMaster-Carr by driving a real
  * Chromium page to the product URL and capturing the ItmPrsnttnWebPart XHR
  * response.
@@ -364,6 +416,7 @@ async function attemptFetch(partNumber, budgetMs, browserOverride) {
       } catch (e) {
         throw new McmasterError(`could not parse ItmPrsnttnWebPart body: ${e.message}`, "NO_DATA");
       }
+      validateProductRecord(json);
       return { raw: itmBody, json };
     }
 
@@ -390,6 +443,7 @@ async function attemptFetch(partNumber, budgetMs, browserOverride) {
 module.exports = {
   fetchProductRecord,
   parseFragment,
+  validateProductRecord,
   browserLaunchOptions,
   closeBrowser,
   McmasterError,
