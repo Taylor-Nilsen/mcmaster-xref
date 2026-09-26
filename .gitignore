@@ -16,3 +16,4 @@ backend/test/fixtures/suppliers/*.png
 backend/test/fixtures/suppliers/*.txt
 # Sweep run logs
 backend/test/fixtures/mcmaster/sweep/*.log
+backend/test/fixtures/mcmaster/remote/*.log
