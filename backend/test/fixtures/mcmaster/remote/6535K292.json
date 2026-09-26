@@ -1,0 +1,71 @@
+{
+  "partNumber": "6535K292",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6535K292",
+    "title": "Steel Bolt-Together Framing Rail, Galvanized, 2\" Square, 0.105\" Wall Thickness",
+    "family": "Bolt-Together Framing and Fittings",
+    "categoryPath": [
+      "Building and Machinery Hardware",
+      "Structural Framing",
+      "Bolt-Together Framing and Fittings"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "732690.8695"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "bolt-together framing and fitting",
+    "kind": "fitting"
+  },
+  "queries": {
+    "primary": "bolt-together framing and fitting",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=bolt-together%20framing%20and%20fitting",
+      "query": "bolt-together framing and fitting",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=bolt-together+framing+and+fitting",
+      "query": "bolt-together framing and fitting",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=bolt-together%20framing%20and%20fitting",
+      "query": "bolt-together framing and fitting",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=bolt-together+framing+and+fitting",
+      "query": "bolt-together framing and fitting",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

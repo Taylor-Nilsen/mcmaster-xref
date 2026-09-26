@@ -1,0 +1,159 @@
+{
+  "partNumber": "9657K277",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "9657K277",
+    "title": "Compression Spring, 0.5\" Long, 0.48\" OD, 0.37\" ID",
+    "family": "Compression Springs",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Spring Steel"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "0.5\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "0.48\""
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "0.37\""
+      },
+      {
+        "group": null,
+        "name": "Wire Diameter",
+        "value": "0.055\""
+      },
+      {
+        "group": null,
+        "name": "Compressed Length @ Maximum Load",
+        "value": "0.28\""
+      },
+      {
+        "group": null,
+        "name": "Maximum Load",
+        "value": "15 lb."
+      },
+      {
+        "group": null,
+        "name": "Spring Rate",
+        "value": "72 lbf/in"
+      },
+      {
+        "group": null,
+        "name": "End Type",
+        "value": "Closed and Ground"
+      },
+      {
+        "group": null,
+        "name": "Compression Spring Type",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Finish",
+        "value": "Zinc Plated"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "250° F"
+      },
+      {
+        "group": null,
+        "name": "Spring Type",
+        "value": "Compression"
+      },
+      {
+        "group": null,
+        "name": "Steel Grade",
+        "value": "Music-Wire Steel"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/25/2025, 250 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "732020.5000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "compression spring",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "Spring Steel compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\" zinc plated",
+    "alternates": [
+      "compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\""
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=Spring%20Steel%20compression%20spring%200.055%22%20wire%200.48%22%20OD%200.37%22%20ID%200.5%22%20zinc%20plated",
+      "query": "Spring Steel compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\" zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=Spring+Steel+compression+spring+0.055%22+wire+0.48%22+OD+0.37%22+ID+0.5%22+zinc+plated",
+      "query": "Spring Steel compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\" zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=Spring%20Steel%20compression%20spring%200.055%22%20wire%200.48%22%20OD%200.37%22%20ID%200.5%22%20zinc%20plated",
+      "query": "Spring Steel compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\" zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=Spring+Steel+compression+spring+0.055%22+wire+0.48%22+OD+0.37%22+ID+0.5%22+zinc+plated",
+      "query": "Spring Steel compression spring 0.055\" wire 0.48\" OD 0.37\" ID 0.5\" zinc plated",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

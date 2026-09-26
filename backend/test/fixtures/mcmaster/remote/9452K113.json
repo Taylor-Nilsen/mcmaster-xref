@@ -1,0 +1,164 @@
+{
+  "partNumber": "9452K113",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "9452K113",
+    "title": "Oil-Resistant Buna-N O-Ring, 1/16 Fractional Width, Dash Number 026",
+    "family": "O-Rings",
+    "categoryPath": [
+      "Sealing",
+      "O-Rings, Backup Rings, and More",
+      "O-Rings",
+      "Oil-Resistant Buna-N O-Rings"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": "Fractional",
+        "name": "Width",
+        "value": "1/16"
+      },
+      {
+        "group": "Fractional",
+        "name": "ID",
+        "value": "1 1/4"
+      },
+      {
+        "group": "Fractional",
+        "name": "OD",
+        "value": "1 3/8"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "0.07\""
+      },
+      {
+        "group": null,
+        "name": "Dash Number",
+        "value": "026"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "1.239\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "1.379\""
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Durometer 70A (Medium)"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ASTM D2000, SAE AS568, SAE J200"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-30° F to 215° F"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Black"
+      },
+      {
+        "group": null,
+        "name": "Cross Section Shape",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "Animal OilBoric Acid Butyl Alcohol Calcium Hydroxide Citric Acid Ethanol Ethylene Glycol Glycerin Grease Hydraulic Oil Isopropyl Alcohol Methanol (Methyl Alcohol) Mineral Oil Motor Oil Petroleum Potassium Hydroxide Sodium Bicarbonate (Baking Soda) Vegetable Oil Water"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Highly Tear Resistant, Ultra Oil Resistant"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States, China, Vietnam"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "401693.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "o-ring",
+    "kind": "sealing"
+  },
+  "queries": {
+    "primary": "1 1/4 ID 1/16 wide o-ring Durometer 70A (Medium)",
+    "alternates": [
+      "1 1/4 ID 1/16 wide o-ring"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%201%2F4%20ID%201%2F16%20wide%20o-ring%20Durometer%2070A%20(Medium)",
+      "query": "1 1/4 ID 1/16 wide o-ring Durometer 70A (Medium)",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1+1%2F4+ID+1%2F16+wide+o-ring+Durometer+70A+(Medium)",
+      "query": "1 1/4 ID 1/16 wide o-ring Durometer 70A (Medium)",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=1%201%2F4%20ID%201%2F16%20wide%20o-ring%20Durometer%2070A%20(Medium)",
+      "query": "1 1/4 ID 1/16 wide o-ring Durometer 70A (Medium)",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=1+1%2F4+ID+1%2F16+wide+o-ring+Durometer+70A+(Medium)",
+      "query": "1 1/4 ID 1/16 wide o-ring Durometer 70A (Medium)",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

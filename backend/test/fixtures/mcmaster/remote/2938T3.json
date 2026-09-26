@@ -1,0 +1,224 @@
+{
+  "partNumber": "2938T3",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "2938T3",
+    "title": "863 Iron Copper Oil-Embedded Sleeve Bearing, Flanged, for 1/4\" Shaft Diameter and 3/8\" Housing ID, 1/2\" Long",
+    "family": "Flanged Sleeve Bearings",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Lubrication",
+        "value": "Lubricated"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Corrosion Resistant, High Load"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "863 Iron Copper"
+      },
+      {
+        "group": null,
+        "name": "For Shaft Diameter",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "For Housing ID",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1/2\""
+      },
+      {
+        "group": null,
+        "name": "Length Tolerance",
+        "value": "-0.01\" to 0.01\""
+      },
+      {
+        "group": null,
+        "name": "Flange OD",
+        "value": "1/2\""
+      },
+      {
+        "group": null,
+        "name": "Flange Thickness",
+        "value": "1/16\""
+      },
+      {
+        "group": null,
+        "name": "Dynamic Radial Load Capacity @ Speed",
+        "value": "500 lb. @ 120 rpm"
+      },
+      {
+        "group": null,
+        "name": "Dynamic Thrust Load Capacity @ Speed",
+        "value": "320 lb. @ 120 rpm"
+      },
+      {
+        "group": null,
+        "name": "Base Oil",
+        "value": "Synthetic Oil"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-15° F to 300° F"
+      },
+      {
+        "group": null,
+        "name": "Bearing Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "For Load Direction",
+        "value": "Combined Radial and Thrust"
+      },
+      {
+        "group": null,
+        "name": "For Shaft Type",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "0.251\""
+      },
+      {
+        "group": null,
+        "name": "ID Tolerance",
+        "value": "0\" to 0.001\""
+      },
+      {
+        "group": null,
+        "name": "Lubricant",
+        "value": "ISO 460 Oil"
+      },
+      {
+        "group": null,
+        "name": "Lubrication Method",
+        "value": "Embedded"
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "0.376\""
+      },
+      {
+        "group": null,
+        "name": "OD Tolerance",
+        "value": "0\" to 0.001\""
+      },
+      {
+        "group": null,
+        "name": "P Max",
+        "value": "4,000 psi"
+      },
+      {
+        "group": null,
+        "name": "Plain Bearing Type",
+        "value": "Flanged Sleeve"
+      },
+      {
+        "group": null,
+        "name": "PV Max",
+        "value": "35,000"
+      },
+      {
+        "group": null,
+        "name": "Shaft Mount Type",
+        "value": "Slip Fit"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "V Max",
+        "value": "200 sfpm"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848330.8090"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "flanged sleeve bearing",
+    "kind": "bearing"
+  },
+  "queries": {
+    "primary": "1/4\" bore 0.376\" OD flanged sleeve bearing 863 Iron Copper",
+    "alternates": [
+      "1/4\" bore 0.376\" OD flanged sleeve bearing"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%2F4%22%20bore%200.376%22%20OD%20flanged%20sleeve%20bearing%20863%20Iron%20Copper",
+      "query": "1/4\" bore 0.376\" OD flanged sleeve bearing 863 Iron Copper",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1%2F4%22+bore+0.376%22+OD+flanged+sleeve+bearing+863+Iron+Copper",
+      "query": "1/4\" bore 0.376\" OD flanged sleeve bearing 863 Iron Copper",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=1%2F4%22%20bore%200.376%22%20OD%20flanged%20sleeve%20bearing%20863%20Iron%20Copper",
+      "query": "1/4\" bore 0.376\" OD flanged sleeve bearing 863 Iron Copper",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=1%2F4%22+bore+0.376%22+OD+flanged+sleeve+bearing+863+Iron+Copper",
+      "query": "1/4\" bore 0.376\" OD flanged sleeve bearing 863 Iron Copper",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

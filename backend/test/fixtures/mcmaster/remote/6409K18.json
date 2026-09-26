@@ -1,0 +1,269 @@
+{
+  "partNumber": "6409K18",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6409K18",
+    "title": "Compact DC Gearmotor, Square Face, 12V DC, 47 rpm @ 160 in.-oz.",
+    "family": "Electric Gearmotors",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Face Shape",
+        "value": "Square"
+      },
+      {
+        "group": null,
+        "name": "Voltage",
+        "value": "12V DC"
+      },
+      {
+        "group": null,
+        "name": "Speed @ Continuous Operating Torque",
+        "value": "47 rpm @ 160 in·ozf"
+      },
+      {
+        "group": null,
+        "name": "Power",
+        "value": "0.008 hp"
+      },
+      {
+        "group": null,
+        "name": "Full Load Current",
+        "value": "1.2 amp"
+      },
+      {
+        "group": "Overall",
+        "name": "Length",
+        "value": "3 1/2\""
+      },
+      {
+        "group": "Overall",
+        "name": "Width",
+        "value": "2 3/4\""
+      },
+      {
+        "group": "Overall",
+        "name": "Height",
+        "value": "3\""
+      },
+      {
+        "group": null,
+        "name": "Bearing Type",
+        "value": "Plain"
+      },
+      {
+        "group": "Shaft",
+        "name": "Diameter",
+        "value": "5/16\""
+      },
+      {
+        "group": "Shaft",
+        "name": "Length",
+        "value": "1\""
+      },
+      {
+        "group": "Shaft",
+        "name": "Center-to-Base Length",
+        "value": "2.08\""
+      },
+      {
+        "group": "Shaft",
+        "name": "Orientation",
+        "value": "Parallel"
+      },
+      {
+        "group": "Shaft",
+        "name": "Type",
+        "value": "D-Profile"
+      },
+      {
+        "group": "Insulation",
+        "name": "Class",
+        "value": "B"
+      },
+      {
+        "group": "Insulation",
+        "name": "Maximum Temperature",
+        "value": "266° F"
+      },
+      {
+        "group": null,
+        "name": "Direction of Operation",
+        "value": "Clockwise, Counterclockwise"
+      },
+      {
+        "group": null,
+        "name": "Duty Cycle",
+        "value": "Continuous"
+      },
+      {
+        "group": null,
+        "name": "Efficiency",
+        "value": "90%"
+      },
+      {
+        "group": null,
+        "name": "Electrical Connection Type",
+        "value": "Hardwire"
+      },
+      {
+        "group": null,
+        "name": "Enclosure Material",
+        "value": "Cast Zinc"
+      },
+      {
+        "group": "Gear",
+        "name": "Type",
+        "value": "Spur"
+      },
+      {
+        "group": "Gear",
+        "name": "Material",
+        "value": "Acetal, Metal"
+      },
+      {
+        "group": null,
+        "name": "Maximum Rotation Speed",
+        "value": "64 rpm"
+      },
+      {
+        "group": null,
+        "name": "Motor Enclosure Type",
+        "value": "Open"
+      },
+      {
+        "group": null,
+        "name": "Motor Type",
+        "value": "Brushed, Permanent Magnet"
+      },
+      {
+        "group": "Mounting",
+        "name": "Location",
+        "value": "Face"
+      },
+      {
+        "group": "Mounting",
+        "name": "Position",
+        "value": "Any Angle, Horizontal, Vertical"
+      },
+      {
+        "group": null,
+        "name": "Mounting Thread Size",
+        "value": "10-32"
+      },
+      {
+        "group": null,
+        "name": "Plain Bearing Type",
+        "value": "Sleeve"
+      },
+      {
+        "group": null,
+        "name": "Power Source",
+        "value": "Electric"
+      },
+      {
+        "group": null,
+        "name": "Radial Load Capacity",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Relative Size",
+        "value": "Compact"
+      },
+      {
+        "group": null,
+        "name": "Service Factor",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Starting Torque",
+        "value": "160 in·ozf"
+      },
+      {
+        "group": null,
+        "name": "Voltage Type",
+        "value": "DC"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection",
+        "value": "Tab"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "850110.4040"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "electric gearmotor",
+    "kind": "bearing"
+  },
+  "queries": {
+    "primary": "2 3/4\" wide electric gearmotor Acetal, Metal",
+    "alternates": [
+      "2 3/4\" wide electric gearmotor"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=2%203%2F4%22%20wide%20electric%20gearmotor%20Acetal%2C%20Metal",
+      "query": "2 3/4\" wide electric gearmotor Acetal, Metal",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=2+3%2F4%22+wide+electric+gearmotor+Acetal%2C+Metal",
+      "query": "2 3/4\" wide electric gearmotor Acetal, Metal",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=2%203%2F4%22%20wide%20electric%20gearmotor%20Acetal%2C%20Metal",
+      "query": "2 3/4\" wide electric gearmotor Acetal, Metal",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=2+3%2F4%22+wide+electric+gearmotor+Acetal%2C+Metal",
+      "query": "2 3/4\" wide electric gearmotor Acetal, Metal",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}
