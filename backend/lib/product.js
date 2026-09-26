@@ -376,27 +376,108 @@ function classifyKind(product) {
   return classifyKindFromAttributes(product);
 }
 
+// ---------------------------------------------------------------------------
+// Grouped-vs-flat attribute resolution
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolves one logical attribute (a head style, a drive type, ...) across
+ * the several names/groupings McMaster spells it under on a given record,
+ * trying each candidate in order and returning the first non-empty value.
+ * Every candidate is either a bare flat name (a string) or a `[name,
+ * group]` pair for a grouped row -- callers list the *grouped* forms first,
+ * since a record that has both a flat umbrella field and a grouped,
+ * more-specific one (McMaster's own "Fastener Head Type" umbrella --
+ * "Rounded" covers button, pan, oval, truss, fillister, cheese and round
+ * heads alike -- versus the grouped "Head" > "Style"/"Type" row that says
+ * which of those it actually is) means the flat one is *not* what a trade
+ * name should be built from. See the module doc comment and 92949A150 for
+ * the real record this was written against.
+ */
+function readAttr(product, ...specs) {
+  for (const spec of specs) {
+    const [name, group] = Array.isArray(spec) ? spec : [spec, undefined];
+    const val = product.byName(name, group);
+    if (val) return val;
+  }
+  return null;
+}
+
+// Every place a headed fastener's shape/drive/tip is read: grouped rows
+// first (most specific), then the flat/umbrella field McMaster also always
+// includes. Centralized so deriveNoun, fastenerHeadNoun's caller, and
+// fastenerQuery's shoulder-screw sizing all agree on the same lookup order.
+function readHeadType(product) {
+  return readAttr(product, ["Style", "Head"], ["Type", "Head"], "Fastener Head Type", "Head Type");
+}
+function readHeadProfile(product) {
+  return readAttr(product, ["Profile", "Head"], "Head Profile", "Socket Head Profile");
+}
+function readDriveStyle(product) {
+  return readAttr(product, ["Style", "Drive"], ["Type", "Drive"], "Drive Style", "Drive Type");
+}
+function readTipType(product) {
+  return readAttr(product, ["Type", "Tip"], ["Type", "Point"], "Tip Type", "Point Type");
+}
+
 /**
  * Trade names for a headed fastener, in the order a supplier catalog uses
  * them (checked most specific first: a "Hex" *drive* on a flat or button
  * head is a socket cap screw, not the external-hex bolt a "Hex" *head*
  * would be). Ported from lib/specs.js's fastenerNoun, now driven by the
- * structured "Fastener Head Type"/"Drive Style" fields instead of prose.
+ * structured, grouped-preferring "Head" style/profile and "Drive"
+ * style/type fields (see readHeadType/readDriveStyle/readHeadProfile)
+ * instead of prose.
+ *
+ * "cap" only ever appears in a socket- or hex-cap-screw noun -- never on a
+ * pan/flat/truss/oval/cheese/fillister/round/thumb/wing head, which are
+ * genuine trade nouns of their own that no supplier calls a "cap screw".
+ *
+ * `head` must be a real, specific head style -- "Round" -- never
+ * McMaster's "Rounded" umbrella (readHeadType tries the grouped Head style
+ * first for exactly this reason: the umbrella covers button/pan/oval/
+ * truss/fillister/cheese/round heads alike and must never be read as if it
+ * said "round" on its own -- hence the word-boundary regex below, which
+ * "Rounded" fails and "Round" passes).
  */
-function fastenerHeadNoun(headType, driveStyle) {
+function fastenerHeadNoun(headType, driveStyle, headProfile) {
   const head = lc(headType);
   const drive = lc(driveStyle);
+  if (!head) return null;
   const socketDrive = /hex|socket|torx/.test(drive);
-  if (/socket/.test(head)) return "socket head cap screw";
+  const phillipsDrive = /phillips/.test(drive);
+
+  if (/socket/.test(head)) {
+    const lowProfile = /low/.test(head) || /low/.test(lc(headProfile));
+    return lowProfile ? "low head socket cap screw" : "socket head cap screw";
+  }
   if (/button/.test(head)) return socketDrive ? "button head socket cap screw" : "button head screw";
-  if (/flat|countersunk/.test(head)) return socketDrive ? "flat head socket cap screw" : "flat head screw";
-  if (/pan/.test(head)) return "pan head screw";
+  if (/flat|countersunk/.test(head)) {
+    if (socketDrive) return "flat head socket cap screw";
+    if (phillipsDrive) return "flat head Phillips screw";
+    return "flat head screw";
+  }
+  if (/pan/.test(head)) return phillipsDrive ? "pan head Phillips machine screw" : "pan head screw";
   if (/truss/.test(head)) return "truss head screw";
+  if (/fillister/.test(head)) return "fillister head screw";
   if (/cheese/.test(head)) return "cheese head screw";
   if (/oval/.test(head)) return socketDrive ? "oval head socket cap screw" : "oval head screw";
-  if (/round/.test(head)) return "round head screw";
-  if (/hex/.test(head)) return "hex head cap screw";
+  if (/thumb/.test(head)) return "thumb screw";
+  if (/\bwing\b/.test(head)) return "wing screw";
+  if (/shoulder/.test(head)) return "shoulder screw";
+  if (/\bround\b/.test(head)) return "round head screw";
+  if (/\bhex\b/.test(head)) return "hex head cap screw";
   return null;
+}
+
+// A supplier says "cup point", "flat point", "cone point", "dog point" --
+// McMaster's own Tip/Point Type value is just the bare word ("Cup", "Cone",
+// "Dog Point") -- so this appends "point" only when the value doesn't
+// already carry it.
+function tipPointPhrase(tipType) {
+  const t = lc(tipType).trim();
+  if (!t) return null;
+  return /\bpoint\b$/.test(t) ? t : `${t} point`;
 }
 
 /**
@@ -422,16 +503,40 @@ function deriveNoun(product, kind) {
   const base = baseNoun(product);
 
   if (kind === "fastener") {
-    const headType = product.byName("Fastener Head Type") || product.byName("Head Type");
+    // A shoulder screw's defining feature is the shoulder itself (its own
+    // Diameter/Length pair), not its head shape -- McMaster spells its
+    // "Fastener Head Type"/"Head" > "Style" the same as a plain socket cap
+    // screw ("Socket"/"Hex" drive, a real captured record: 90298A537),
+    // because the head really does look like one. So this is checked
+    // before any head-style mapping runs, or a real shoulder screw comes
+    // out "socket head cap screw" with its shoulder dropped entirely.
+    if (readAttr(product, ["Diameter", "Shoulder"], "Shoulder Diameter") || readAttr(product, ["Length", "Shoulder"], "Shoulder Length")) {
+      return "shoulder screw";
+    }
+
+    const headType = readHeadType(product);
+    const driveStyle = readDriveStyle(product);
+
+    // Headless (a set screw): the trade name comes from the tip, not a
+    // head shape that doesn't exist -- "Cup" -> "cup point set screw", not
+    // whatever the family/breadcrumb name happens to say (which on a real
+    // capture, e.g. 91375A194, duplicates both the tip word and the
+    // material: "steel cup-tip set screw" ... "Alloy Steel").
+    if (headType && /headless/i.test(headType)) {
+      const tipType = readTipType(product);
+      const tip = tipPointPhrase(tipType);
+      return tip ? `${tip} set screw` : "set screw";
+    }
+
     if (headType) {
-      const driveStyle = product.byName("Drive Style") || product.byName("Drive Type");
-      const headNoun = fastenerHeadNoun(headType, driveStyle);
+      const headProfile = readHeadProfile(product);
+      const headNoun = fastenerHeadNoun(headType, driveStyle, headProfile);
       if (headNoun) return headNoun;
     }
     // A thread with a drive but no head type (e.g. a slotted machine
     // screw with no distinguishable head shape recorded) is still fairly
     // described as a machine screw; the family name is trusted otherwise.
-    if (!base && product.byName("Thread Size") && (product.byName("Drive Style") || product.byName("Drive Type"))) {
+    if (!base && product.byName("Thread Size") && driveStyle) {
       return "machine screw";
     }
     return base || "fastener";
@@ -713,7 +818,7 @@ function findAka(copies) {
 }
 
 function fastenerQuery(product, noun) {
-  const threadRaw = product.byName("Thread Size") || product.byName("Size", "Thread");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const lengthRaw = product.byName("Length");
   const length = lengthRaw ? normalizeLength(lengthRaw) : null;
@@ -722,21 +827,38 @@ function fastenerQuery(product, noun) {
   const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
   const grade = readGrade(product) || materialGrade;
 
+  // A shoulder screw's own thread (the tapped hole it screws into) is
+  // beside the point of what a buyer searches for -- the shoulder's own
+  // diameter and length is the part's real size, the way McMaster's own
+  // shoulder-screw catalog page leads with it.
+  let shoulderDiameter = null;
+  let shoulderLength = null;
+  let size = null;
+  if (/shoulder screw/.test(lc(noun))) {
+    const shoulderDiameterRaw = readAttr(product, ["Diameter", "Shoulder"], "Shoulder Diameter");
+    const shoulderLengthRaw = readAttr(product, ["Length", "Shoulder"], "Shoulder Length");
+    shoulderDiameter = shoulderDiameterRaw ? normalizeSize(shoulderDiameterRaw) : null;
+    shoulderLength = shoulderLengthRaw ? normalizeLength(shoulderLengthRaw) : null;
+    if (shoulderDiameter || shoulderLength) {
+      size = joinTerms([shoulderDiameter, shoulderLength && (shoulderDiameter ? `x ${shoulderLength}` : shoulderLength)]);
+    }
+  }
   // "x" only belongs between two dimensions -- with no thread size to
   // join it to, a bare length is not "x 1"", it's just "1"".
-  const size = joinTerms([threadSize, length && (threadSize ? `x ${length}` : length)]);
+  if (size === null) size = joinTerms([threadSize, length && (threadSize ? `x ${length}` : length)]);
+
   const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
   const primary = joinTerms([size, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
   const alternates = [joinTerms([size, noun, dedupeAgainstNoun(noun, material)[0]])];
   return {
     primary,
     alternates,
-    terms: { noun, threadSize, length, material, finish, grade },
+    terms: { noun, threadSize, length, material, finish, grade, shoulderDiameter, shoulderLength },
   };
 }
 
 function nutQuery(product, noun) {
-  const threadRaw = product.byName("Thread Size") || product.byName("Size", "Thread");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish, grade: materialGrade } = splitMaterial(materialRaw);
@@ -842,8 +964,7 @@ function bearingQuery(product, noun) {
 }
 
 function fittingQuery(product, noun) {
-  const threadRaw =
-    product.byName("Thread Size") || product.byName("Size", "Thread") || product.byName("Pipe Size");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size", "Pipe Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);

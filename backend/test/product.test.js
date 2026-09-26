@@ -37,7 +37,22 @@ const {
   speedyMetalsQuery,
 } = require("../lib/product");
 
+// Rebuilds a McMaster-shaped record from a POST /api/xref response's
+// `product` field -- reused rather than duplicated by hand, since
+// backend/scripts/evaluate-records.js already has to solve exactly this
+// problem to run the remote-sweep captures through this same module.
+const { recordFromApiProduct } = require("../scripts/evaluate-records");
+
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "mcmaster");
+const REMOTE_FIXTURES_DIR = path.join(FIXTURES_DIR, "remote");
+
+// Loads a POST /api/xref response captured under test/fixtures/mcmaster/
+// remote/<part>.json (see backend/scripts/remote-sweep.js) and returns the
+// parsed Product, the same way evaluate-records.js does for the report.
+function loadRemoteFixture(part) {
+  const raw = JSON.parse(fs.readFileSync(path.join(REMOTE_FIXTURES_DIR, `${part}.json`), "utf8"));
+  return parseProductRecord(recordFromApiProduct(raw.product));
+}
 const loadFixture = (name) => parseProductRecord(fs.readFileSync(path.join(FIXTURES_DIR, `${name}.raw`)));
 
 // ---------------------------------------------------------------------------
@@ -938,4 +953,352 @@ test("parseProductRecord accepts a Buffer, a string, or an already-parsed object
   const fromObject = parseProductRecord(rec);
   assert.equal(fromObject.partNumber, "TEST1");
   assert.equal(fromObject.byName("Material"), "Steel");
+});
+
+// ---------------------------------------------------------------------------
+// Grouped head/drive/tip attributes: a flat umbrella field ("Fastener Head
+// Type": "Rounded" covers button/pan/oval/truss/fillister/cheese/round
+// heads alike) must never stand in for the grouped, more specific row
+// ("Head" > "Style": "Button") when one is present. See the module doc
+// comment and 92949A150 (a real captured record) for the defect this
+// fixes: the noun used to come out "round head screw" with the socket
+// drive dropped entirely.
+// ---------------------------------------------------------------------------
+
+const remoteFixtureExists = (part) => fs.existsSync(path.join(REMOTE_FIXTURES_DIR, `${part}.json`));
+
+test("92949A150 (real record): grouped Head > Style 'Button' + Drive > Style 'Hex' wins over the flat 'Rounded' umbrella", () => {
+  const product = loadRemoteFixture("92949A150");
+  assert.equal(product.byName("Fastener Head Type"), "Rounded");
+  assert.equal(product.byName("Style", "Head"), "Button");
+  assert.equal(product.byName("Style", "Drive"), "Hex");
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "button head socket cap screw");
+  assert.doesNotMatch(noun, /round/i);
+
+  const { primary } = buildQueries(product);
+  assert.equal(primary, '6-32 x 5/8" button head socket cap screw 18-8 Stainless Steel');
+});
+
+test("91375A194 (real record): headless + Tip Type 'Cup' -> noun 'cup point set screw', material appended once", () => {
+  const product = loadRemoteFixture("91375A194");
+  assert.equal(product.byName("Fastener Head Type"), "Headless");
+  assert.equal(product.byName("Tip Type"), "Cup");
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "cup point set screw");
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /8-32 x 1\/2" cup point set screw/);
+  const steelMatches = primary.match(/steel/gi) || [];
+  assert.equal(steelMatches.length, 1, `expected "steel" once (from the material, not a duplicated noun), got ${JSON.stringify(primary)}`);
+  assert.match(primary, /alloy steel/i);
+  assert.match(primary, /black oxide/i);
+});
+
+test("90272A110 (real record): Head > Style 'Pan' + Drive > Style 'Phillips' -> 'pan head Phillips machine screw'", () => {
+  const product = loadRemoteFixture("90272A110");
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "pan head Phillips machine screw");
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /4-40 x 1\/2"/);
+  assert.match(primary, /pan head Phillips machine screw/);
+  assert.match(primary, /zinc plated/i);
+  assert.match(primary, /steel/i);
+});
+
+test("91771A831 (real record, flat-only): 'Flat' + Phillips + 82 degree countersink -> 'flat head Phillips screw', never 'cap'", () => {
+  if (!remoteFixtureExists("91771A831")) return; // not present in every sweep
+  const product = loadRemoteFixture("91771A831");
+  assert.equal(product.byName("Fastener Head Type"), "Flat");
+  assert.equal(product.byName("Drive Style"), "Phillips");
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.match(noun, /flat head/i);
+  assert.match(noun, /phillips/i);
+  assert.doesNotMatch(noun, /cap/i);
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /10-32 x 3\/4"/);
+  assert.match(primary, /flat head/i);
+  assert.match(primary, /phillips/i);
+  assert.doesNotMatch(primary, /cap/i);
+});
+
+// ---------------------------------------------------------------------------
+// Synthetic: one test per head style/drive combination named in the fix,
+// using the existing record()/specRow()/groupHeader()/crumb() builders.
+// "cap" must only ever appear on a socket- or hex-cap-screw noun.
+// ---------------------------------------------------------------------------
+
+const FASTENER_BREADCRUMBS = [crumb("Fastening and Joining", "product-category"), crumb("Screws and Bolts", "product-line-2")];
+
+function headedFastener(part, entries) {
+  return parseProductRecord(
+    record({ part, title: "test", family: "Screws", breadcrumbs: FASTENER_BREADCRUMBS, entries })
+  );
+}
+
+test("synthetic: button head, socket/hex drive -> 'button head socket cap screw'", () => {
+  const product = headedFastener("BTNHEX", [
+    specRow("Fastener Head Type", "Button", false),
+    specRow("Drive Style", "Hex", false),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '5/8"', false),
+    specRow("Material", "18-8 Stainless Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "button head socket cap screw");
+});
+
+test("synthetic: button head, no socket/hex/torx drive -> 'button head screw' (no 'cap')", () => {
+  const product = headedFastener("BTNSLOT", [
+    specRow("Fastener Head Type", "Button", false),
+    specRow("Drive Style", "Slotted", false),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '5/8"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "button head screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: flat/82-degree-countersunk head, socket drive -> 'flat head socket cap screw'", () => {
+  const product = headedFastener("FLATSOC", [
+    specRow("Fastener Head Type", "Flat", false),
+    specRow("Drive Style", "Hex", false),
+    specRow("Countersink Angle", "82°", false),
+    specRow("Thread Size", "1/4-20", false),
+    specRow("Length", '1"', false),
+    specRow("Material", "Alloy Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "flat head socket cap screw");
+});
+
+test("synthetic: flat head, Phillips drive -> 'flat head Phillips screw' (no 'cap')", () => {
+  const product = headedFastener("FLATPHIL", [
+    specRow("Fastener Head Type", "Flat", false),
+    specRow("Drive Style", "Phillips", false),
+    specRow("Thread Size", "10-32", false),
+    specRow("Length", '3/4"', false),
+    specRow("Material", "18-8 Stainless Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "flat head Phillips screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: pan head, Phillips drive -> 'pan head Phillips machine screw'", () => {
+  const product = headedFastener("PANPHIL", [
+    specRow("Fastener Head Type", "Rounded", false),
+    groupHeader("Head"),
+    specRow("Style", "Pan", true),
+    groupHeader("Drive"),
+    specRow("Style", "Phillips", true),
+    specRow("Thread Size", "4-40", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Zinc-Plated Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "pan head Phillips machine screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: socket head -> 'socket head cap screw'", () => {
+  const product = headedFastener("SOCK", [
+    specRow("Fastener Head Type", "Socket", false),
+    specRow("Drive Style", "Hex", false),
+    specRow("Thread Size", "1/4-20", false),
+    specRow("Length", '3/4"', false),
+    specRow("Material", "Alloy Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "socket head cap screw");
+});
+
+test("synthetic: low-profile socket head (grouped Head > Style 'Socket' + Profile 'Low') -> 'low head socket cap screw'", () => {
+  const product = headedFastener("LOWSOCK", [
+    groupHeader("Head"),
+    specRow("Style", "Socket", true),
+    specRow("Profile", "Low", true),
+    groupHeader("Drive"),
+    specRow("Style", "Hex", true),
+    specRow("Thread Size", "10-32", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Alloy Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "low head socket cap screw");
+});
+
+test("synthetic: hex head -> 'hex head cap screw'", () => {
+  const product = headedFastener("HEX", [
+    specRow("Fastener Head Type", "Hex", false),
+    specRow("Thread Size", "3/8-16", false),
+    specRow("Length", '1"', false),
+    specRow("Material", "Grade 8 Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "hex head cap screw");
+});
+
+test("synthetic: truss head -> 'truss head screw' (no 'cap')", () => {
+  const product = headedFastener("TRUSS", [
+    specRow("Fastener Head Type", "Truss", false),
+    specRow("Drive Style", "Phillips", false),
+    specRow("Thread Size", "8-32", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "truss head screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: oval head, no socket drive -> 'oval head screw' (no 'cap')", () => {
+  const product = headedFastener("OVAL", [
+    specRow("Fastener Head Type", "Oval", false),
+    specRow("Drive Style", "Phillips", false),
+    specRow("Thread Size", "8-32", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "oval head screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: cheese head -> 'cheese head screw' (no 'cap')", () => {
+  const product = headedFastener("CHEESE", [
+    specRow("Fastener Head Type", "Cheese", false),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '3/8"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "cheese head screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: fillister head -> 'fillister head screw' (no 'cap')", () => {
+  const product = headedFastener("FILL", [
+    specRow("Fastener Head Type", "Fillister", false),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '3/8"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun } = classifyProduct(product);
+  assert.equal(noun, "fillister head screw");
+  assert.doesNotMatch(noun, /cap/i);
+});
+
+test("synthetic: Head > Style genuinely 'Round' -> 'round head screw'; the flat 'Rounded' umbrella alone never produces it", () => {
+  const roundProduct = headedFastener("ROUND", [
+    groupHeader("Head"),
+    specRow("Style", "Round", true),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '3/8"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  assert.equal(classifyProduct(roundProduct).noun, "round head screw");
+
+  // No grouped Head > Style at all -- only the bare umbrella field, which
+  // covers several real head shapes and must never be read as "round".
+  const umbrellaOnly = headedFastener("UMBRELLA", [
+    specRow("Fastener Head Type", "Rounded", false),
+    specRow("Thread Size", "6-32", false),
+    specRow("Length", '3/8"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  assert.doesNotMatch(classifyProduct(umbrellaOnly).noun, /\bround\b/i);
+});
+
+test("synthetic: shoulder screw -- McMaster spells its head type/drive the same as a plain socket cap screw ('Socket'/'Hex'), but Shoulder Diameter/Length wins -- noun 'shoulder screw', query leads with the shoulder, not the tapped thread", () => {
+  const product = headedFastener("SHLD", [
+    specRow("Fastener Head Type", "Socket", false),
+    specRow("Drive Style", "Hex", false),
+    specRow("Shoulder Diameter", '1/4"', false),
+    specRow("Shoulder Length", '1/2"', false),
+    specRow("Thread Size", "10-24", false),
+    specRow("Thread Length", '3/8"', false),
+    specRow("Material", "Alloy Steel", false),
+  ]);
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "shoulder screw");
+  assert.doesNotMatch(noun, /cap/i);
+
+  const { primary, terms } = buildQueries(product);
+  assert.equal(terms.shoulderDiameter, '1/4"');
+  assert.equal(terms.shoulderLength, '1/2"');
+  assert.match(primary, /^1\/4" x 1\/2" shoulder screw/);
+  assert.doesNotMatch(primary, /10-24/, "the tapped thread size is not the part's searchable size");
+});
+
+test("90298A537 (real record): a shoulder screw whose own Head/Drive fields read exactly like a socket cap screw still comes out 'shoulder screw'", () => {
+  if (!remoteFixtureExists("90298A537")) return; // written by the concurrent sweep; not guaranteed present
+  const product = loadRemoteFixture("90298A537");
+  assert.equal(product.byName("Fastener Head Type"), "Socket");
+  assert.equal(product.byName("Drive Style"), "Hex");
+  assert.equal(product.byName("Shoulder Diameter"), '1/4"');
+  assert.equal(product.byName("Shoulder Length"), '1/2"');
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "shoulder screw");
+  assert.doesNotMatch(noun, /cap/i);
+
+  const { primary } = buildQueries(product);
+  assert.match(primary, /^1\/4" x 1\/2" shoulder screw/);
+  assert.doesNotMatch(primary, /10-24/, "the tapped thread size must not stand in for the shoulder's own size");
+  assert.match(primary, /18-8 stainless steel/i);
+});
+
+test("synthetic: thumb screw -> 'thumb screw'", () => {
+  const product = headedFastener("THUMB", [
+    specRow("Fastener Head Type", "Thumb", false),
+    specRow("Thread Size", "8-32", false),
+    specRow("Length", '1"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "thumb screw");
+});
+
+test("synthetic: wing screw -> 'wing screw'", () => {
+  const product = headedFastener("WING", [
+    specRow("Fastener Head Type", "Wing", false),
+    specRow("Thread Size", "8-32", false),
+    specRow("Length", '1"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "wing screw");
+});
+
+test("synthetic: set screw -- Tip Type 'Flat' -> 'flat point set screw' (never confused with a flat *head*)", () => {
+  const product = headedFastener("SETFLAT", [
+    specRow("Fastener Head Type", "Headless", false),
+    specRow("Tip Type", "Flat", false),
+    specRow("Thread Size", "1/4-20", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "flat point set screw");
+  assert.doesNotMatch(noun, /\bflat head\b/);
+});
+
+test("synthetic: set screw -- Tip Type already ends in 'Point' ('Dog Point') is not doubled to 'dog point point'", () => {
+  const product = headedFastener("SETDOG", [
+    specRow("Fastener Head Type", "Headless", false),
+    specRow("Tip Type", "Dog Point", false),
+    specRow("Thread Size", "1/4-20", false),
+    specRow("Length", '1/2"', false),
+    specRow("Material", "Steel", false),
+  ]);
+  assert.equal(classifyProduct(product).noun, "dog point set screw");
 });
