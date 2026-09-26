@@ -1,0 +1,176 @@
+{
+  "partNumber": "96887A331",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "96887A331",
+    "title": "Low-Strength Steel Square Nut, Class 5, Zinc-Plated, M5 x 0.8 mm Thread",
+    "family": "Square Nuts",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Nuts",
+      "Square Nuts",
+      "Low-Strength Steel Square Nuts"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Fastener Strength Grade/Class",
+        "value": "Class 5"
+      },
+      {
+        "group": "Thread",
+        "name": "Size",
+        "value": "M5 × 0.8 mm"
+      },
+      {
+        "group": "Thread",
+        "name": "Type",
+        "value": "Metric"
+      },
+      {
+        "group": "Thread",
+        "name": "Spacing",
+        "value": "Coarse"
+      },
+      {
+        "group": "Thread",
+        "name": "Fit",
+        "value": "Metric Class 7H"
+      },
+      {
+        "group": "Thread",
+        "name": "Direction",
+        "value": "Right Hand"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "8 mm"
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "4 mm"
+      },
+      {
+        "group": null,
+        "name": "Drive Style",
+        "value": "External Square"
+      },
+      {
+        "group": null,
+        "name": "Fastener Strength Rating",
+        "value": "Low"
+      },
+      {
+        "group": null,
+        "name": "Finish",
+        "value": "Zinc Plated"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Steel"
+      },
+      {
+        "group": null,
+        "name": "Nut Type",
+        "value": "Square"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "DIN 557"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "China, Malaysia, Taiwan"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731816.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "low-strength steel square nut",
+    "kind": "nut"
+  },
+  "queries": {
+    "primary": "M5-0.8 low-strength steel square nut Zinc Plated",
+    "alternates": [
+      "M5-0.8 low-strength steel square nut"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=M5-0.8+low-strength+steel+square+nut+Zinc+Plated",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=M5-0.8%20low-strength%20steel%20square%20nut%20Zinc%20Plated",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=M5-0.8+low-strength+steel+square+nut+Zinc+Plated",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Browse?Category=Nuts&Units=US",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=M5-0.8+low-strength+steel+square+nut+Zinc+Plated",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/wholesale?SearchText=M5-0.8+low-strength+steel+square+nut+Zinc+Plated",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    },
+    {
+      "supplier": "Banggood",
+      "url": "https://www.banggood.com/search/m5-0.8-low-strength-steel-square-nut-zinc-plated.html",
+      "query": "M5-0.8 low-strength steel square nut Zinc Plated"
+    }
+  ],
+  "error": null
+}

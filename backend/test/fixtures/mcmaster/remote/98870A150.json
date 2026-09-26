@@ -1,0 +1,158 @@
+{
+  "partNumber": "98870A150",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "98870A150",
+    "title": "Machine Key, 1008-1045 Steel, 3/16\" x 3/16\", 1-1/4\" Long, Undersized",
+    "family": "Machine Keys",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Machine Keys"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Material",
+        "value": "1008-1045 Carbon Steel"
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "3/16\""
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "3/16\""
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1 1/4\""
+      },
+      {
+        "group": null,
+        "name": "Tolerance Rating",
+        "value": "Undersized"
+      },
+      {
+        "group": "Tolerance",
+        "name": "Height",
+        "value": "-0.002\" to 0.000\""
+      },
+      {
+        "group": "Tolerance",
+        "name": "Width",
+        "value": "-0.002\" to 0.000\""
+      },
+      {
+        "group": "Tolerance",
+        "name": "Length",
+        "value": "-0.030\" to 0.000\""
+      },
+      {
+        "group": null,
+        "name": "Minimum Hardness",
+        "value": "Rockwell B50"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ASME B17.1 Class 1"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "group": null,
+        "name": "Key Type",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States, Taiwan"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/27/2024, 241 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731824.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "machine key",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "1 1/4\" machine key 1008-1045 Carbon Steel",
+    "alternates": [
+      "1 1/4\" machine key"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%201%2F4%22%20machine%20key%201008-1045%20Carbon%20Steel",
+      "query": "1 1/4\" machine key 1008-1045 Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1+1%2F4%22+machine+key+1008-1045+Carbon+Steel",
+      "query": "1 1/4\" machine key 1008-1045 Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=1%201%2F4%22%20machine%20key%201008-1045%20Carbon%20Steel",
+      "query": "1 1/4\" machine key 1008-1045 Carbon Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=1+1%2F4%22+machine+key+1008-1045+Carbon+Steel",
+      "query": "1 1/4\" machine key 1008-1045 Carbon Steel",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

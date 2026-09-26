@@ -1,0 +1,271 @@
+{
+  "partNumber": "8983K115",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "8983K115",
+    "title": "Multipurpose 304 Stainless Steel Sheet, 6\" x 6\", 0.06\" Thick",
+    "family": "Stainless Steel",
+    "categoryPath": [
+      "Raw Materials",
+      "Metals",
+      "Stainless Steel",
+      "Multipurpose 304 Stainless Steel Sheets"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Thickness",
+        "value": "0.06\""
+      },
+      {
+        "group": null,
+        "name": "Thickness Tolerance",
+        "value": "-0.004\" to 0.004\""
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "6\""
+      },
+      {
+        "group": null,
+        "name": "Width Tolerance",
+        "value": "-1/8\" to 1/8\""
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "6\""
+      },
+      {
+        "group": null,
+        "name": "Length Tolerance",
+        "value": "-1/8\" to 1/8\""
+      },
+      {
+        "group": null,
+        "name": "Fabrication",
+        "value": "Cold Worked"
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Rockwell B80 (Medium)"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ASTM A240"
+      },
+      {
+        "group": null,
+        "name": "Appearance",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Application",
+        "value": "Multipurpose"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "group": null,
+        "name": "Elongation",
+        "value": "50%"
+      },
+      {
+        "group": null,
+        "name": "Flatness Tolerance",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Heat Treatable",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Heat Treatment",
+        "value": "Annealed"
+      },
+      {
+        "group": null,
+        "name": "Magnetic Properties",
+        "value": "Nonmagnetic"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "304 Stainless Steel"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Carbon",
+        "value": "0% to 0.08%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Chromium",
+        "value": "17.5% to 20%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Iron",
+        "value": "64.74% to 74.5%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Manganese",
+        "value": "0% to 2%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Nickel",
+        "value": "8% to 12%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Nitrogen",
+        "value": "0% to 0.1%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Phosphorus",
+        "value": "0% to 0.045%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Silicon",
+        "value": "0% to 1%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Sulfur",
+        "value": "0% to 0.03%"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "1,500° F"
+      },
+      {
+        "group": null,
+        "name": "Minimum Temperature",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Corrosion Resistant, Chemical Resistant, High Strength, High Temperature, Ultra Formable, Highly Weldable"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Sheet"
+      },
+      {
+        "group": null,
+        "name": "Tolerance Rating",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Warning Message",
+        "value": "Physical and mechanical properties are not guaranteed. They are intended only as a basis for comparison and not for design purposes."
+      },
+      {
+        "group": null,
+        "name": "Yield Strength",
+        "value": "30,000 psi"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States, China, Indonesia"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Not Specialty Metals Compliant"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "1C999"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "722020.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "stainless steel sheet",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "0.06\" 6\" 304 stainless steel sheet",
+    "alternates": [
+      "0.06\" 6\" stainless steel sheet"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=304+stainless+steel+sheet",
+      "query": "304 stainless steel sheet",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=304+stainless+steel+sheet",
+      "query": "304 stainless steel sheet",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=0.06%22+6%22+304+stainless+steel+sheet",
+      "query": "0.06\" 6\" 304 stainless steel sheet",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=0.06%22%206%22%20304%20stainless%20steel%20sheet",
+      "query": "0.06\" 6\" 304 stainless steel sheet",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=304%20stainless%20steel%20sheet",
+      "query": "304 stainless steel sheet",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

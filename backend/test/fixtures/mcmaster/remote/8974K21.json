@@ -1,0 +1,261 @@
+{
+  "partNumber": "8974K21",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "8974K21",
+    "title": "Multipurpose 6061 Aluminum Rod, 3/16\" Diameter",
+    "family": "Aluminum",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Tolerance Rating",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Relative Length",
+        "value": "Long"
+      },
+      {
+        "group": null,
+        "name": "Diameter",
+        "value": "3/16\""
+      },
+      {
+        "group": null,
+        "name": "Diameter Tolerance",
+        "value": "-0.006\" to 0.006\""
+      },
+      {
+        "group": null,
+        "name": "Fabrication",
+        "value": "Cold Worked"
+      },
+      {
+        "group": null,
+        "name": "Temper Designation",
+        "value": "T6"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ASTM B211"
+      },
+      {
+        "group": null,
+        "name": "Appearance",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Application",
+        "value": "Multipurpose"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "group": null,
+        "name": "Conductivity Percentage",
+        "value": "43% IACS"
+      },
+      {
+        "group": null,
+        "name": "Elongation",
+        "value": "12.5%"
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Brinell 95"
+      },
+      {
+        "group": null,
+        "name": "Hardness Rating",
+        "value": "Soft"
+      },
+      {
+        "group": null,
+        "name": "Heat Treatable",
+        "value": "Yes"
+      },
+      {
+        "group": null,
+        "name": "Heat Treatment",
+        "value": "Hardened"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "6061 Aluminum"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Aluminum",
+        "value": "95.85% to 98.61%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Chromium",
+        "value": "0.04% to 0.35%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Copper",
+        "value": "0.15% to 0.4%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Iron",
+        "value": "0% to 0.7%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Magnesium",
+        "value": "0.8% to 1.2%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Manganese",
+        "value": "0% to 0.15%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Other",
+        "value": "0% to 0.15%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Silicon",
+        "value": "0.4% to 0.8%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Titanium",
+        "value": "0% to 0.15%"
+      },
+      {
+        "group": "Material Composition",
+        "name": "Zinc",
+        "value": "0% to 0.25%"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Corrosion Resistant, Formable, Heat Treatable, High Strength, Machinable, Ultra Low Temperature, Ultra Weldable"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Rod"
+      },
+      {
+        "group": null,
+        "name": "Straightness Tolerance",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Temperature",
+        "value": "-320° F to 300° F"
+      },
+      {
+        "group": null,
+        "name": "Warning Message",
+        "value": "Physical and mechanical properties are not guaranteed. They are intended only as a basis for comparison and not for design purposes."
+      },
+      {
+        "group": null,
+        "name": "Yield Strength",
+        "value": "35,000 psi"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/27/2024, 241 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "760429.3060"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "aluminum rod",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "3/16\" 6061 aluminum rod",
+    "alternates": [
+      "3/16\" aluminum rod"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=6061+aluminum+rod",
+      "query": "6061 aluminum rod",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=6061+aluminum+rod",
+      "query": "6061 aluminum rod",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=3%2F16%22+6061+aluminum+rod",
+      "query": "3/16\" 6061 aluminum rod",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=3%2F16%22%206061%20aluminum%20rod",
+      "query": "3/16\" 6061 aluminum rod",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=6061%20aluminum%20rod",
+      "query": "6061 aluminum rod",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

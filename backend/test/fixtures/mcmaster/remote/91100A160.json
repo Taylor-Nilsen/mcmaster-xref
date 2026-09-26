@@ -1,0 +1,162 @@
+{
+  "partNumber": "91100A160",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "91100A160",
+    "title": "Zinc-Plated Steel Oversized Washer, for M8 Screw Size, 8.4 mm ID, 24.0 mm OD",
+    "family": "Washers",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Washers, Lock Washers, and More",
+      "Washers",
+      "Oversized Washers"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Washer Designation",
+        "value": "Oversized"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Zinc-Plated Steel"
+      },
+      {
+        "group": null,
+        "name": "For Screw Size",
+        "value": "M8"
+      },
+      {
+        "group": null,
+        "name": "ID",
+        "value": "8.4 mm"
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "24.0 mm"
+      },
+      {
+        "group": null,
+        "name": "Thickness",
+        "value": "1.8 mm to 2.2 mm"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Rockwell B56"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "DIN 9021"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Washer Type",
+        "value": "Flat"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States, Belgium, Canada, China, France, Germany, India, Indonesia, Italy, Japan, Malaysia, Mexico, Philippines, Poland, South Korea, Switzerland, Taiwan, Thailand, Vietnam"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731822.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "flat oversized washer",
+    "kind": "washer"
+  },
+  "queries": {
+    "primary": "M8 flat oversized washer Steel zinc plated",
+    "alternates": [
+      "M8 flat oversized washer Steel"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=M8+flat+oversized+washer+Steel+zinc+plated",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=M8%20flat%20oversized%20washer%20Steel%20zinc%20plated",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=M8+flat+oversized+washer+Steel+zinc+plated",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Browse?Category=Washers&Units=US",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=M8+flat+oversized+washer+Steel+zinc+plated",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/w/wholesale-m8-flat-oversized-washer-steel-zinc-plated.html",
+      "query": "M8 flat oversized washer Steel zinc plated",
+      "verified": "renders"
+    }
+  ],
+  "error": null
+}
