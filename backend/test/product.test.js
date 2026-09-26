@@ -30,6 +30,7 @@ const {
   cleanValue,
   normalizeThread,
   normalizeGauge,
+  extractJsonObject,
 } = require("../lib/product");
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "mcmaster");
@@ -141,6 +142,196 @@ test("buildSupplierLinks routes raw stock to the metal suppliers, dropping dimen
   assert.ok(!/3\/16/.test(speedy.query), "dimensionless supplier should have the size stripped");
   const msc = links.find((l) => l.supplier === "MSC Direct");
   assert.ok(/3\/16/.test(msc.query), "a distributor that indexes dimensions should keep them");
+});
+
+// ---------------------------------------------------------------------------
+// 92620A624: three real defects found on a live sweep capture (a Grade 8
+// hex head cap screw). Read directly from
+// test/fixtures/mcmaster/sweep/92620A624.raw -- the sweep that captured it
+// is still running and this file is a real McMaster response, not a
+// synthetic one.
+// ---------------------------------------------------------------------------
+
+const SWEEP_DIR = path.join(FIXTURES_DIR, "sweep");
+const load92620A624 = () => parseProductRecord(fs.readFileSync(path.join(SWEEP_DIR, "92620A624.raw")));
+
+test("92620A624: Fastener Strength Grade/Class 'SAE Grade 8' normalizes to 'Grade 8' and reaches the query", () => {
+  const product = load92620A624();
+  assert.equal(product.byName("Fastener Strength Grade/Class"), "SAE Grade 8");
+  // The thread-fit class lives under a different attribute entirely and
+  // must never be mistaken for a strength grade.
+  assert.equal(product.byName("Thread Fit"), "Unified Standard Class 2A");
+
+  const { primary, terms } = buildQueries(product);
+  assert.equal(terms.grade, "Grade 8");
+  assert.match(primary, /\bGrade 8\b/);
+  assert.doesNotMatch(primary, /2A/, "the thread-fit class must never leak into the query as a grade");
+});
+
+test("92620A624: fully-hyphenated Material ('Zinc-Yellow-Chromate-Plated Steel') still splits into finish + material, rendered in plain words", () => {
+  const product = load92620A624();
+  assert.equal(product.byName("Material"), "Zinc-Yellow-Chromate-Plated Steel");
+
+  const { terms } = buildQueries(product);
+  assert.equal(terms.finish, "zinc yellow chromate");
+  assert.equal(terms.material, "Steel");
+});
+
+test("92620A624: empty Breadcrumbs ([]) still classifies correctly via the attribute fallback, and the primary query is complete", () => {
+  const product = load92620A624();
+  assert.deepEqual(product.categoryPath, [], "this record's own ReactData.Breadcrumbs is []");
+
+  const { noun, kind } = classifyProduct(product);
+  assert.equal(kind, "fastener");
+  assert.equal(noun, "hex head cap screw");
+
+  const { primary } = buildQueries(product);
+  // Size, "Grade 8", the noun, and the material must all be present and
+  // human-readable; finish wording may vary but must be present too.
+  assert.match(primary, /3\/8"-16/);
+  assert.match(primary, /x 1"/);
+  assert.match(primary, /Grade 8/);
+  assert.match(primary, /hex head cap screw/i);
+  assert.match(primary, /steel/i);
+});
+
+test("classifyKindFromAttributes: stripping Breadcrumbs from each of the five original fixtures leaves kind and noun unchanged", () => {
+  const names = ["91251A540", "90480A005", "91102A029", "9528K13", "92196A106"];
+  for (const name of names) {
+    const withCrumbs = loadFixture(name);
+    const expected = classifyProduct(withCrumbs);
+
+    const text = fs.readFileSync(path.join(FIXTURES_DIR, `${name}.raw`)).toString("utf8");
+    const jsonText = extractJsonObject(text, text.indexOf("{"));
+    const rec = JSON.parse(jsonText);
+    rec.ReactData = { ...rec.ReactData, Breadcrumbs: [] };
+    const stripped = parseProductRecord(rec);
+    assert.deepEqual(stripped.categoryPath, []);
+    const actual = classifyProduct(stripped);
+
+    assert.equal(actual.kind, expected.kind, `${name}: kind changed when Breadcrumbs was stripped`);
+    assert.equal(actual.noun, expected.noun, `${name}: noun changed when Breadcrumbs was stripped`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// classifyKindFromAttributes: additional structural signals for records
+// with a thin or empty breadcrumb trail (pins, rings, rivets, springs,
+// inserts, standoffs, seals, fittings, raw stock, and the title/family
+// text fallback used when nothing else applies).
+// ---------------------------------------------------------------------------
+
+test("synthetic: dowel pin with a generic 'Head Type' and no breadcrumbs still classifies as 'other', not 'fastener'", () => {
+  // Some non-threaded parts (this one included) carry a generic "Head
+  // Type" field of their own -- classifyKindFromAttributes must check the
+  // part-specific "Pin Type" signal before falling back to the generic
+  // "Fastener Head Type"/"Head Type" rule, or this would wrongly become a
+  // fastener and lose its diameter through fastenerQuery.
+  const product = parseProductRecord(
+    record({
+      part: "98381A400",
+      title: 'Steel Clevis Pin, 1/4" Diameter, 1" Length',
+      family: "Clevis Pins",
+      breadcrumbs: [],
+      entries: [
+        specRow("Pin Type", "Clevis", false),
+        specRow("Head Type", "Round", false),
+        specRow("Diameter", '1/4"', false),
+        specRow("Length", '1"', false),
+        specRow("Material", "Steel", false),
+      ],
+    })
+  );
+  const { kind } = classifyProduct(product);
+  assert.equal(kind, "other");
+});
+
+test("synthetic: o-ring with only a Dash Number and no breadcrumbs classifies as 'sealing'", () => {
+  const product = parseProductRecord(
+    record({
+      part: "9464K11",
+      title: "Buna-N O-Ring",
+      family: "O-Rings",
+      breadcrumbs: [],
+      entries: [specRow("Dash Number", "-014", false), specRow("Material", "Buna-N Rubber", false)],
+    })
+  );
+  const { kind } = classifyProduct(product);
+  assert.equal(kind, "sealing");
+});
+
+test("synthetic: NPT pipe fitting with no Pipe Size field and no breadcrumbs classifies as 'fitting' off Thread Type", () => {
+  const product = parseProductRecord(
+    record({
+      part: "48925K111",
+      title: "Steel Pipe Coupling",
+      family: "Pipe Couplings",
+      breadcrumbs: [],
+      entries: [specRow("Thread Type", "NPT", false), specRow("Material", "Steel", false)],
+    })
+  );
+  const { kind } = classifyProduct(product);
+  assert.equal(kind, "fitting");
+});
+
+test("synthetic: raw stock with only Wall Thickness (no Shape field) and no breadcrumbs classifies as 'rawstock'", () => {
+  const product = parseProductRecord(
+    record({
+      part: "89785K25",
+      title: '304 Stainless Steel Round Tube, 1" OD',
+      family: "Stainless Steel",
+      breadcrumbs: [],
+      entries: [
+        specRow("Material", "304 Stainless Steel", false),
+        specRow("OD", '1"', false),
+        specRow("Wall Thickness", '0.065"', false),
+      ],
+    })
+  );
+  const { kind } = classifyProduct(product);
+  assert.equal(kind, "rawstock");
+});
+
+test("synthetic: no breadcrumbs and no recognized attribute -- title/family text is the last-resort signal ('Hex Nut' -> nut)", () => {
+  const product = parseProductRecord(
+    record({
+      part: "90480ATEST",
+      title: 'Steel Hex Nut, 1/4"-20 Thread Size',
+      family: "Hex Nuts",
+      breadcrumbs: [],
+      entries: [specRow("Material", "Steel", false)],
+    })
+  );
+  const { kind } = classifyProduct(product);
+  assert.equal(kind, "nut");
+});
+
+test("synthetic: a bare 'Class' attribute is only read as a grade when it is metric-class-shaped, never a thread-fit class", () => {
+  const product = parseProductRecord(
+    record({
+      part: "91257ATEST",
+      title: "Steel Hex Bolt",
+      family: "Hex Bolts",
+      breadcrumbs: [crumb("Fastening and Joining", "product-category"), crumb("Screws and Bolts", "product-line-2")],
+      entries: [specRow("Class", "2A", false), specRow("Material", "Steel", false), specRow("Length", '2"', false)],
+    })
+  );
+  const { terms } = buildQueries(product);
+  assert.equal(terms.grade, null, "a bare 'Class: 2A' is a thread-fit class, not a strength grade");
+});
+
+test("synthetic: a bare 'Class' attribute shaped like a metric property class ('10.9') is read as a grade", () => {
+  const product = parseProductRecord(
+    record({
+      part: "91257ATEST2",
+      title: "Alloy Steel Hex Bolt",
+      family: "Hex Bolts",
+      breadcrumbs: [crumb("Fastening and Joining", "product-category"), crumb("Screws and Bolts", "product-line-2")],
+      entries: [specRow("Class", "10.9", false), specRow("Material", "Alloy Steel", false), specRow("Length", '20mm', false)],
+    })
+  );
+  const { terms } = buildQueries(product);
+  assert.equal(terms.grade, "Class 10.9");
 });
 
 // ---------------------------------------------------------------------------

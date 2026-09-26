@@ -144,7 +144,11 @@ test("pastedText is turned into a synthetic record and runs the same pipeline", 
   assert.equal(body.partNumber, "91251A540");
   assert.equal(body.error, null);
   assert.equal(body.classification.noun, "socket head cap screw");
-  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
+  // lib/product.js now emits the finish in plain lowercase words rather
+  // than McMaster's own hyphenated/capitalized form -- see product.test.js
+  // for the regression this covers (a supplier search box expects "black
+  // oxide", never "Black-Oxide").
+  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel black oxide');
   const material = body.product.attributes.find((a) => a.name === "Material");
   assert.equal(material.value, "Black-Oxide Alloy Steel");
 }));
@@ -161,7 +165,7 @@ test("manual specs alone synthesize a product and produce a query", withServer(a
   assert.equal(body.source, "manual");
   assert.equal(body.error, null);
   assert.equal(body.classification.noun, "socket head cap screw");
-  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
+  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel black oxide');
   assert.ok(body.links.length > 0);
 }));
 

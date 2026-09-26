@@ -290,24 +290,73 @@ function isFastenerCategory(path, product) {
   return topLevelMatch && hasThreadedFastenerSignal(product);
 }
 
+// Very small last-resort signal: when a record has neither a usable
+// breadcrumb trail nor a spec field this module recognizes (an empty
+// `ReactData.Breadcrumbs`, seen on a real captured record -- see
+// test/fixtures/mcmaster/sweep/92620A624.json), the page's own title and
+// family name still say what the part is in plain English. Deliberately
+// narrow and checked dead last: a word search over free text is far less
+// reliable than a labeled attribute, so it only ever gets a chance to run
+// once every attribute-based rule above has already declined to answer.
+function classifyKindFromTitleFamily(product) {
+  const text = lc(`${product.title || ""} ${product.family || ""}`);
+  if (!text.trim()) return null;
+  if (/\bnut\b/.test(text)) return "nut";
+  if (/\bwasher\b/.test(text)) return "washer";
+  if (/\bbearing\b/.test(text)) return "bearing";
+  if (/\b(o-ring|gasket|seal)\b/.test(text)) return "sealing";
+  if (/\b(fitting|nipple|coupling|valve|adapter)\b/.test(text)) return "fitting";
+  if (/\b(pin|retaining ring|rivet|spring|insert|standoff)\b/.test(text)) return "other";
+  if (/\b(screw|bolt|\bstud\b)\b/.test(text)) return "fastener";
+  return null;
+}
+
 /**
  * Structural fallback for a record with a thin or missing breadcrumb trail
  * -- deliberately conservative, mirroring lib/specs.js's own fallback
  * (partFamily): a wrong kind is what put washers in front of bar-stock
  * vendors there, so each rule below only fires on a field that really does
  * imply that kind.
+ *
+ * Order matters: a handful of non-fastener part types (pins, retaining
+ * rings, rivets, springs, inserts, standoffs) sometimes carry a generic
+ * "Head Type" of their own, so their own more specific fields are checked
+ * *before* the generic "Fastener Head Type"/"Head Type"/"Thread Size"
+ * rules -- those two now sit at the bottom as the true catch-alls they are,
+ * exactly as reliable as before for an actual screw/bolt/nut/rod, just no
+ * longer able to steal a pin or a rivet away from its own rule first.
  */
 function classifyKindFromAttributes(product) {
-  if (product.byName("Fastener Head Type") || product.byName("Head Type")) return "fastener";
   if (product.byName("Nut Type")) return "nut";
   if (product.byName("For Screw Size") || product.byName("Screw Size")) return "washer";
-  if (product.byName("Thread Size") || product.byName("Size", "Thread")) return "fastener";
+  // Pins, retaining rings, rivets, springs, inserts and standoffs have no
+  // dedicated query builder of their own -- they fall through to the
+  // generic "other" bucket (otherQuery already knows how to read a wire
+  // diameter, a free length, a plain diameter+length pair, ...) -- but
+  // routing them there explicitly, off their own field names, keeps them
+  // out of fastenerQuery, which would otherwise read a stray "Head Type"
+  // or thread field wrong or just silently drop a pin/spring's real specs.
+  if (product.byName("Pin Type")) return "other";
+  if (product.byName("Retaining Ring Type")) return "other";
+  if (product.byName("Rivet Type")) return "other";
+  if (product.byName("Spring Type") || product.byName("Wire Diameter")) return "other";
+  if (product.byName("Insert Type")) return "other";
+  if (product.byName("Standoff Type")) return "other";
   // "For Shaft Diameter" is what McMaster calls a shaft collar's bore --
   // a distinct field name from "Bore", but the same kind of part (a
   // bore-and-OD size, no thread), so it gets routed the same way.
   if (product.byName("Bore") || product.byName("Bearing Type") || product.byName("For Shaft Diameter")) return "bearing";
-  if (product.byName("Shape")) return "rawstock";
-  return "other";
+  // Dash Number (an AS568 o-ring size code) and Durometer are seal-specific
+  // enough on their own that neither shows up on anything else this module
+  // classifies.
+  if (product.byName("Dash Number") || product.byName("Durometer")) return "sealing";
+  if (product.byName("Pipe Size") || product.byName("Tube OD")) return "fitting";
+  const threadType = product.byName("Thread Type");
+  if (threadType && /npt/i.test(threadType)) return "fitting";
+  if (product.byName("Shape") || product.byName("Wall Thickness")) return "rawstock";
+  if (product.byName("Fastener Head Type") || product.byName("Head Type")) return "fastener";
+  if (product.byName("Thread Size") || product.byName("Size", "Thread")) return "fastener";
+  return classifyKindFromTitleFamily(product) || "other";
 }
 
 function classifyKind(product) {
@@ -431,13 +480,49 @@ function classifyProduct(product) {
 // Steel"); suppliers index the two separately, so split them apart. Ported
 // from lib/specs.js's FINISH_PREFIXES/normalizeSpecs, now applied to the
 // structured Material field instead of a fuzzy label/value scan.
+//
+// `match` is checked against the material with every hyphen turned into a
+// space first (McMaster is inconsistent about which finish words it
+// hyphenates -- "Zinc Yellow-Chromate Plated" in some records, fully
+// hyphenated "Zinc-Yellow-Chromate-Plated" in others -- and a hyphen and a
+// space are both single characters, so the matched length still lines up
+// with the *original*, un-normalized material string for slicing). `canonical`
+// is what actually reaches a query: McMaster's own capitalized/hyphenated
+// form ("Black-Oxide", "Zinc-Yellow-Chromate-Plated") is never a phrase a
+// supplier search box expects -- plain lowercase words are.
 const FINISH_PREFIXES = [
-  "black-oxide", "black oxide", "zinc yellow-chromate plated",
-  "yellow-chromate plated", "zinc-plated", "zinc plated",
-  "hot-dipped galvanized", "galvanized", "chrome-plated", "chrome plated",
-  "nickel-plated", "nickel plated", "passivated", "anodized",
-  "powder-coated", "powder coated", "phosphate", "cadmium-plated",
+  { match: "black oxide", canonical: "black oxide" },
+  { match: "zinc yellow chromate plated", canonical: "zinc yellow chromate" },
+  { match: "yellow chromate plated", canonical: "yellow chromate" },
+  { match: "zinc plated", canonical: "zinc plated" },
+  { match: "hot dipped galvanized", canonical: "hot dip galvanized" },
+  { match: "hot dip galvanized", canonical: "hot dip galvanized" },
+  { match: "galvanized", canonical: "galvanized" },
+  { match: "chrome plated", canonical: "chrome plated" },
+  { match: "nickel plated", canonical: "nickel plated" },
+  { match: "passivated", canonical: "passivated" },
+  { match: "anodized", canonical: "anodized" },
+  { match: "powder coated", canonical: "powder coated" },
+  { match: "phosphate", canonical: "phosphate" },
+  { match: "cadmium plated", canonical: "cadmium plated" },
 ];
+
+function findFinishPrefix(normalizedLower) {
+  return FINISH_PREFIXES.find((f) => normalizedLower.startsWith(f.match)) || null;
+}
+
+// For a finish that arrives as its own labeled attribute ("Finish": "Zinc
+// Plated") rather than folded into Material -- still McMaster's
+// hyphenated/capitalized form, so it gets the same plain-words treatment
+// every builder now applies uniformly.
+function canonicalizeFinishText(raw) {
+  if (!raw) return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  const normalized = lc(trimmed).replace(/-/g, " ");
+  const hit = findFinishPrefix(normalized);
+  return hit ? hit.canonical : normalized;
+}
 
 // McMaster folds a metric property class into the material string too
 // ("Class 12.9 Alloy Steel"). A genuine strength rating survives this way;
@@ -452,21 +537,80 @@ function splitMaterial(materialRaw) {
   let finish = null;
   let grade = null;
   if (material) {
-    const lower = lc(material);
-    const hitFinish = FINISH_PREFIXES.find((f) => lower.startsWith(f));
+    const normalized = lc(material).replace(/-/g, " ");
+    const hitFinish = findFinishPrefix(normalized);
     if (hitFinish) {
-      finish = material.slice(0, hitFinish.length).trim();
-      material = material.slice(hitFinish.length).trim();
+      finish = hitFinish.canonical;
+      material = material.slice(hitFinish.match.length).trim();
     }
   }
   if (material) {
     const hitGrade = material.match(GRADE_PREFIX_RE);
     if (hitGrade) {
-      grade = hitGrade[1].trim();
+      grade = normalizeGradeValue(hitGrade[1].trim());
       material = material.slice(hitGrade[0].length).trim();
     }
   }
   return { material: material || null, finish, grade };
+}
+
+// ---------------------------------------------------------------------------
+// Grade / strength class
+// ---------------------------------------------------------------------------
+
+// McMaster spells a fastener's strength grade under several different
+// attribute names depending on which standard it's rated to (SAE for a
+// domestic hex/socket screw, a metric property class for an imported one,
+// or occasionally a bare "Class"). None of these is the thread *fit* class
+// ("Unified Standard Class 2A"/"3B") -- that always lives under a
+// differently named attribute ("Thread Fit"/"Fit"), so it is never read
+// here at all. The one exception is a bare "Class" attribute name, which
+// McMaster does use for a genuine metric property class on some records;
+// it is only trusted when its *value* is shaped like one (a decimal
+// number such as "10.9", never a bare integer-plus-letter like "2A").
+const GRADE_ATTR_NAMES = [
+  "Fastener Strength Grade/Class",
+  "Strength Grade",
+  "Grade/Class",
+  "Property Class",
+  "Grade",
+];
+
+// A metric property class is a one- or two-digit number, a decimal point,
+// then one digit ("8.8", "9.8", "10.9", "12.9") -- distinct in shape from a
+// thread-fit class ("2A", "3B", a bare "2"), which is what lets a bare
+// "Class" attribute be read safely for a grade.
+const METRIC_CLASS_RE = /^(?:class\s*)?(\d{1,2}\.\d)$/i;
+
+function normalizeGradeValue(raw) {
+  if (!raw) return null;
+  const v = String(raw).trim();
+  if (!v) return null;
+  const sae = v.match(/^SAE\s+Grade\s+([\w.]+)$/i);
+  if (sae) return `Grade ${sae[1]}`;
+  const metric = v.match(METRIC_CLASS_RE);
+  if (metric) return `Class ${metric[1]}`;
+  if (/^grade\s+[\w.]+$/i.test(v)) return v.replace(/^grade/i, "Grade");
+  if (/^class\s+\d+(?:\.\d+)?$/i.test(v)) return v.replace(/^class/i, "Class");
+  return v;
+}
+
+// Reads the grade off the record's own labeled attributes, trying each
+// name McMaster uses in turn, before ever falling back to a grade folded
+// into Material (splitMaterial's job). A bare "Class" is included only
+// when its value is metric-class-shaped -- see METRIC_CLASS_RE above --
+// so it never picks up a thread-fit class that happens to also be named
+// "Class" on some other record.
+function readGrade(product) {
+  for (const name of GRADE_ATTR_NAMES) {
+    const raw = product.byName(name);
+    if (raw) return normalizeGradeValue(raw);
+  }
+  const classRaw = product.byName("Class");
+  if (classRaw && METRIC_CLASS_RE.test(String(classRaw).trim())) {
+    return normalizeGradeValue(classRaw);
+  }
+  return null;
 }
 
 // "M6 x 1 mm" is McMaster's phrasing for a metric thread; left as-is it
@@ -567,8 +711,8 @@ function fastenerQuery(product, noun) {
   const length = lengthRaw ? normalizeLength(lengthRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish, grade: materialGrade } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
-  const grade = product.byName("Grade") || materialGrade;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
+  const grade = readGrade(product) || materialGrade;
 
   // "x" only belongs between two dimensions -- with no thread size to
   // join it to, a bare length is not "x 1"", it's just "1"".
@@ -587,8 +731,9 @@ function nutQuery(product, noun) {
   const threadRaw = product.byName("Thread Size") || product.byName("Size", "Thread");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
-  const { material, finish: derivedFinish, grade } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const { material, finish: derivedFinish, grade: materialGrade } = splitMaterial(materialRaw);
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
+  const grade = readGrade(product) || materialGrade;
 
   const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
   const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
@@ -601,7 +746,7 @@ function washerQuery(product, noun) {
   const screwSize = screwRaw ? normalizeSize(screwRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
   const primary = joinTerms([screwSize, noun, dedupedMaterial, dedupedFinish]);
@@ -694,7 +839,7 @@ function fittingQuery(product, noun) {
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
   const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish]);
@@ -709,7 +854,7 @@ function fittingQuery(product, noun) {
 function otherQuery(product, noun) {
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   // Roller chain's own ANSI chain number ("ANSI Number"/"Chain Number"/
   // "Chain Size", or a "#40"-style token in the title when McMaster
