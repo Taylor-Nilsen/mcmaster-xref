@@ -1,0 +1,266 @@
+[
+  {
+    "part": "5489T411",
+    "family": "solenoid valve",
+    "source": "https://github.com/Deeplocal/io19-smarthome-sample/blob/master/README.MD (BOM row: 'Electric Solenoid Valve', $227.58)",
+    "confidence": "high"
+  },
+  {
+    "part": "8002K116",
+    "family": "toggle switch",
+    "source": "https://github.com/hover-stop/hardware/blob/main/BOM.md (row 63478: 'Toggle Switch, 3 Position ... 3-position, rounded, momentary, DPDT toggle switch with IP67 rating')",
+    "confidence": "high"
+  },
+  {
+    "part": "7546K23",
+    "family": "push button switch",
+    "source": "https://github.com/sandpiper-toolchain/pinion/blob/main/README.md ('E-Stop Button. Momentary NC: mcmaster.com/7546K23')",
+    "confidence": "high"
+  },
+  {
+    "part": "8054T14",
+    "family": "hookup wire",
+    "source": "https://www.cosmo.bnl.gov/www/bmx/hypermail/0086.html — BNL cosmology group 'McMaster-Carr Order -- Hook-Up Wire -- 7/19/18' (200ft spool of 20 AWG hook-up wire, black/red, $23.45)",
+    "confidence": "medium"
+  },
+  {
+    "part": "7527K46",
+    "family": "terminal block",
+    "source": "https://github.com/GaloisInc/BESSPIN-Demonstrator/blob/main/hardware/LED%20management/readme.md ('Terminal Blocks | High current, multi-circuit terminal block ... McMaster-Carr P/N 7527K46')",
+    "confidence": "high"
+  },
+  {
+    "part": "69145K72",
+    "family": "crimp connector",
+    "source": "https://github.com/GaloisInc/BESSPIN-Demonstrator/blob/main/hardware/LED%20management/readme.md ('Spade terminals | 14-16 AWG, blue ... McMaster-Carr P/N 69145K72')",
+    "confidence": "high"
+  },
+  {
+    "part": "6926K75",
+    "family": "crimp connector",
+    "source": "https://github.com/Arrow-air/project-quiver/blob/main/docs/Engineering-Reports/PT1-Engineering-Report.md ('Used 6 AWG compression lugs (mcmaster.com/6926K75/) and 1/4\" screw for installation')",
+    "confidence": "high"
+  },
+  {
+    "part": "6898K381",
+    "family": "cable tie",
+    "source": "https://github.com/AccelerationConsortium/ac-dev-lab/blob/main/docs/sem-door-automation-components.md ('Cable Tie/U-bolt Clamp | Stainless Steel, 7.9\" length, 50 lb capacity | 6898K381')",
+    "confidence": "high"
+  },
+  {
+    "part": "6498K658",
+    "family": "air cylinder",
+    "source": "https://openlab.citytech.cuny.edu/monstershop2019/2019/11/20/pneumatic-cylinder-geometry/ ('the cylinder I chose has a 6\" stroke length', McMaster part 6498K658)",
+    "confidence": "medium"
+  },
+  {
+    "part": "5194K32",
+    "family": "pneumatic quick disconnect coupling",
+    "source": "https://github.com/CohenLabPrinceton/pvp/blob/main/_docs/assets/csv/10_27_2020_bom.csv ('Luer lock connector for D-Lite, Quick Turn Tube Coupling for Air - 316 Stainless Steel Socket Connector, 5194K32')",
+    "confidence": "high"
+  },
+  {
+    "part": "5779K246",
+    "family": "push-to-connect fitting",
+    "source": "https://github.com/flyonspeed/OnSpeed-Gen2/blob/main/Hardware/README.md ('Push-to-Connect Tube Fitting for Air, Straight Adapter, for 1/4\" Tube OD x 10-32 Thread Male, McMaster 5779K246')",
+    "confidence": "high"
+  },
+  {
+    "part": "50785K36",
+    "family": "brass NPT pipe fitting (elbow or tee)",
+    "source": "https://github.com/Deeplocal/io19-smarthome-sample/blob/master/README.MD (BOM row: '1/4\" NPT Female Elbow', mcmaster.com/50785k36)",
+    "confidence": "high"
+  },
+  {
+    "part": "50785K72",
+    "family": "brass NPT pipe fitting (elbow or tee)",
+    "source": "https://github.com/Deeplocal/io19-smarthome-sample/blob/master/README.MD (BOM row: '1/4\" NPT Female T', mcmaster.com/50785k72)",
+    "confidence": "high"
+  },
+  {
+    "part": "4406T14",
+    "family": "hose barb fitting",
+    "source": "https://github.com/FarmBot-Docs/farmbot-genesis/blob/main/v1.2/Extras/bom/tubing.md ('Barbed Adapter ... Type 303 Stainless Steel, McMaster Carr Part Number 4406T14; threads onto the solenoid valve and is connected to the water tube')",
+    "confidence": "high"
+  },
+  {
+    "part": "47865K21",
+    "family": "ball valve",
+    "source": "https://www.easternfirst.com/Product/1-4-MCMASTER-CARR-PART-NUMBER-47865K21-BRASS-BALL-VALVE-WITH-LEVER-HANDLE-595113 (vendor cross-reference: '1/4\" MCMASTER CARR PART NUMBER 47865K21 BRASS BALL VALVE WITH LEVER HANDLE')",
+    "confidence": "high"
+  },
+  {
+    "part": "7746K831",
+    "family": "check valve",
+    "source": "https://github.com/AguaClara/ram_pump/blob/master/Spring%202019/Spring2019RamPump.md ('Brass Check Valve | 2 | 1\" pipe size | Strataflo or McMaster (mcmaster.com/7746k831)'); also confirmed in Report_Spring2021.ipynb in the same repo",
+    "confidence": "high"
+  },
+  {
+    "part": "5362K12",
+    "family": "hose clamp",
+    "source": "https://github.com/danielsauter/quartz/blob/master/source/_posts/3-%20Parts%20List.md ('1X Pack Hose Clamps ... 3/4\" ID ... Part Number: 5362K12')",
+    "confidence": "high"
+  },
+  {
+    "part": "5233K56",
+    "family": "PVC tubing",
+    "source": "https://github.com/benholland1024/pulse-manager-tutorial/blob/main/README.md ('10 ft of 1/4 inch I.D. PVC tubing', mcmaster.com/5233K56); independently confirmed as 'Masterkleer PVC Tubing' in https://github.com/FarmBot-Docs/farmbot-genesis/blob/main/v1.1/Reference-Docs/bill-of-materials/shopping-list.md",
+    "confidence": "high"
+  },
+  {
+    "part": "5387T78",
+    "family": "hard hat",
+    "source": "https://github.com/Charlotte-MEDI/Faceshields/blob/master/hardhatfaceshield/README.md ('mcmaster.com/5387t78 — Ratchet Suspension for Vented Hard Hat & Hard Hat with Rain-Trough Brim')",
+    "confidence": "medium"
+  },
+  {
+    "part": "6484K509",
+    "family": "timing belt",
+    "source": "https://reprap.org/forum/read.php?1,31855 ('mendell' McMaster part/order list: 6484K509, 'Trapezoidal Tooth Neoprene Timing Belt .200\" Pitch, Trade Sz 390XL, 39\" Outer Circle, 1/4\" W')",
+    "confidence": "high"
+  },
+  {
+    "part": "3684N12",
+    "family": "timing belt pulley",
+    "source": "https://github.com/ruiqimao/SugarCube/blob/main/BOM.md ('20 tooth GT2 pulley | 2 | McMaster-Carr | mcmaster.com/3684N12')",
+    "confidence": "high"
+  },
+  {
+    "part": "2737T93",
+    "family": "sprocket",
+    "source": "https://www.lily-bearing.com/products/chdhtjd/ (vendor cross-reference page titled '2737T93 | Sprockets for ANSI Roller Chain')",
+    "confidence": "medium"
+  },
+  {
+    "part": "6261K171",
+    "family": "roller chain",
+    "source": "https://lists.ourshack.com/pipermail/chchrobotics/2018-August/005953.html (Maslow CNC mailing list: 'McMaster-Carr Part Number: 6261K171, Description: ANSI Number 25, 1/4\" Pitch Chain')",
+    "confidence": "high"
+  },
+  {
+    "part": "3736T1",
+    "family": "spur gear",
+    "source": "https://www.ebay.com/itm/387496289396 (vendor listing titled 'Mcmaster-carr 3736T1 Two Speed Spur Gear')",
+    "confidence": "medium"
+  },
+  {
+    "part": "99030A985",
+    "family": "lead screw or ACME rod",
+    "source": "https://github.com/werocketry/airbrakes-SR/blob/main/mechanical/load_analysis.ipynb (\"from: https://www.mcmaster.com/99030A985/ (1/4 20 1018 Carbon Steel Precision Acme Lead Screw)\")",
+    "confidence": "high"
+  },
+  {
+    "part": "95075A340",
+    "family": "ACME nut",
+    "source": "https://github.com/werocketry/airbrakes-SR/blob/main/mechanical/load_analysis.ipynb (\"From: https://www.mcmaster.com/95075A340/ (PET Plastic Externally Threaded Precision Acme Nut)\")",
+    "confidence": "high"
+  },
+  {
+    "part": "59915K21",
+    "family": "rod end",
+    "source": "https://github.com/AccelerationConsortium/ac-dev-lab/blob/main/docs/sem-door-automation-components.md ('Ball Joint Rod End (male) | 10-32, 303 Stainless Steel, Right Hand | 59915K21')",
+    "confidence": "high"
+  },
+  {
+    "part": "57155K573",
+    "family": "flanged ball bearing",
+    "source": "https://github.com/Audio-Illinois/internal-robot-acoustic-head/blob/main/robot-mount/readme.md ('Flanged ball bearing | 1 | mcmaster.com/57155K573')",
+    "confidence": "high"
+  },
+  {
+    "part": "7488K14",
+    "family": "thrust bearing",
+    "source": "https://github.com/Deeplocal/smart-home-api/blob/master/README.md ('Thrust Bushing - Rulon J | 2 | mcmaster.com/#7488k14')",
+    "confidence": "medium"
+  },
+  {
+    "part": "9271K603",
+    "family": "torsion spring",
+    "source": "https://github.com/leapmotion/ProjectNorthStar/blob/master/Mechanical/BOM%20North%20Star%20Release%203.tsv ('0.304-in OD TORSION SPRING 180 DEG. L-HAND WOUND, McMaster #9271K603')",
+    "confidence": "high"
+  },
+  {
+    "part": "2834T11",
+    "family": "casters",
+    "source": "https://github.com/CMU-cabot/cabot_design/blob/master-filter/cabot2-e2/parts.md ('Caster | 2 | 1 5/8 inch wheel, 3/8 16 thread | mcmaster.com/2834T11')",
+    "confidence": "high"
+  },
+  {
+    "part": "11435A28",
+    "family": "drawer slide",
+    "source": "https://github.com/PeaPodTechnologies/PeaPod/blob/main/builds/microgreens/hardware/boms/microgreens_bom_purchase.csv ('Tray Drawer Slide, 24in.; Pair | McMaster-Carr | 11435A28')",
+    "confidence": "high"
+  },
+  {
+    "part": "6082A11",
+    "family": "latch",
+    "source": "https://github.com/Arrow-air/project-quiver/blob/main/docs/Manufacturing/BOM.md ('2430 | Enclosure Latch | cots | Steel | McMaster-Carr 6082A11'); described further in Manufacturing-Guide.md as a 'Screw on draw latch'",
+    "confidence": "high"
+  },
+  {
+    "part": "2454K28",
+    "family": "knob",
+    "source": "https://github.com/kinkykusco/FunkyRocker3dParts/blob/main/README.md ('Four-arm comfort grip knob | 2 | 7.14 | mcmaster.com/2454K28')",
+    "confidence": "high"
+  },
+  {
+    "part": "3570N12",
+    "family": "handle",
+    "source": "https://github.com/alvinr/tbs/blob/main/src/generators/parts.py (\"McMaster 3570N12 pull handle for the personnel door + mounting screws/anchors\")",
+    "confidence": "high"
+  },
+  {
+    "part": "60945K52",
+    "family": "leveling foot",
+    "source": "https://github.com/djbetterly/maker-bom/blob/main/src/App.jsx ('Leveling Foot, vendor: mcmaster, partNumber: 60945K52, notes: M4 thread, 30mm dia')",
+    "confidence": "medium"
+  },
+  {
+    "part": "9311K64",
+    "family": "vibration mount",
+    "source": "https://github.com/ArduPilot/ardupilot_wiki/blob/master/common/source/docs/common-vibration-damping.rst ('anti-vibration grommets available from McMaster Carr (package of 25 each part #9311K64 recommended)')",
+    "confidence": "high"
+  },
+  {
+    "part": "7467A274",
+    "family": "epoxy",
+    "source": "https://github.com/NorthernWidget/Project-Walrus/blob/master/README.md ('Two-part epoxy: 3M DP270 Clear; can be purchased from McMaster-Carr (mcmaster.com/7467A274)')",
+    "confidence": "high"
+  },
+  {
+    "part": "1245N31",
+    "family": "thermocouple",
+    "source": "https://github.com/uwo-fast/open-source-bioreactor/blob/main/docs/procurement.md ('6 in long x 1/8 in diameter grounded 304 stainless probe ... 0.5 s response time, 900 F maximum temperature; mcmaster.com/1245N31')",
+    "confidence": "high"
+  },
+  {
+    "part": "3870K32",
+    "family": "thermocouple",
+    "source": "https://reprap.org/forum/read.php?1,31855 ('mendell' McMaster part/order list: 3870K32, 'Solid Thermocouple Wire FEP Insulation, Type K, 24 Gauge')",
+    "confidence": "high"
+  },
+  {
+    "part": "5497A25",
+    "family": "hex key set",
+    "source": "https://github.com/tapsterbot/tapsterbot/blob/master/hardware/tapster-2/BOM.md ('5497A25: Comfort Grip Ball Driver'; two more sizes 5497A26/5497A29 also listed)",
+    "confidence": "high"
+  },
+  {
+    "part": "8515A227",
+    "family": "end mill",
+    "source": "https://github.com/HumanCrafted/human-crafted-home/blob/main/_docs/bit-8515a227.md ('A machinist's end mill ... sold under McMaster's own part number. Three flutes, 30° helix, TiCN coated, centre cutting.' purchase_url: mcmaster.com/8515A227/)",
+    "confidence": "high"
+  },
+  {
+    "part": "7648A713",
+    "family": "tape",
+    "source": "https://reprap.org/forum/read.php?1,31855 ('mendell' McMaster part/order list: 7648A713, 'Heat Resistant Kapton Tape W/Silicone Adhesive, 1/2\" W, 5 Yards')",
+    "confidence": "high"
+  },
+  {
+    "part": "8420K171",
+    "family": "turnbuckle",
+    "source": "https://github.com/RIVeR-Lab/prospect/blob/main/docs/bill_of_materials.md ('Aluminum Turnbuckle Connecting Rod | 6 | McMaster-Carr | mcmaster.com/8420K171')",
+    "confidence": "high"
+  }
+]

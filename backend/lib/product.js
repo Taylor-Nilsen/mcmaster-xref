@@ -56,12 +56,20 @@
  * bar"), not as a trailing modifier, so its query keeps that order.
  *
  * `buildSupplierLinks` reuses the exact search URL formats already
- * verified (in a browser, not from this sandbox -- see lib/specs.js for
- * why a datacenter fetch cannot check most of these) for the suppliers
- * lib/specs.js already carries, and adds a small number of new ones the
- * caller asked for by name (Banggood, Zoro, Online Metals) using their
- * documented/well-known search URL shape -- flagged in comments below as
- * unverified from here, same as every fastener-supplier link already was.
+ * verified for the suppliers lib/specs.js already carries, and adds a
+ * small number of new ones the caller asked for by name (Zoro, Online
+ * Metals) using their documented/well-known search URL shape. Every
+ * returned link also carries `verified`: "renders" for a supplier a real
+ * headless-Chromium check (backend/scripts/check-supplier-links.js,
+ * evidence in backend/test/fixtures/suppliers/results.json) confirmed
+ * actually answers a server from this sandbox with a results page
+ * (AliExpress, Speedy Metals, Metal Supermarkets), or "browser-only" for
+ * the seven that wall every datacenter-IP request outright (Fastenal,
+ * Grainger, MSC, Bolt Depot, Amazon, Online Metals, Zoro) -- neither label
+ * says the results themselves are good, only whether the page loads at
+ * all for a checker; only a person's own browser can judge the match. A
+ * link may also carry `note` (currently just Metal Supermarkets: its
+ * search is a category page until a store is picked, not per-SKU prices).
  */
 
 // ---------------------------------------------------------------------------
@@ -290,24 +298,73 @@ function isFastenerCategory(path, product) {
   return topLevelMatch && hasThreadedFastenerSignal(product);
 }
 
+// Very small last-resort signal: when a record has neither a usable
+// breadcrumb trail nor a spec field this module recognizes (an empty
+// `ReactData.Breadcrumbs`, seen on a real captured record -- see
+// test/fixtures/mcmaster/sweep/92620A624.json), the page's own title and
+// family name still say what the part is in plain English. Deliberately
+// narrow and checked dead last: a word search over free text is far less
+// reliable than a labeled attribute, so it only ever gets a chance to run
+// once every attribute-based rule above has already declined to answer.
+function classifyKindFromTitleFamily(product) {
+  const text = lc(`${product.title || ""} ${product.family || ""}`);
+  if (!text.trim()) return null;
+  if (/\bnut\b/.test(text)) return "nut";
+  if (/\bwasher\b/.test(text)) return "washer";
+  if (/\bbearing\b/.test(text)) return "bearing";
+  if (/\b(o-ring|gasket|seal)\b/.test(text)) return "sealing";
+  if (/\b(fitting|nipple|coupling|valve|adapter)\b/.test(text)) return "fitting";
+  if (/\b(pin|retaining ring|rivet|spring|insert|standoff)\b/.test(text)) return "other";
+  if (/\b(screw|bolt|\bstud\b)\b/.test(text)) return "fastener";
+  return null;
+}
+
 /**
  * Structural fallback for a record with a thin or missing breadcrumb trail
  * -- deliberately conservative, mirroring lib/specs.js's own fallback
  * (partFamily): a wrong kind is what put washers in front of bar-stock
  * vendors there, so each rule below only fires on a field that really does
  * imply that kind.
+ *
+ * Order matters: a handful of non-fastener part types (pins, retaining
+ * rings, rivets, springs, inserts, standoffs) sometimes carry a generic
+ * "Head Type" of their own, so their own more specific fields are checked
+ * *before* the generic "Fastener Head Type"/"Head Type"/"Thread Size"
+ * rules -- those two now sit at the bottom as the true catch-alls they are,
+ * exactly as reliable as before for an actual screw/bolt/nut/rod, just no
+ * longer able to steal a pin or a rivet away from its own rule first.
  */
 function classifyKindFromAttributes(product) {
-  if (product.byName("Fastener Head Type") || product.byName("Head Type")) return "fastener";
   if (product.byName("Nut Type")) return "nut";
   if (product.byName("For Screw Size") || product.byName("Screw Size")) return "washer";
-  if (product.byName("Thread Size") || product.byName("Size", "Thread")) return "fastener";
+  // Pins, retaining rings, rivets, springs, inserts and standoffs have no
+  // dedicated query builder of their own -- they fall through to the
+  // generic "other" bucket (otherQuery already knows how to read a wire
+  // diameter, a free length, a plain diameter+length pair, ...) -- but
+  // routing them there explicitly, off their own field names, keeps them
+  // out of fastenerQuery, which would otherwise read a stray "Head Type"
+  // or thread field wrong or just silently drop a pin/spring's real specs.
+  if (product.byName("Pin Type")) return "other";
+  if (product.byName("Retaining Ring Type")) return "other";
+  if (product.byName("Rivet Type")) return "other";
+  if (product.byName("Spring Type") || product.byName("Wire Diameter")) return "other";
+  if (product.byName("Insert Type")) return "other";
+  if (product.byName("Standoff Type")) return "other";
   // "For Shaft Diameter" is what McMaster calls a shaft collar's bore --
   // a distinct field name from "Bore", but the same kind of part (a
   // bore-and-OD size, no thread), so it gets routed the same way.
   if (product.byName("Bore") || product.byName("Bearing Type") || product.byName("For Shaft Diameter")) return "bearing";
-  if (product.byName("Shape")) return "rawstock";
-  return "other";
+  // Dash Number (an AS568 o-ring size code) and Durometer are seal-specific
+  // enough on their own that neither shows up on anything else this module
+  // classifies.
+  if (product.byName("Dash Number") || product.byName("Durometer")) return "sealing";
+  if (product.byName("Pipe Size") || product.byName("Tube OD")) return "fitting";
+  const threadType = product.byName("Thread Type");
+  if (threadType && /npt/i.test(threadType)) return "fitting";
+  if (product.byName("Shape") || product.byName("Wall Thickness")) return "rawstock";
+  if (product.byName("Fastener Head Type") || product.byName("Head Type")) return "fastener";
+  if (product.byName("Thread Size") || product.byName("Size", "Thread")) return "fastener";
+  return classifyKindFromTitleFamily(product) || "other";
 }
 
 function classifyKind(product) {
@@ -319,27 +376,108 @@ function classifyKind(product) {
   return classifyKindFromAttributes(product);
 }
 
+// ---------------------------------------------------------------------------
+// Grouped-vs-flat attribute resolution
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolves one logical attribute (a head style, a drive type, ...) across
+ * the several names/groupings McMaster spells it under on a given record,
+ * trying each candidate in order and returning the first non-empty value.
+ * Every candidate is either a bare flat name (a string) or a `[name,
+ * group]` pair for a grouped row -- callers list the *grouped* forms first,
+ * since a record that has both a flat umbrella field and a grouped,
+ * more-specific one (McMaster's own "Fastener Head Type" umbrella --
+ * "Rounded" covers button, pan, oval, truss, fillister, cheese and round
+ * heads alike -- versus the grouped "Head" > "Style"/"Type" row that says
+ * which of those it actually is) means the flat one is *not* what a trade
+ * name should be built from. See the module doc comment and 92949A150 for
+ * the real record this was written against.
+ */
+function readAttr(product, ...specs) {
+  for (const spec of specs) {
+    const [name, group] = Array.isArray(spec) ? spec : [spec, undefined];
+    const val = product.byName(name, group);
+    if (val) return val;
+  }
+  return null;
+}
+
+// Every place a headed fastener's shape/drive/tip is read: grouped rows
+// first (most specific), then the flat/umbrella field McMaster also always
+// includes. Centralized so deriveNoun, fastenerHeadNoun's caller, and
+// fastenerQuery's shoulder-screw sizing all agree on the same lookup order.
+function readHeadType(product) {
+  return readAttr(product, ["Style", "Head"], ["Type", "Head"], "Fastener Head Type", "Head Type");
+}
+function readHeadProfile(product) {
+  return readAttr(product, ["Profile", "Head"], "Head Profile", "Socket Head Profile");
+}
+function readDriveStyle(product) {
+  return readAttr(product, ["Style", "Drive"], ["Type", "Drive"], "Drive Style", "Drive Type");
+}
+function readTipType(product) {
+  return readAttr(product, ["Type", "Tip"], ["Type", "Point"], "Tip Type", "Point Type");
+}
+
 /**
  * Trade names for a headed fastener, in the order a supplier catalog uses
  * them (checked most specific first: a "Hex" *drive* on a flat or button
  * head is a socket cap screw, not the external-hex bolt a "Hex" *head*
  * would be). Ported from lib/specs.js's fastenerNoun, now driven by the
- * structured "Fastener Head Type"/"Drive Style" fields instead of prose.
+ * structured, grouped-preferring "Head" style/profile and "Drive"
+ * style/type fields (see readHeadType/readDriveStyle/readHeadProfile)
+ * instead of prose.
+ *
+ * "cap" only ever appears in a socket- or hex-cap-screw noun -- never on a
+ * pan/flat/truss/oval/cheese/fillister/round/thumb/wing head, which are
+ * genuine trade nouns of their own that no supplier calls a "cap screw".
+ *
+ * `head` must be a real, specific head style -- "Round" -- never
+ * McMaster's "Rounded" umbrella (readHeadType tries the grouped Head style
+ * first for exactly this reason: the umbrella covers button/pan/oval/
+ * truss/fillister/cheese/round heads alike and must never be read as if it
+ * said "round" on its own -- hence the word-boundary regex below, which
+ * "Rounded" fails and "Round" passes).
  */
-function fastenerHeadNoun(headType, driveStyle) {
+function fastenerHeadNoun(headType, driveStyle, headProfile) {
   const head = lc(headType);
   const drive = lc(driveStyle);
+  if (!head) return null;
   const socketDrive = /hex|socket|torx/.test(drive);
-  if (/socket/.test(head)) return "socket head cap screw";
+  const phillipsDrive = /phillips/.test(drive);
+
+  if (/socket/.test(head)) {
+    const lowProfile = /low/.test(head) || /low/.test(lc(headProfile));
+    return lowProfile ? "low head socket cap screw" : "socket head cap screw";
+  }
   if (/button/.test(head)) return socketDrive ? "button head socket cap screw" : "button head screw";
-  if (/flat|countersunk/.test(head)) return socketDrive ? "flat head socket cap screw" : "flat head screw";
-  if (/pan/.test(head)) return "pan head screw";
+  if (/flat|countersunk/.test(head)) {
+    if (socketDrive) return "flat head socket cap screw";
+    if (phillipsDrive) return "flat head Phillips screw";
+    return "flat head screw";
+  }
+  if (/pan/.test(head)) return phillipsDrive ? "pan head Phillips machine screw" : "pan head screw";
   if (/truss/.test(head)) return "truss head screw";
+  if (/fillister/.test(head)) return "fillister head screw";
   if (/cheese/.test(head)) return "cheese head screw";
   if (/oval/.test(head)) return socketDrive ? "oval head socket cap screw" : "oval head screw";
-  if (/round/.test(head)) return "round head screw";
-  if (/hex/.test(head)) return "hex head cap screw";
+  if (/thumb/.test(head)) return "thumb screw";
+  if (/\bwing\b/.test(head)) return "wing screw";
+  if (/shoulder/.test(head)) return "shoulder screw";
+  if (/\bround\b/.test(head)) return "round head screw";
+  if (/\bhex\b/.test(head)) return "hex head cap screw";
   return null;
+}
+
+// A supplier says "cup point", "flat point", "cone point", "dog point" --
+// McMaster's own Tip/Point Type value is just the bare word ("Cup", "Cone",
+// "Dog Point") -- so this appends "point" only when the value doesn't
+// already carry it.
+function tipPointPhrase(tipType) {
+  const t = lc(tipType).trim();
+  if (!t) return null;
+  return /\bpoint\b$/.test(t) ? t : `${t} point`;
 }
 
 /**
@@ -365,16 +503,40 @@ function deriveNoun(product, kind) {
   const base = baseNoun(product);
 
   if (kind === "fastener") {
-    const headType = product.byName("Fastener Head Type") || product.byName("Head Type");
+    // A shoulder screw's defining feature is the shoulder itself (its own
+    // Diameter/Length pair), not its head shape -- McMaster spells its
+    // "Fastener Head Type"/"Head" > "Style" the same as a plain socket cap
+    // screw ("Socket"/"Hex" drive, a real captured record: 90298A537),
+    // because the head really does look like one. So this is checked
+    // before any head-style mapping runs, or a real shoulder screw comes
+    // out "socket head cap screw" with its shoulder dropped entirely.
+    if (readAttr(product, ["Diameter", "Shoulder"], "Shoulder Diameter") || readAttr(product, ["Length", "Shoulder"], "Shoulder Length")) {
+      return "shoulder screw";
+    }
+
+    const headType = readHeadType(product);
+    const driveStyle = readDriveStyle(product);
+
+    // Headless (a set screw): the trade name comes from the tip, not a
+    // head shape that doesn't exist -- "Cup" -> "cup point set screw", not
+    // whatever the family/breadcrumb name happens to say (which on a real
+    // capture, e.g. 91375A194, duplicates both the tip word and the
+    // material: "steel cup-tip set screw" ... "Alloy Steel").
+    if (headType && /headless/i.test(headType)) {
+      const tipType = readTipType(product);
+      const tip = tipPointPhrase(tipType);
+      return tip ? `${tip} set screw` : "set screw";
+    }
+
     if (headType) {
-      const driveStyle = product.byName("Drive Style") || product.byName("Drive Type");
-      const headNoun = fastenerHeadNoun(headType, driveStyle);
+      const headProfile = readHeadProfile(product);
+      const headNoun = fastenerHeadNoun(headType, driveStyle, headProfile);
       if (headNoun) return headNoun;
     }
     // A thread with a drive but no head type (e.g. a slotted machine
     // screw with no distinguishable head shape recorded) is still fairly
     // described as a machine screw; the family name is trusted otherwise.
-    if (!base && product.byName("Thread Size") && (product.byName("Drive Style") || product.byName("Drive Type"))) {
+    if (!base && product.byName("Thread Size") && driveStyle) {
       return "machine screw";
     }
     return base || "fastener";
@@ -431,13 +593,49 @@ function classifyProduct(product) {
 // Steel"); suppliers index the two separately, so split them apart. Ported
 // from lib/specs.js's FINISH_PREFIXES/normalizeSpecs, now applied to the
 // structured Material field instead of a fuzzy label/value scan.
+//
+// `match` is checked against the material with every hyphen turned into a
+// space first (McMaster is inconsistent about which finish words it
+// hyphenates -- "Zinc Yellow-Chromate Plated" in some records, fully
+// hyphenated "Zinc-Yellow-Chromate-Plated" in others -- and a hyphen and a
+// space are both single characters, so the matched length still lines up
+// with the *original*, un-normalized material string for slicing). `canonical`
+// is what actually reaches a query: McMaster's own capitalized/hyphenated
+// form ("Black-Oxide", "Zinc-Yellow-Chromate-Plated") is never a phrase a
+// supplier search box expects -- plain lowercase words are.
 const FINISH_PREFIXES = [
-  "black-oxide", "black oxide", "zinc yellow-chromate plated",
-  "yellow-chromate plated", "zinc-plated", "zinc plated",
-  "hot-dipped galvanized", "galvanized", "chrome-plated", "chrome plated",
-  "nickel-plated", "nickel plated", "passivated", "anodized",
-  "powder-coated", "powder coated", "phosphate", "cadmium-plated",
+  { match: "black oxide", canonical: "black oxide" },
+  { match: "zinc yellow chromate plated", canonical: "zinc yellow chromate" },
+  { match: "yellow chromate plated", canonical: "yellow chromate" },
+  { match: "zinc plated", canonical: "zinc plated" },
+  { match: "hot dipped galvanized", canonical: "hot dip galvanized" },
+  { match: "hot dip galvanized", canonical: "hot dip galvanized" },
+  { match: "galvanized", canonical: "galvanized" },
+  { match: "chrome plated", canonical: "chrome plated" },
+  { match: "nickel plated", canonical: "nickel plated" },
+  { match: "passivated", canonical: "passivated" },
+  { match: "anodized", canonical: "anodized" },
+  { match: "powder coated", canonical: "powder coated" },
+  { match: "phosphate", canonical: "phosphate" },
+  { match: "cadmium plated", canonical: "cadmium plated" },
 ];
+
+function findFinishPrefix(normalizedLower) {
+  return FINISH_PREFIXES.find((f) => normalizedLower.startsWith(f.match)) || null;
+}
+
+// For a finish that arrives as its own labeled attribute ("Finish": "Zinc
+// Plated") rather than folded into Material -- still McMaster's
+// hyphenated/capitalized form, so it gets the same plain-words treatment
+// every builder now applies uniformly.
+function canonicalizeFinishText(raw) {
+  if (!raw) return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  const normalized = lc(trimmed).replace(/-/g, " ");
+  const hit = findFinishPrefix(normalized);
+  return hit ? hit.canonical : normalized;
+}
 
 // McMaster folds a metric property class into the material string too
 // ("Class 12.9 Alloy Steel"). A genuine strength rating survives this way;
@@ -452,21 +650,80 @@ function splitMaterial(materialRaw) {
   let finish = null;
   let grade = null;
   if (material) {
-    const lower = lc(material);
-    const hitFinish = FINISH_PREFIXES.find((f) => lower.startsWith(f));
+    const normalized = lc(material).replace(/-/g, " ");
+    const hitFinish = findFinishPrefix(normalized);
     if (hitFinish) {
-      finish = material.slice(0, hitFinish.length).trim();
-      material = material.slice(hitFinish.length).trim();
+      finish = hitFinish.canonical;
+      material = material.slice(hitFinish.match.length).trim();
     }
   }
   if (material) {
     const hitGrade = material.match(GRADE_PREFIX_RE);
     if (hitGrade) {
-      grade = hitGrade[1].trim();
+      grade = normalizeGradeValue(hitGrade[1].trim());
       material = material.slice(hitGrade[0].length).trim();
     }
   }
   return { material: material || null, finish, grade };
+}
+
+// ---------------------------------------------------------------------------
+// Grade / strength class
+// ---------------------------------------------------------------------------
+
+// McMaster spells a fastener's strength grade under several different
+// attribute names depending on which standard it's rated to (SAE for a
+// domestic hex/socket screw, a metric property class for an imported one,
+// or occasionally a bare "Class"). None of these is the thread *fit* class
+// ("Unified Standard Class 2A"/"3B") -- that always lives under a
+// differently named attribute ("Thread Fit"/"Fit"), so it is never read
+// here at all. The one exception is a bare "Class" attribute name, which
+// McMaster does use for a genuine metric property class on some records;
+// it is only trusted when its *value* is shaped like one (a decimal
+// number such as "10.9", never a bare integer-plus-letter like "2A").
+const GRADE_ATTR_NAMES = [
+  "Fastener Strength Grade/Class",
+  "Strength Grade",
+  "Grade/Class",
+  "Property Class",
+  "Grade",
+];
+
+// A metric property class is a one- or two-digit number, a decimal point,
+// then one digit ("8.8", "9.8", "10.9", "12.9") -- distinct in shape from a
+// thread-fit class ("2A", "3B", a bare "2"), which is what lets a bare
+// "Class" attribute be read safely for a grade.
+const METRIC_CLASS_RE = /^(?:class\s*)?(\d{1,2}\.\d)$/i;
+
+function normalizeGradeValue(raw) {
+  if (!raw) return null;
+  const v = String(raw).trim();
+  if (!v) return null;
+  const sae = v.match(/^SAE\s+Grade\s+([\w.]+)$/i);
+  if (sae) return `Grade ${sae[1]}`;
+  const metric = v.match(METRIC_CLASS_RE);
+  if (metric) return `Class ${metric[1]}`;
+  if (/^grade\s+[\w.]+$/i.test(v)) return v.replace(/^grade/i, "Grade");
+  if (/^class\s+\d+(?:\.\d+)?$/i.test(v)) return v.replace(/^class/i, "Class");
+  return v;
+}
+
+// Reads the grade off the record's own labeled attributes, trying each
+// name McMaster uses in turn, before ever falling back to a grade folded
+// into Material (splitMaterial's job). A bare "Class" is included only
+// when its value is metric-class-shaped -- see METRIC_CLASS_RE above --
+// so it never picks up a thread-fit class that happens to also be named
+// "Class" on some other record.
+function readGrade(product) {
+  for (const name of GRADE_ATTR_NAMES) {
+    const raw = product.byName(name);
+    if (raw) return normalizeGradeValue(raw);
+  }
+  const classRaw = product.byName("Class");
+  if (classRaw && METRIC_CLASS_RE.test(String(classRaw).trim())) {
+    return normalizeGradeValue(classRaw);
+  }
+  return null;
 }
 
 // "M6 x 1 mm" is McMaster's phrasing for a metric thread; left as-is it
@@ -561,34 +818,52 @@ function findAka(copies) {
 }
 
 function fastenerQuery(product, noun) {
-  const threadRaw = product.byName("Thread Size") || product.byName("Size", "Thread");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const lengthRaw = product.byName("Length");
   const length = lengthRaw ? normalizeLength(lengthRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish, grade: materialGrade } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
-  const grade = product.byName("Grade") || materialGrade;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
+  const grade = readGrade(product) || materialGrade;
 
+  // A shoulder screw's own thread (the tapped hole it screws into) is
+  // beside the point of what a buyer searches for -- the shoulder's own
+  // diameter and length is the part's real size, the way McMaster's own
+  // shoulder-screw catalog page leads with it.
+  let shoulderDiameter = null;
+  let shoulderLength = null;
+  let size = null;
+  if (/shoulder screw/.test(lc(noun))) {
+    const shoulderDiameterRaw = readAttr(product, ["Diameter", "Shoulder"], "Shoulder Diameter");
+    const shoulderLengthRaw = readAttr(product, ["Length", "Shoulder"], "Shoulder Length");
+    shoulderDiameter = shoulderDiameterRaw ? normalizeSize(shoulderDiameterRaw) : null;
+    shoulderLength = shoulderLengthRaw ? normalizeLength(shoulderLengthRaw) : null;
+    if (shoulderDiameter || shoulderLength) {
+      size = joinTerms([shoulderDiameter, shoulderLength && (shoulderDiameter ? `x ${shoulderLength}` : shoulderLength)]);
+    }
+  }
   // "x" only belongs between two dimensions -- with no thread size to
   // join it to, a bare length is not "x 1"", it's just "1"".
-  const size = joinTerms([threadSize, length && (threadSize ? `x ${length}` : length)]);
+  if (size === null) size = joinTerms([threadSize, length && (threadSize ? `x ${length}` : length)]);
+
   const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
   const primary = joinTerms([size, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
   const alternates = [joinTerms([size, noun, dedupeAgainstNoun(noun, material)[0]])];
   return {
     primary,
     alternates,
-    terms: { noun, threadSize, length, material, finish, grade },
+    terms: { noun, threadSize, length, material, finish, grade, shoulderDiameter, shoulderLength },
   };
 }
 
 function nutQuery(product, noun) {
-  const threadRaw = product.byName("Thread Size") || product.byName("Size", "Thread");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
-  const { material, finish: derivedFinish, grade } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const { material, finish: derivedFinish, grade: materialGrade } = splitMaterial(materialRaw);
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
+  const grade = readGrade(product) || materialGrade;
 
   const [dedupedMaterial, dedupedFinish, dedupedGrade] = dedupeAgainstNoun(noun, material, finish, grade);
   const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish, dedupedGrade]);
@@ -601,7 +876,7 @@ function washerQuery(product, noun) {
   const screwSize = screwRaw ? normalizeSize(screwRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
   const primary = joinTerms([screwSize, noun, dedupedMaterial, dedupedFinish]);
@@ -689,12 +964,11 @@ function bearingQuery(product, noun) {
 }
 
 function fittingQuery(product, noun) {
-  const threadRaw =
-    product.byName("Thread Size") || product.byName("Size", "Thread") || product.byName("Pipe Size");
+  const threadRaw = readAttr(product, ["Size", "Thread"], "Thread Size", "Pipe Size");
   const threadSize = threadRaw ? normalizeSize(threadRaw) : null;
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   const [dedupedMaterial, dedupedFinish] = dedupeAgainstNoun(noun, material, finish);
   const primary = joinTerms([threadSize, noun, dedupedMaterial, dedupedFinish]);
@@ -709,7 +983,7 @@ function fittingQuery(product, noun) {
 function otherQuery(product, noun) {
   const materialRaw = product.byName("Material");
   const { material, finish: derivedFinish } = splitMaterial(materialRaw);
-  const finish = product.byName("Finish") || derivedFinish;
+  const finish = canonicalizeFinishText(product.byName("Finish")) || derivedFinish;
 
   // Roller chain's own ANSI chain number ("ANSI Number"/"Chain Number"/
   // "Chain Size", or a "#40"-style token in the title when McMaster
@@ -790,49 +1064,103 @@ function buildQueries(product) {
 // buildSupplierLinks
 // ---------------------------------------------------------------------------
 
+// A slug is a single path segment (AliExpress's canonical
+// /w/wholesale-<slug>.html, see aliExpressWholesaleUrl below), so anything
+// that isn't a letter, digit, existing hyphen or whitespace has to go, and
+// a literal "/" from a fraction ("1/4") is turned into a hyphen rather than
+// dropped, or it reads as extra path segments and breaks the URL entirely
+// (this is the exact bug that made the old
+// /wholesale?SearchText=...1%2F4... path 301-redirect into a
+// double-encoded, edge-rejected URL -- see aliExpressWholesaleUrl).
+function toSlug(query) {
+  return String(query)
+    .trim()
+    .toLowerCase()
+    .replace(/"/g, "")
+    .replace(/[^a-z0-9/\s-]/g, "")
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function applyTemplate(urlTemplate, query) {
   const encoded = encodeURIComponent(query);
   const plus = encoded.replace(/%20/g, "+");
-  // A slug is a single path segment (Banggood's /search/<slug>.html), so a
-  // literal "/" from a fraction ("1/4") has to go too, or it reads as
-  // extra path segments and breaks the URL entirely.
-  const slug = String(query)
-    .trim()
-    .toLowerCase()
-    .replace(/["]/g, "")
-    .replace(/\//g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/-{2,}/g, "-");
+  const slug = toSlug(query);
   return urlTemplate.replace("{plus}", plus).replace("{q}", encoded).replace("{slug}", slug);
+}
+
+// AliExpress's own /wholesale?SearchText=<query> path 301-redirects to this
+// exact canonical form (https://www.aliexpress.com/w/wholesale-<slug>.html)
+// for a query with no "/" in it -- but a query built from an inch fraction
+// ("1/4\"-20 x 3/4\" socket head cap screw...") has a literal "/", and
+// AliExpress's own redirect double-encodes it into "%252F" (and the "-" in
+// "1/4"-20" into a triple-encoded "%2525252d"), which its edge then rejects
+// outright ("request rejected: path contains encoded separator") -- see
+// backend/test/fixtures/suppliers/AliExpress-91251A540.txt. Building the
+// canonical slug URL directly, the way AliExpress's own redirect would if it
+// didn't mangle the slash, skips that broken redirect entirely. Verified in
+// a real Chromium browser (Playwright, this sandbox's proxy) against the
+// 91251A540 fixture query on 26 Sep 2026: renders a normal results page,
+// not a rejection -- see backend/test/fixtures/suppliers/results.json /
+// AliExpress-91251A540-canonical-slug.txt.
+function aliExpressWholesaleUrl(query) {
+  return `https://www.aliexpress.com/w/wholesale-${toSlug(query)}.html`;
 }
 
 // Drops the dimension tokens from a query: anything carrying a digit and
 // ending in an inch mark ('3/8"', '0.063"'). A cut-to-order stock house
 // indexes by material, grade and form, not by a size it sells as an
-// option, so those are all that's left. Ported from lib/specs.js.
+// option -- but stripping just the numbers leaves the unit word that was
+// attached to them dangling on its own ('1" OD x 0.065" wall 304 stainless
+// steel round tube' -> 'OD wall 304 stainless steel round tube', not
+// '304 stainless steel round tube'). Every dimension label the query
+// builders above ever attach a number to (OD/ID/wall/bore/dia/wide/
+// thick/long) is stripped too, along with any "x" a dimension pairing left
+// stranded (single or repeated, from a tube's OD x ID x wall chain).
+// Ported from lib/specs.js, plus the dangling-word cleanup.
+const DANGLING_UNIT_WORDS_RE = /\b(od|id|wall|long|thick|wide|dia|bore)\b/gi;
+
 function stripDimensions(query) {
   return String(query || "")
     .replace(/\S*[0-9][^\s]*"/g, "")
+    .replace(DANGLING_UNIT_WORDS_RE, "")
     .replace(/(^|\s)x(?=\s|$)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-// Same URL formats as lib/specs.js FASTENER_SUPPLIERS (measured 20 Sep
-// 2026 by opening each search in a real browser -- see that file for why a
-// datacenter fetch can't confirm them). Banggood is new here: its search
-// page takes the query as a hyphenated path segment
-// (https://www.banggood.com/search/hex-nut.html), which is the documented/
-// observed shape of its storefront search, not something checked from this
-// sandbox -- same caveat as every other supplier in this list already
-// carries.
+// Every supplier link now carries a `verified` field, set from a real
+// check.result (backend/scripts/check-supplier-links.js against real
+// Chromium, evidence in backend/test/fixtures/suppliers/results.json,
+// measured 26 Sep 2026):
+//   "renders" -- answers a server from this sandbox with an actual results
+//     page (AliExpress via aliExpressWholesaleUrl, Speedy Metals, Metal
+//     Supermarkets).
+//   "browser-only" -- walls every request from a datacenter IP (403/bot
+//     page/challenge) regardless of query, confirmed on each supplier's
+//     bare homepage too (an "IP-level check" job in results.json), so only
+//     a person's own browser can tell whether the search actually matches.
+// Neither label claims the *results* were judged good -- only whether the
+// page itself loads for a checker at all. See the frontend's own line
+// under the supplier list, and README.md.
 const FASTENER_SUPPLIERS = [
-  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}" },
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
-  { name: "AliExpress", urlTemplate: "https://www.aliexpress.com/wholesale?SearchText={plus}" },
-  { name: "Banggood", urlTemplate: "https://www.banggood.com/search/{slug}.html" },
+  { name: "Fastenal", urlTemplate: "https://www.fastenal.com/product?query={plus}", verified: "browser-only" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}", verified: "browser-only" },
+  // `build` (a query -> full URL function) takes priority over urlTemplate
+  // in buildSupplierLinks -- AliExpress's own canonical slug URL
+  // (aliExpressWholesaleUrl), not the /wholesale?SearchText= path that
+  // 301-redirects into a broken double-encoded one for any query with a
+  // "/" in it. Banggood, which used to be here, is gone: it returned zero
+  // results for every fastener query this tool ever generated, including
+  // a bare size+noun with nothing else to trip up its matcher
+  // (backend/test/fixtures/suppliers/results.json, e.g.
+  // Banggood-91251A540-wording-bare.txt), so it was never a usable link in
+  // the first place.
+  { name: "AliExpress", build: aliExpressWholesaleUrl, verified: "renders" },
 ];
 
 // lib/specs.js RAW_STOCK_SUPPLIERS, plus Online Metals. lib/specs.js
@@ -844,11 +1172,25 @@ const FASTENER_SUPPLIERS = [
 // on request, flagged as unverified rather than left with a guessed path
 // known to be wrong.
 const RAW_STOCK_SUPPLIERS = [
-  { name: "Speedy Metals", urlTemplate: "https://www.speedymetals.com/search.aspx?SearchTerm={plus}", dimensionless: true },
-  { name: "Metal Supermarkets", urlTemplate: "https://www.metalsupermarkets.com/?s={plus}", dimensionless: true },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?q={q}", dimensionless: true },
+  {
+    name: "Speedy Metals",
+    urlTemplate: "https://www.speedymetals.com/search.aspx?SearchTerm={plus}",
+    dimensionless: true,
+    verified: "renders",
+    // See speedyMetalsQuery below -- its own wording, not the shared
+    // dimensionless-stripped primary query.
+    buildQuery: speedyMetalsQuery,
+  },
+  {
+    name: "Metal Supermarkets",
+    urlTemplate: "https://www.metalsupermarkets.com/?s={plus}",
+    dimensionless: true,
+    verified: "renders",
+    note: "category page; pick a store for prices",
+  },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "Online Metals", urlTemplate: "https://www.onlinemetals.com/en/search?q={q}", dimensionless: true, verified: "browser-only" },
 ];
 
 // Everything that is neither threaded hardware nor a length of metal --
@@ -857,11 +1199,43 @@ const RAW_STOCK_SUPPLIERS = [
 // consistent with how the rest of its site is structured) alongside the
 // MRO_SUPPLIERS lib/specs.js already used.
 const MRO_SUPPLIERS = [
-  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}" },
-  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}" },
-  { name: "Zoro", urlTemplate: "https://www.zoro.com/search?q={q}" },
-  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}" },
+  { name: "Grainger", urlTemplate: "https://www.grainger.com/search?searchQuery={q}", verified: "browser-only" },
+  { name: "MSC Direct", urlTemplate: "https://www.mscdirect.com/browse/tn?searchterm={plus}", verified: "browser-only" },
+  { name: "Zoro", urlTemplate: "https://www.zoro.com/search?q={q}", verified: "browser-only" },
+  { name: "Amazon", urlTemplate: "https://www.amazon.com/s?k={plus}", verified: "browser-only" },
 ];
+
+// Speedy Metals' own catalog never spells out "Bar" in a product title or
+// its own Shape taxonomy -- round stock is titled/shaped "Rd", flat stock
+// "Flat" (see backend/test/fixtures/suppliers/Speedy-Metals-alum-3-*.txt,
+// -steel-3-*.txt, -steel-5-*.txt), so its search (an AND match across
+// title/material/shape) matches nothing for the exact wording
+// buildQueries/rawstockQuery produces for bar stock ("6061 aluminum round
+// bar", "1018 steel flat bar") even though it stocks 60+ matching SKUs --
+// while the same query with just the word "bar" dropped ("6061 aluminum
+// round", "1018 steel flat") matches every time. Verified in a real
+// browser (Playwright) against five wordings each for an aluminum round
+// bar, a steel flat bar and a stainless round bar on 26 Sep 2026:
+//
+//   query                          | aluminum round bar | steel flat bar | stainless round bar
+//   ------------------------------ | ------------------- | -------------- | --------------------
+//   "<material> <shape> bar"       | no match            | no match       | no match
+//   "<grade> <shape> bar"          | no match            | no match       | no match
+//   "<material> <shape>" (no bar)  | MATCH               | MATCH          | MATCH
+//   "<shape> <material> <grade>"   | no match            | no match       | no match
+//   "<grade> <material> <shape>"   | MATCH               | MATCH          | MATCH
+//
+// (exact wordings and result counts in the report; evidence in
+// backend/test/fixtures/suppliers/results.json and the Speedy-Metals-*.txt
+// files with a nonzero textLength above the ~1.3KB "no matches" page).
+// Tube stock is untouched -- "tube"/"tubing" appears in Speedy Metals'
+// actual product titles, so it is not part of this problem.
+function speedyMetalsQuery(query) {
+  return String(query || "")
+    .replace(/\bbars?\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 // Bolt Depot has no free-text search, only a filtered category browse
 // (pattern taken from real indexed URLs, e.g.
@@ -892,7 +1266,7 @@ function boltDepotUrl(kind, terms) {
 
 /**
  * @param {Product} product
- * @returns {{supplier: string, url: string, query: string}[]}
+ * @returns {{supplier: string, url: string, query: string, verified: string, note?: string}[]}
  */
 function buildSupplierLinks(product) {
   const { kind } = classifyProduct(product);
@@ -901,11 +1275,11 @@ function buildSupplierLinks(product) {
 
   let suppliers;
   if (kind === "fastener" || kind === "nut" || kind === "washer") {
-    // Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress, Banggood --
-    // Bolt Depot's category-browse link is spliced in after the three
+    // Fastenal, Grainger, MSC, Bolt Depot, Amazon, AliExpress -- Bolt
+    // Depot's category-browse link is spliced in after the three
     // free-text suppliers, same placement as lib/specs.js.
     suppliers = FASTENER_SUPPLIERS.slice(0, 3)
-      .concat([{ name: "Bolt Depot", urlTemplate: boltDepotUrl(kind, terms) }])
+      .concat([{ name: "Bolt Depot", urlTemplate: boltDepotUrl(kind, terms), verified: "browser-only" }])
       .concat(FASTENER_SUPPLIERS.slice(3));
   } else if (kind === "rawstock") {
     suppliers = RAW_STOCK_SUPPLIERS;
@@ -914,8 +1288,16 @@ function buildSupplierLinks(product) {
   }
 
   return suppliers.map((s) => {
-    const supplierQuery = s.dimensionless ? stripDimensions(query) || query : query;
-    return { supplier: s.name, url: applyTemplate(s.urlTemplate, supplierQuery), query: supplierQuery };
+    // A supplier-specific wording rewrite (Speedy Metals' own "drop 'bar'"
+    // shape -- see speedyMetalsQuery) runs on top of, not instead of, the
+    // shared dimensionless-stripped query, so `query` on the returned link
+    // always shows exactly what was sent, whichever transforms produced it.
+    let supplierQuery = s.dimensionless ? stripDimensions(query) || query : query;
+    if (typeof s.buildQuery === "function") supplierQuery = s.buildQuery(supplierQuery, terms) || supplierQuery;
+    const url = typeof s.build === "function" ? s.build(supplierQuery) : applyTemplate(s.urlTemplate, supplierQuery);
+    const link = { supplier: s.name, url, query: supplierQuery, verified: s.verified || "browser-only" };
+    if (s.note) link.note = s.note;
+    return link;
   });
 }
 
@@ -934,6 +1316,9 @@ const McmXref = {
   normalizeThread,
   normalizeGauge,
   normalizeScrewSizeWord,
+  toSlug,
+  aliExpressWholesaleUrl,
+  speedyMetalsQuery,
 };
 
 // Node: `require("./product")` keeps working exactly as before.

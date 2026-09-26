@@ -402,17 +402,32 @@ function showFallback(partNumber) {
 
 // Local (non-McmXref) copy of the {q}/{plus}/{slug} substitution and
 // dimension-stripping rules, used only when window.McmXref isn't loaded --
-// mirrors backend/lib/product.js's applyTemplate/stripDimensions.
+// mirrors backend/lib/product.js's toSlug/applyTemplate/stripDimensions.
+function localToSlug(query) {
+  return String(query)
+    .trim()
+    .toLowerCase()
+    .replace(/"/g, "")
+    .replace(/[^a-z0-9/\s-]/g, "")
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function localApplyTemplate(urlTemplate, query) {
   const encoded = encodeURIComponent(query);
   const plus = encoded.replace(/%20/g, "+");
-  const slug = String(query).trim().toLowerCase().replace(/["]/g, "").replace(/\//g, "-").replace(/\s+/g, "-").replace(/-{2,}/g, "-");
+  const slug = localToSlug(query);
   return urlTemplate.replace("{plus}", plus).replace("{q}", encoded).replace("{slug}", slug);
 }
+
+const DANGLING_UNIT_WORDS_RE = /\b(od|id|wall|long|thick|wide|dia|bore)\b/gi;
 
 function localStripDimensions(query) {
   return String(query || "")
     .replace(/\S*[0-9][^\s]*"/g, "")
+    .replace(DANGLING_UNIT_WORDS_RE, "")
     .replace(/(^|\s)x(?=\s|$)/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
@@ -422,13 +437,17 @@ function localStripDimensions(query) {
  * Finds the {q}/{plus}/{slug} substitution point in an already-built URL by
  * looking for the encoded form of the query that produced it, so a link
  * can be re-templated without the backend needing to expose its literal
- * urlTemplate strings.
+ * urlTemplate strings. AliExpress's link is built directly
+ * (aliExpressWholesaleUrl, not applyTemplate) but is still just
+ * "https://www.aliexpress.com/w/wholesale-<slug>.html" underneath, so the
+ * {slug} match below finds it exactly the same way.
  */
 function urlToTemplate(url, query) {
   if (!query) return null;
+  const M = window.McmXref;
   const encoded = encodeURIComponent(query);
   const plus = encoded.replace(/%20/g, "+");
-  const slug = String(query).trim().toLowerCase().replace(/["]/g, "").replace(/\//g, "-").replace(/\s+/g, "-").replace(/-{2,}/g, "-");
+  const slug = M && typeof M.toSlug === "function" ? M.toSlug(query) : localToSlug(query);
   if (plus && url.includes(plus)) return url.replace(plus, "{plus}");
   if (encoded && url.includes(encoded)) return url.replace(encoded, "{q}");
   if (slug && url.includes(slug)) return url.replace(slug, "{slug}");
@@ -500,11 +519,31 @@ function renderLinks(links) {
     return;
   }
   linksList.innerHTML = links
-    .map(
-      (link, i) =>
-        `<li><a id="supplierLink${i}" href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.supplier)}</a></li>`
-    )
+    .map((link, i) => {
+      // `note` (currently just Metal Supermarkets: its search is a
+      // category page until a store is picked, not per-SKU prices) renders
+      // as small text right after the link -- see backend/lib/product.js
+      // buildSupplierLinks.
+      const note = link.note ? ` <span class="muted link-note">${escapeHtml(link.note)}</span>` : "";
+      return `<li><a id="supplierLink${i}" href="${escapeHtml(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.supplier)}</a>${note}</li>`;
+    })
     .join("");
+
+  const openAllBtn = document.getElementById("openAllBtn");
+  if (openAllBtn && !openAllBtn.dataset.bound) {
+    openAllBtn.dataset.bound = "1";
+    openAllBtn.addEventListener("click", () => {
+      // Read the live anchor hrefs, not currentResult.links -- an edited
+      // search phrase (queryEdit / an alternate chip) rewrites each
+      // supplierLink<i> anchor's href in place (applyQueryEdit) without
+      // touching currentResult, so this is what actually reflects what's
+      // on screen. Each call is window.open, one per supplier link, same
+      // as clicking each one in turn -- browsers commonly ask to allow
+      // pop-ups for this (see the line under the list).
+      const anchors = linksList.querySelectorAll("a[id^='supplierLink']");
+      anchors.forEach((a) => window.open(a.href, "_blank", "noopener"));
+    });
+  }
 
   const queryEdit = document.getElementById("queryEdit");
   // Re-bind (not addEventListener again) since renderResult replaces the

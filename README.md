@@ -53,19 +53,30 @@ below the bookmarklet on the page, and both still go through the backend
 Pasting the spec block McMaster shows on the page is the fastest of the
 two; manual entry is there for anything neither path resolves.
 
-Supplier "results" are pre-filled search links, not scraped listings --
-those sites block bots as hard as McMaster does, so this hands you their
-native search instead of unreliable scraped results. The search phrase is
-shown and is editable, and clicking an alternate phrasing swaps it, since
-nothing here can promise the results on the far end are good.
+Supplier "results" are pre-filled search links, not scraped listings. The
+search phrase is shown and is editable, and clicking an alternate phrasing
+swaps it. A real headless-Chromium check of every generated link
+(`backend/scripts/check-supplier-links.js`, evidence in
+`backend/test/fixtures/suppliers/results.json`) found that seven suppliers
+-- Fastenal, Grainger, MSC Direct, Bolt Depot, Amazon, Online Metals and
+Zoro -- wall every request from this server's datacenter IP outright
+(403s, a challenge page, or a login/bot wall) regardless of query, the same
+way McMaster does; only three -- AliExpress, Speedy Metals and Metal
+Supermarkets -- actually render a results page from here. Every link this
+tool generates carries that measurement as a `verified` field
+("browser-only" or "renders"), because only your own browser, not this
+server, can tell you whether a link's results are actually a match.
 
 Which suppliers get asked depends on what the part is, classified from its
 breadcrumbs/spec fields (`classifyProduct` in `backend/lib/product.js`):
 screws, nuts and washers go to the fastener houses (Fastenal, Grainger,
-MSC, Bolt Depot, Amazon, AliExpress, Banggood), metal stock to the metal
-suppliers (Speedy Metals, Metal Supermarkets, MSC, Grainger, Online
-Metals), and everything else -- o-rings, gaskets, bearings, fittings -- to
-the general MRO distributors (Grainger, MSC, Zoro, Amazon).
+MSC, Bolt Depot, Amazon, AliExpress), metal stock to the metal suppliers
+(Speedy Metals, Metal Supermarkets, MSC, Grainger, Online Metals), and
+everything else -- o-rings, gaskets, bearings, fittings -- to the general
+MRO distributors (Grainger, MSC, Zoro, Amazon). Banggood used to be in the
+fastener list; it was dropped after it returned zero results for every
+fastener query this tool ever generated, including a bare size-plus-noun
+search with nothing left to trip up its matcher.
 
 For parts with login-gated specs (an actual account-gated field, not the
 server-blocking issue above), `scripts/mcmaster_scrape.py` is a separate,

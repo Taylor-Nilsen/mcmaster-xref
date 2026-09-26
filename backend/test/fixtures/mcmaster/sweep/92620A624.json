@@ -1,0 +1,634 @@
+{
+  "NewStyleIndicator": true,
+  "BlueprintId": "10000024116303",
+  "custDisableFdbkFrmAutoOpenPref": true,
+  "CtlgPgNbrs": [
+    3573,
+    3574,
+    3575,
+    3576,
+    3577,
+    3578,
+    3581
+  ],
+  "OptToCtlgPgInd": false,
+  "PartNbrTxt": "92620A624",
+  "ComponentPartNbrTxt": "",
+  "TitleTxt": "High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded",
+  "ComponentUrlUsrInp": {
+    "IntermediatePageAttrInps": [],
+    "InvalidatedUsrSelectionAttrId": 0,
+    "LandingPageAttrInps": [],
+    "LastDeselectedAttrId": 0,
+    "LastDeselectedPubAttrId": 0,
+    "LastDeselectedValId": 0,
+    "LastExplicitlyExpandedAttrId": 0,
+    "PreSlctdAttrIds": [],
+    "ProdAttrInps": [],
+    "SpecSrchAttrInps": [],
+    "SrchRsltIDs": [],
+    "TopLevelLandingPageProdAttrIds": [],
+    "UrlComponentPartNbr": "",
+    "AmbiguousSpecGroups": [],
+    "LastSelectedAttrInp": null,
+    "LastSelectedAttrValInp": null,
+    "LastSelectedAttrId": 0,
+    "LastSelectedPubAttrId": 0,
+    "LastSelectedValId": 0,
+    "LastSelectedPubValId": 0,
+    "AttemptsToFilterProductsInScope": false
+  },
+  "ComponentUrlLegacyAttrSelections": "",
+  "ComponentUrlLegacyValueSelections": "",
+  "CadDownloadInfo": {
+    "AvailableCAD": {
+      "TwoDDownloads": [
+        {
+          "DisplayName": "2-D DWG",
+          "FilePath": "/mvC/Library/CAD2/20260805/14C9DBA1/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.DWG"
+        },
+        {
+          "DisplayName": "2-D DXF",
+          "FilePath": "/mvC/Library/CAD2/20260805/84341F03/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.DXF"
+        },
+        {
+          "DisplayName": "2-D EDRW",
+          "FilePath": "/mvC/Library/CAD2/20260805/4BC7410A/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.EDRW"
+        },
+        {
+          "DisplayName": "2-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260805/E1D9FEAB/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.PDF"
+        },
+        {
+          "DisplayName": "2-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260805/4EA01467/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.SLDDRW"
+        }
+      ],
+      "ThreeDDownloads": [
+        {
+          "DisplayName": "3-D IGES",
+          "FilePath": "/mvC/Library/CAD2/20260805/93BDCE72/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.IGS"
+        },
+        {
+          "DisplayName": "3-D Parasolid",
+          "FilePath": "/mvC/Library/CAD2/20260805/5E74817A/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.X_T"
+        },
+        {
+          "DisplayName": "3-D Parasolid no threads",
+          "FilePath": "/mvC/Library/CAD2/20260805/5E74817A/92620A624_NO THREADS_Zinc Yellow-Chromate Plated Hex Head Screw.X_T"
+        },
+        {
+          "DisplayName": "3-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260805/E1D9FEAB/92620A624_3D_Zinc Yellow-Chromate Plated Hex Head Screw.PDF"
+        },
+        {
+          "DisplayName": "3-D SAT",
+          "FilePath": "/mvC/Library/CAD2/20260805/B6F8F0A5/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.SAT"
+        },
+        {
+          "DisplayName": "3-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260805/B51C6E1F/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.SLDPRT"
+        },
+        {
+          "DisplayName": "3-D STEP",
+          "FilePath": "/mvC/Library/CAD2/20260805/67A286FE/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.STEP"
+        },
+        {
+          "DisplayName": "3-D STEP no threads",
+          "FilePath": "/mvC/Library/CAD2/20260805/67A286FE/92620A624_NO THREADS_Zinc Yellow-Chromate Plated Hex Head Screw.STEP"
+        }
+      ]
+    },
+    "DefaultPreference": "3-D Solidworks",
+    "DisplayControlsInd": true,
+    "DisableControlsInd": false,
+    "ErrorInd": false,
+    "ErrorMessage": "",
+    "PromptLoginInd": false
+  },
+  "ImageLayoutComponentDat": {
+    "ImageDataList": [
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/926/92620A624_74b54eda-4360-4352-b36c-323fc9efcc171758943383@2x_1svgi_1758943398.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 230,
+        "ImageSrcSmallWidth": 299,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/926/92620A624_74b54eda-4360-4352-b36c-323fc9efcc171758943383@4x_1svgi_1758943398.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/926/92620A624_74b54eda-4360-4352-b36c-323fc9efcc171758943383@100p_1svgi_1758943398.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Front orientation. High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/926/92620A624_74b54eda-4360-4352-b36c-323fc9efcc171758943383@2x_1svgi_1758943398.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/926/92620A624_74b54eda-4360-4352-b36c-323fc9efcc171758943383@4x_1svgi_1758943398.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/926/92620A624_d8fc3bfa-462e-4392-985f-b61f35ef2c6d1758956602@2x_9478g_1758956607.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 227,
+        "ImageSrcSmallWidth": 299,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/926/92620A624_d8fc3bfa-462e-4392-985f-b61f35ef2c6d1758956602@4x_9478g_1758956607.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/926/92620A624_d8fc3bfa-462e-4392-985f-b61f35ef2c6d1758956602@100p_9478g_1758956607.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Back orientation. High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/926/92620A624_d8fc3bfa-462e-4392-985f-b61f35ef2c6d1758956602@2x_9478g_1758956607.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/926/92620A624_d8fc3bfa-462e-4392-985f-b61f35ef2c6d1758956602@4x_9478g_1758956607.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/926/92620A624_489a650c-90c2-41ea-958a-426ea1337ef41758953722@1halfx_qis2m_1758953730.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 268,
+        "ImageSrcSmallWidth": 237,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/926/92620A624_489a650c-90c2-41ea-958a-426ea1337ef41758953722@3x_qis2m_1758953730.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/926/92620A624_489a650c-90c2-41ea-958a-426ea1337ef41758953722@100p_qis2m_1758953730.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Front orientation. High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/926/92620A624_489a650c-90c2-41ea-958a-426ea1337ef41758953722@1halfx_qis2m_1758953730.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/926/92620A624_489a650c-90c2-41ea-958a-426ea1337ef41758953722@3x_qis2m_1758953730.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/926/92620A624_2ea6e0fe-fada-4dc4-883b-781356bd9ebc1758942236@2x_ea6mr_1758942271.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 339,
+        "ImageSrcSmallWidth": 465,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/926/92620A624_2ea6e0fe-fada-4dc4-883b-781356bd9ebc1758942236@4x_ea6mr_1758942271.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/926/92620A624_2ea6e0fe-fada-4dc4-883b-781356bd9ebc1758942236@100p_ea6mr_1758942271.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Side1 orientation. Contains SizingReference. High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/926/92620A624_2ea6e0fe-fada-4dc4-883b-781356bd9ebc1758942236@2x_ea6mr_1758942271.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/926/92620A624_2ea6e0fe-fada-4dc4-883b-781356bd9ebc1758942236@4x_ea6mr_1758942271.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      }
+    ],
+    "CADImageCarouselData": {
+      "ThumbnailSrc": "/mvC/Library/CAD2/20260805/44C89691/92620A624_Zinc Yellow-Chromate Plated Hex Head ScrewS.GIF",
+      "CADImageDataList": [
+        {
+          "ImageSrcSmall": "/mvC/Library/CAD2/20260805/44C89691/92620A624_Zinc Yellow-Chromate Plated Hex Head ScrewX.GIF",
+          "ImageSrcLarge": "/mvC/Library/CAD2/20260805/44C89691/92620A624_Zinc Yellow-Chromate Plated Hex Head ScrewX.GIF",
+          "Download2DPDFPath": "/mvC/Library/CAD2/20260805/E1D9FEAB/92620A624_Zinc Yellow-Chromate Plated Hex Head Screw.PDF",
+          "CADAltText": "Technical Drawing of High-Strength Zinc Yellow-Chromate Plated Hex Head Screw, Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded."
+        }
+      ]
+    }
+  },
+  "CadAddInDownloadInfo": {
+    "VersionText": "2.4.0.0",
+    "DownloadUri": "/mv1790277924/Installers/SolidWorksAddIn/McMaster.SolidWorks.CustomerAddIn_2.4.0.0.msi"
+  },
+  "SpecIndustrialInfoQueries": [],
+  "TransferredPartNumberInd": true,
+  "ResolvedComponentPartNumber": null,
+  "SpecChoiceParameterIds": [],
+  "TargetPageMetadata": {
+    "Type": "product_detail_page",
+    "World": "new_world",
+    "ProductFamily": "Hex Head Screws",
+    "TargetPageConstituentPFs": null,
+    "ProductCount": 1,
+    "PresentationCount": 0,
+    "ProductFamilyCount": 1,
+    "EmphasisValueCount": 0
+  },
+  "ReactData": {
+    "AddToOrderMarkup": null,
+    "Copies": [
+      "<span class=\"Wrd\">Our most</span> popular hex head <span class=\"Wrd\">screws.</span> These have a head with six flat sides to keep wrenches and sockets from slipping and rounding off the <span class=\"Wrd\">drive.</span> ",
+      "Length is measured from under the <span class=\"Wrd\">head.</span>",
+      "<b>High</b><b>-</b><b>Strength</b> <span class=\"Wrd\"><b>Fastener</b><b>—</b></span>Commonly used to fasten components in <span class=\"Wrd\">valves,</span> <span class=\"Wrd\">pumps,</span> <span class=\"Wrd\">motors,</span> and other high-stress <span class=\"Wrd\">applications.</span> These screws have a tensile strength of <span class=\"Wrd\">125,</span>000 to <span class=\"Wrd\">160,</span>000 <span class=\"Wrd\">psi.</span>",
+      "<b>Zinc</b><b>-</b><b>Yellow</b><b>-</b><b>Chromate</b><b>-</b><b>Plated</b> <span class=\"Wrd\"><b>Steel</b><b>—</b></span>With slightly better corrosion resistance than zinc-plated steel <span class=\"Wrd\">screws,</span> these stand up to more frequent exposure to <span class=\"Wrd\">moisture.</span>"
+    ],
+    "Headers": {
+      "Primary": "High-Strength Zinc Yellow-Chromate Plated Hex Head Screw",
+      "Secondary": "Grade 8 Steel, 3/8\"-16 Thread Size, 1\" Long, Fully Threaded"
+    },
+    "TableEntries": [
+      {
+        "AttrId": 10000000008164,
+        "AttrValId": 10000000138654,
+        "IsIndented": false,
+        "Name": "Thread Direction",
+        "Type": "TableEntrySpec",
+        "Value": "Right Hand"
+      },
+      {
+        "AttrId": 10000000006931,
+        "AttrValId": 10000000102412,
+        "IsIndented": false,
+        "Name": "Hex Head Profile",
+        "Type": "TableEntrySpec",
+        "Value": "Standard"
+      },
+      {
+        "AttrId": 10000001586066,
+        "AttrValId": 10000001622528,
+        "IsIndented": false,
+        "Name": "Fastener Head Type",
+        "Type": "TableEntrySpec",
+        "Value": "Hex"
+      },
+      {
+        "AttrId": 10000000002113,
+        "AttrValId": 10000000023964,
+        "IsIndented": false,
+        "Name": "Drive Style",
+        "Type": "TableEntrySpec",
+        "Value": "External Hex"
+      },
+      {
+        "AttrId": 10000003721324,
+        "AttrValId": 10000003721361,
+        "IsIndented": false,
+        "Name": "Fastener Strength Rating",
+        "Type": "TableEntrySpec",
+        "Value": "High"
+      },
+      {
+        "AttrId": 10000005086391,
+        "AttrValId": 10000005086561,
+        "IsIndented": false,
+        "Name": "Material",
+        "Type": "TableEntrySpec",
+        "Value": "Zinc-Yellow-Chromate-Plated Steel"
+      },
+      {
+        "AttrId": 10000024126780,
+        "AttrValId": 10000024130080,
+        "IsIndented": false,
+        "Name": "Thread Size",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">3/8</span>\"-16"
+      },
+      {
+        "AttrId": 10000000007169,
+        "AttrValId": 10000001597104,
+        "IsIndented": false,
+        "Name": "Length",
+        "Type": "TableEntrySpec",
+        "Value": "1\""
+      },
+      {
+        "AttrId": 0,
+        "AttrValId": 0,
+        "IsIndented": false,
+        "Name": "Head",
+        "Type": "TableEntrySpec",
+        "Value": ""
+      },
+      {
+        "AttrId": 10000000006920,
+        "AttrValId": 10000001478475,
+        "IsIndented": true,
+        "Name": "Width",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">9/16</span>\""
+      },
+      {
+        "AttrId": 10000000006914,
+        "AttrValId": 10000001483027,
+        "IsIndented": true,
+        "Name": "Height",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">15/64</span>\""
+      },
+      {
+        "AttrId": 10000000008220,
+        "AttrValId": 10000000124223,
+        "IsIndented": false,
+        "Name": "Threading",
+        "Type": "TableEntrySpec",
+        "Value": "Fully Threaded"
+      },
+      {
+        "AttrId": 10000000008200,
+        "AttrValId": 10000000153996,
+        "IsIndented": false,
+        "Name": "Thread Spacing",
+        "Type": "TableEntrySpec",
+        "Value": "Coarse"
+      },
+      {
+        "AttrId": 10000000002382,
+        "AttrValId": 10000001570360,
+        "IsIndented": false,
+        "Name": "Fastener Strength Grade/Class",
+        "Type": "TableEntrySpec",
+        "Value": "SAE Grade 8"
+      },
+      {
+        "AttrId": 10000003479552,
+        "AttrValId": 10000003483456,
+        "IsIndented": false,
+        "Name": "Tensile Strength",
+        "Type": "TableEntrySpec",
+        "Value": "150,000 psi"
+      },
+      {
+        "AttrId": 10000000006908,
+        "AttrValId": 10000002325855,
+        "IsIndented": false,
+        "Name": "Hardness",
+        "Type": "TableEntrySpec",
+        "Value": "Rockwell C33"
+      },
+      {
+        "AttrId": 10000002073452,
+        "AttrValId": 10000002101977,
+        "IsIndented": false,
+        "Name": "Performance",
+        "Type": "TableEntrySpec",
+        "Value": "High Strength"
+      },
+      {
+        "AttrId": 10000000003413,
+        "AttrValId": 10000000157301,
+        "IsIndented": false,
+        "Name": "Screw Size Decimal Equivalent",
+        "Type": "TableEntrySpec",
+        "Value": "0.375\""
+      },
+      {
+        "AttrId": 10000002050714,
+        "AttrValId": 0,
+        "IsIndented": false,
+        "Name": "Specifications Met",
+        "Type": "TableEntrySpec",
+        "Value": "ASME B18.2.1<br/>SAE J429"
+      },
+      {
+        "AttrId": 10000001492748,
+        "AttrValId": 10000001498016,
+        "IsIndented": false,
+        "Name": "System of Measurement",
+        "Type": "TableEntrySpec",
+        "Value": "Inch"
+      },
+      {
+        "AttrId": 10000000008172,
+        "AttrValId": 10000000017954,
+        "IsIndented": false,
+        "Name": "Thread Fit",
+        "Type": "TableEntrySpec",
+        "Value": "Unified Standard Class 2A"
+      },
+      {
+        "AttrId": 10000000008205,
+        "AttrValId": 10000002102665,
+        "IsIndented": false,
+        "Name": "Thread Type",
+        "Type": "TableEntrySpec",
+        "Value": "UNC"
+      },
+      {
+        "AttrId": 10000002230283,
+        "AttrValId": 10000002269899,
+        "IsIndented": false,
+        "Name": "Tip Type",
+        "Type": "TableEntrySpec",
+        "Value": "Flat"
+      },
+      {
+        "AttrId": 10000000001633,
+        "AttrValId": 10000002431731,
+        "IsIndented": false,
+        "Name": "Country of Origin",
+        "Type": "TableEntrySpec",
+        "Value": "Canada"
+      },
+      {
+        "AttrId": 10000000001810,
+        "AttrValId": 10000001514603,
+        "IsIndented": false,
+        "Name": "DFARS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "Specialty Metals Compliant (252.225-7009)"
+      },
+      {
+        "AttrId": 10000000002136,
+        "AttrValId": 10000000147067,
+        "IsIndented": false,
+        "Name": "Export Control Classification Number (ECCN)",
+        "Type": "TableEntrySpec",
+        "Value": "EAR99"
+      },
+      {
+        "AttrId": 10000000003168,
+        "AttrValId": 10000006999086,
+        "IsIndented": false,
+        "Name": "REACH Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "REACH (EC 1907/2006) (01/21/2025, 247 SVHC) Compliant"
+      },
+      {
+        "AttrId": 10000000003321,
+        "AttrValId": 10000000084682,
+        "IsIndented": false,
+        "Name": "RoHS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "AttrId": 10000000003391,
+        "AttrValId": 10000002427201,
+        "IsIndented": false,
+        "Name": "Schedule B Number",
+        "Type": "TableEntrySpec",
+        "Value": "731815.9000"
+      },
+      {
+        "AttrId": 10000000008322,
+        "AttrValId": 10000002422055,
+        "IsIndented": false,
+        "Name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "Type": "TableEntrySpec",
+        "Value": "Yes"
+      }
+    ],
+    "VideoFilePaths": [],
+    "ProductOutlineEntryIds": [
+      10000001442291,
+      10000001484471,
+      10000001484468,
+      10000001484465,
+      10000004909879,
+      10000000171039
+    ],
+    "Breadcrumbs": [],
+    "IPVData": {
+      "FilePath": null,
+      "DisplayViewerInd": false,
+      "DisableViewerInd": false,
+      "ErrorMessage": null
+    }
+  },
+  "PinnedContentColl": null,
+  "IDTxt": "ItmPrsnttnWebPart_639259440225639780EWGT",
+  "ServerTm": 24,
+  "ServerNm": "NAVEP1014C",
+  "ClsNm": "ItmPrsnttnWebPart",
+  "CntnrIDTxt": "MainContent",
+  "MarkupTxt": "",
+  "JSInclFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "JSInclSrcFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "CSSInclFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "CSSInclSrcFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "ChldWebParts": [
+    {
+      "Tools": [
+        "FwdLnkTool",
+        "PrintTool",
+        "HelpfulFeedbackTool",
+        "McmAiLnkPd",
+        "BreadcrumbTool"
+      ],
+      "Styles": [],
+      "NewStyleInd": false,
+      "IsHideWebToolkitEnabled": false,
+      "IDTxt": "WebToolsetWebPart_639259440225639976WEDK",
+      "ServerTm": 0,
+      "ServerNm": "NAVEP1014C",
+      "ClsNm": "WebToolsetWebPart",
+      "CntnrIDTxt": "WebToolset_ItmPrsnttnWebPart_639259440225639780EWGT",
+      "MarkupTxt": "<div class=\"WebToolsetWebPart_Cntnr WebToolsetWebPart-border\"><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_forward\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='FwdLnkTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Forward</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCancelClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_FwdLnkTool_Form\"><div class=\"WebToolsetToolWebPart_Lbl\">Enter e-mail addresses in the fields below</div><div class=\"WebToolsetToolWebPart_ToAreaCntnr\"><label id= \"tolabel\"for=\"fwdTo\">To</label><input id=\"fwdTo\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_ToEmailInp\"/></div><div class=\"WebToolsetToolWebPart_FromAreaCntnr\"><label id=\"fromlabel\"for=\"fwdFrom\">From</label><input id=\"fwdFrom\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_Lbl\">Message</div><textarea cols=\"52\" rows=\"6\" id=\"messagetxt\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_LinkAreaCntnr\"><label id= \"linklabel\" for=\"fwdLink\">Link</label><input id=\"fwdLink\" type=\"text\" value=\"\" readonly class=\"WebToolsetToolWebPart_URLInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-forward-order forward-link\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-forward-link\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCloseCnfrmMsgClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_print\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='PrintTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Print</a></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_is-this-page-helpful\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='HelpfulFeedbackTool'  class=\"ai\">Is this page helpful?</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseBtn\" href=\"#\" Class= \"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_HelpfulFeedbackTool_Form\"><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"1\">Yes</input><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"2\">No</input><div class=\"WebToolsetToolWebPart_Lbl\">Comments</div><textarea cols=\"52\" rows=\"5\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_Lbl\">E-mail address (if you would like a response)</div><div><input type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-send-feedback-toolset send-helpful-feedback\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-send-helpful-feedback\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseCnfrmMsg\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_find-alternative-products-beta\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='McmAiLnkPd'  class=\"ai\">Find alternative products (beta)<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1em\" height=\"1em\" fill=\"currentColor\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\" style=\"vertical-align:middle;position:relative;top:-2px;left:3px;\"><path fill-rule=\"evenodd\" d=\"M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5\"/><path fill-rule=\"evenodd\" d=\"M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z\"/></svg></a></div><div id='BreadcrumbTool' class='WebToolsetToolWebPart_Aligned_LEFT'></div></div>",
+      "JSInclFilePaths": [],
+      "JSInclSrcFilePaths": [],
+      "CSSInclFilePaths": [],
+      "CSSInclSrcFilePaths": [],
+      "ChldWebParts": [
+        {
+          "Nm": "FwdLnkTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Forward this page",
+          "ToolTxt": "Forward",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "FrwLnkToolWebPart_639259440225640298CZVH",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1014C",
+          "ClsNm": "FrwLnkToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "PrintTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Print",
+          "ToolTxt": "Print",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259440225640269OPJK",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1014C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "HelpfulFeedbackTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Item presentation feedback",
+          "ToolTxt": "Is this page helpful?",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "HelpfulFeedbackToolWebPart_639259440225640246HBFM",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1014C",
+          "ClsNm": "HelpfulFeedbackToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "McmAiLnkPd",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "Find alternative products (beta)",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259440225640210DQXQ",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1014C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "BreadcrumbTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "",
+          "AlignPosnTxt": "LEFT",
+          "Styles": [],
+          "IDTxt": "BreadcrumbsToolWebPart_639259440225640148FHWG",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1014C",
+          "ClsNm": "BreadcrumbsToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": true
+        }
+      ],
+      "LoadChldWebPartsInd": true,
+      "UnloadChldWebPartsInd": true,
+      "EmbeddedIntoShellInd": false
+    }
+  ],
+  "LoadChldWebPartsInd": true,
+  "UnloadChldWebPartsInd": true,
+  "EmbeddedIntoShellInd": false
+}

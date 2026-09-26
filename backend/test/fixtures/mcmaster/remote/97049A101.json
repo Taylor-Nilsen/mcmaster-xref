@@ -1,0 +1,179 @@
+{
+  "partNumber": "97049A101",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "97049A101",
+    "title": "Undersized Dowel Pin, 18-8 Stainless Steel, 2 mm Diameter, 4 mm Long",
+    "family": "Dowel Pins",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Pins",
+      "Dowel Pins",
+      "Undersized Dowel Pins"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Tolerance Rating",
+        "value": "Undersized"
+      },
+      {
+        "group": null,
+        "name": "Fastener Head Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "18-8 Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Diameter",
+        "value": "2 mm"
+      },
+      {
+        "group": null,
+        "name": "Diameter Tolerance",
+        "value": "-0.014 mm to 0 mm"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "4 mm"
+      },
+      {
+        "group": null,
+        "name": "Double Shear Breaking Strength",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Minimum Hardness",
+        "value": "Rockwell B95"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ISO 2338-h8"
+      },
+      {
+        "group": null,
+        "name": "End Shape",
+        "value": "Chamfer"
+      },
+      {
+        "group": null,
+        "name": "End Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Passivation",
+        "value": "Unpassivated"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Corrosion Resistant, Easy Removal"
+      },
+      {
+        "group": null,
+        "name": "Pin Type",
+        "value": "Dowel"
+      },
+      {
+        "group": null,
+        "name": "Shaft Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Germany"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals Compliant (252.225-7009)"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731829.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "undersized dowel pin",
+    "kind": "fastener"
+  },
+  "queries": {
+    "primary": "4mm undersized dowel pin 18-8 Stainless Steel",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=4mm+undersized+dowel+pin+18-8+Stainless+Steel",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=4mm%20undersized%20dowel%20pin%2018-8%20Stainless%20Steel",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=4mm+undersized+dowel+pin+18-8+Stainless+Steel",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Catalog-Tabs",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=4mm+undersized+dowel+pin+18-8+Stainless+Steel",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/wholesale?SearchText=4mm+undersized+dowel+pin+18-8+Stainless+Steel",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    },
+    {
+      "supplier": "Banggood",
+      "url": "https://www.banggood.com/search/4mm-undersized-dowel-pin-18-8-stainless-steel.html",
+      "query": "4mm undersized dowel pin 18-8 Stainless Steel"
+    }
+  ],
+  "error": null
+}

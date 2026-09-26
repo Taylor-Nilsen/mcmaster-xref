@@ -144,7 +144,11 @@ test("pastedText is turned into a synthetic record and runs the same pipeline", 
   assert.equal(body.partNumber, "91251A540");
   assert.equal(body.error, null);
   assert.equal(body.classification.noun, "socket head cap screw");
-  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
+  // lib/product.js now emits the finish in plain lowercase words rather
+  // than McMaster's own hyphenated/capitalized form -- see product.test.js
+  // for the regression this covers (a supplier search box expects "black
+  // oxide", never "Black-Oxide").
+  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel black oxide');
   const material = body.product.attributes.find((a) => a.name === "Material");
   assert.equal(material.value, "Black-Oxide Alloy Steel");
 }));
@@ -161,7 +165,7 @@ test("manual specs alone synthesize a product and produce a query", withServer(a
   assert.equal(body.source, "manual");
   assert.equal(body.error, null);
   assert.equal(body.classification.noun, "socket head cap screw");
-  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel Black-Oxide');
+  assert.equal(body.queries.primary, '1/4"-20 x 3/4" socket head cap screw Alloy Steel black oxide');
   assert.ok(body.links.length > 0);
 }));
 
@@ -369,6 +373,94 @@ test("two concurrent requests for the same uncached part number share one in-fli
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+// ---------------------------------------------------------------------------
+// validateProductRecord wiring: a record with no spec rows must never be
+// reported as a success, and must never be cached.
+// ---------------------------------------------------------------------------
+
+test("a McMaster record with no TableEntries is reported as NO_DATA, not a false success, and is never cached", async () => {
+  let calls = 0;
+  const noDataApp = buildApp({
+    fetchProductRecord: async () => {
+      calls++;
+      return {
+        raw: "irrelevant",
+        json: { PartNbrTxt: "90286A118", TitleTxt: "", ReactData: { TableEntries: [] } },
+      };
+    },
+  });
+  const server = noDataApp.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const post = (body) =>
+    fetch(`${base}/api/xref`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(async (res) => ({ status: res.status, body: await res.json() }));
+
+  try {
+    const first = await post({ partNumber: "90286A118" });
+    assert.equal(first.status, 200);
+    assert.equal(first.body.source, "none");
+    assert.equal(first.body.product, null);
+    assert.equal(first.body.error.code, "NO_DATA");
+
+    // Not cached: a second request for the same part must call the stub
+    // again rather than being answered from a (nonexistent) positive cache
+    // entry.
+    const second = await post({ partNumber: "90286A118" });
+    assert.equal(second.body.error.code, "NO_DATA");
+    assert.equal(calls, 2, "expected the stub to be called again on the second request");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+// ---------------------------------------------------------------------------
+// debug: true -> `raw` field
+// ---------------------------------------------------------------------------
+
+test("debug: true adds a raw field with the full parsed record on a record input", withServer(app, async ({ post }) => {
+  const withDebug = await post({ record: FIXTURE_RAW, debug: true });
+  assert.equal(withDebug.status, 200);
+  assert.ok(withDebug.body.raw, "expected a raw field when debug: true");
+  assert.equal(typeof withDebug.body.raw.TitleTxt, "string");
+  assert.ok(withDebug.body.raw.TitleTxt.length > 0);
+
+  const withoutDebug = await post({ record: FIXTURE_RAW });
+  assert.equal(withoutDebug.status, 200);
+  assert.ok(!("raw" in withoutDebug.body), "raw must be absent entirely when debug is not set");
+}));
+
+test("debug: true adds a raw field on a successful mcmaster partNumber lookup", withServer(
+  buildApp({
+    fetchProductRecord: async () => ({ raw: FIXTURE_RAW, json: parseFragment(FIXTURE_RAW) }),
+  }),
+  async ({ post }) => {
+    const { body } = await post({ partNumber: "91251A540", debug: true });
+    assert.equal(body.source, "mcmaster");
+    assert.ok(body.raw);
+    assert.equal(typeof body.raw.TitleTxt, "string");
+    assert.ok(body.raw.TitleTxt.length > 0);
+  }
+));
+
+test("debug: true adds the failing record as raw on a NO_DATA validation failure", withServer(
+  buildApp({
+    fetchProductRecord: async () => ({
+      raw: "irrelevant",
+      json: { NewStyleIndicator: true, TargetPageMetadata: { Type: "product_family" } },
+    }),
+  }),
+  async ({ post }) => {
+    const { body } = await post({ partNumber: "90286A118", debug: true });
+    assert.equal(body.error.code, "NO_DATA");
+    assert.ok(body.raw);
+    assert.equal(body.raw.TargetPageMetadata.Type, "product_family");
+  }
+));
 
 test("a malformed JSON body reports 400 BAD_REQUEST with the full documented response shape", withServer(app, async ({ base }) => {
   const res = await fetch(`${base}/api/xref`, {

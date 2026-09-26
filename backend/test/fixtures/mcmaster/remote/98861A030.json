@@ -1,0 +1,42 @@
+{
+  "partNumber": "98861A030",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "",
+    "title": "",
+    "family": null,
+    "categoryPath": [],
+    "attributes": []
+  },
+  "classification": {
+    "noun": "other",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "other",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=other",
+      "query": "other"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=other",
+      "query": "other"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=other",
+      "query": "other"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=other",
+      "query": "other"
+    }
+  ],
+  "error": null
+}

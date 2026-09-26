@@ -1,0 +1,179 @@
+{
+  "partNumber": "90631A011",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "90631A011",
+    "title": "Low-Strength Steel Nylon-Insert Locknut, Zinc-Plated, 10-24 Thread Size",
+    "family": "Locknuts",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Nuts",
+      "Locknuts",
+      "Nylon-Insert Locknuts"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Thread Direction",
+        "value": "Right Hand"
+      },
+      {
+        "group": null,
+        "name": "Hex Nut Profile",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Locking Type",
+        "value": "Nylon Insert"
+      },
+      {
+        "group": null,
+        "name": "Fastener Strength Rating",
+        "value": "Low"
+      },
+      {
+        "group": null,
+        "name": "Finished Material",
+        "value": "Zinc-Plated Steel"
+      },
+      {
+        "group": null,
+        "name": "Thread Size",
+        "value": "10-24"
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "15/64\""
+      },
+      {
+        "group": null,
+        "name": "Insert Maximum Temperature",
+        "value": "185° F"
+      },
+      {
+        "group": null,
+        "name": "Drive Style",
+        "value": "External Hex"
+      },
+      {
+        "group": null,
+        "name": "Nut Type",
+        "value": "Hex, Locknut"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Vibration Resistant"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Thread Fit",
+        "value": "Unified Standard Class 2B"
+      },
+      {
+        "group": null,
+        "name": "Thread Spacing",
+        "value": "Coarse"
+      },
+      {
+        "group": null,
+        "name": "Thread Type",
+        "value": "UNC"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Taiwan"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "731816.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "hex, locknut nylon-insert locknut",
+    "kind": "nut"
+  },
+  "queries": {
+    "primary": "10-24 hex, locknut nylon-insert locknut",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Fastenal",
+      "url": "https://www.fastenal.com/product?query=10-24+hex%2C+locknut+nylon-insert+locknut",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=10-24%20hex%2C%20locknut%20nylon-insert%20locknut",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=10-24+hex%2C+locknut+nylon-insert+locknut",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "Bolt Depot",
+      "url": "https://boltdepot.com/Browse?Category=Nuts&Units=US",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=10-24+hex%2C+locknut+nylon-insert+locknut",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "AliExpress",
+      "url": "https://www.aliexpress.com/wholesale?SearchText=10-24+hex%2C+locknut+nylon-insert+locknut",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    },
+    {
+      "supplier": "Banggood",
+      "url": "https://www.banggood.com/search/10-24-hex,-locknut-nylon-insert-locknut.html",
+      "query": "10-24 hex, locknut nylon-insert locknut"
+    }
+  ],
+  "error": null
+}
