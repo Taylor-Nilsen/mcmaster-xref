@@ -106,8 +106,26 @@ async function postXref(body) {
     body: JSON.stringify(body),
     signal: timeoutSignal(LOOKUP_TIMEOUT_MS),
   });
-  if (!res.ok) throw new Error(`Backend returned HTTP ${res.status}`);
-  return res.json();
+
+  // Try to read the JSON body regardless of status -- a non-2xx response
+  // (503 BUSY, 400 malformed-JSON) still carries the documented
+  // { ..., error: { code, message } } shape, and throwing before reading it
+  // (the old behavior) meant that message never reached the person. Only
+  // fall back to a bare "HTTP N" message when the body genuinely isn't
+  // JSON (or doesn't have an error we recognize).
+  let parsed = null;
+  try {
+    parsed = await res.json();
+  } catch (e) {
+    parsed = null;
+  }
+
+  if (!res.ok) {
+    if (parsed && parsed.error && parsed.error.code) return parsed;
+    throw new Error(`Backend returned HTTP ${res.status}`);
+  }
+  if (parsed == null) throw new Error(`Backend returned HTTP ${res.status} with a non-JSON body`);
+  return parsed;
 }
 
 // Fire-and-forget: lets the server cache learn a record the bookmarklet
@@ -563,21 +581,27 @@ function loadRecent() {
 function saveRecent(result) {
   const partNumber = (result.partNumber || (result.product && result.product.partNumber) || "").trim();
   if (!partNumber) return;
+
+  let list = loadRecent().filter((r) => r.partNumber !== partNumber);
+  list.unshift({
+    partNumber,
+    title: result.product && result.product.title,
+    noun: result.classification && result.classification.noun,
+    savedAt: Date.now(),
+    result,
+  });
+  list = list.slice(0, RECENT_LIMIT);
+
+  // Render first, from the in-memory list, so the part just looked up
+  // always shows up in the visible Recent list -- persisting it is a
+  // separate, independently-failing step (private mode, quota, etc.) that
+  // must not hide it.
+  renderRecent(list);
   try {
-    let list = loadRecent().filter((r) => r.partNumber !== partNumber);
-    list.unshift({
-      partNumber,
-      title: result.product && result.product.title,
-      noun: result.classification && result.classification.noun,
-      savedAt: Date.now(),
-      result,
-    });
-    list = list.slice(0, RECENT_LIMIT);
     localStorage.setItem(RECENT_KEY, JSON.stringify(list));
-    renderRecent(list);
   } catch (e) {
-    // localStorage unavailable (private mode, quota, etc.) -- Recent is a
-    // convenience, not a requirement, so just skip it.
+    // localStorage unavailable -- Recent is a convenience, not a
+    // requirement, so just skip persisting it; it's already rendered above.
   }
 }
 

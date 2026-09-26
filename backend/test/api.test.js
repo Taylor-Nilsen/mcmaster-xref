@@ -295,3 +295,96 @@ test("requests queued past the queue depth get a 503 with error code BUSY", asyn
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("a request queued too long without starting is rejected with BUSY rather than waiting out the hard timeout", async () => {
+  const queueApp = buildApp(
+    {
+      fetchProductRecord: async (partNumber) => {
+        await new Promise((r) => setTimeout(r, 200));
+        const err = new Error(`no data for ${partNumber}`);
+        err.code = "NO_DATA";
+        throw err;
+      },
+    },
+    // First job occupies the queue for ~200ms; second job's queue wait
+    // (spacingMs) alone already exceeds this tiny queueMaxWaitMs, so it
+    // must be rejected BUSY without its fetch ever starting.
+    { queueMaxDepth: 5, queueSpacingMs: 50, queueMaxWaitMs: 30 }
+  );
+  const server = queueApp.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const post = (partNumber) =>
+    fetch(`${base}/api/xref`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ partNumber }),
+    }).then(async (res) => ({ status: res.status, body: await res.json() }));
+
+  try {
+    const results = await Promise.all([post("Q1"), post("Q2")]);
+    // Whichever of the two reaches the queue first starts immediately (no
+    // wait to exceed yet) and fails with the stub's NO_DATA; the other
+    // sits behind it, its queue wait exceeds queueMaxWaitMs, and it comes
+    // back BUSY -- assert on that pairing rather than request order, since
+    // which of Q1/Q2 the server happens to process first isn't guaranteed.
+    const busy = results.filter((r) => r.status === 503);
+    const notBusy = results.filter((r) => r.status !== 503);
+    assert.equal(busy.length, 1, "expected exactly one of the two requests to be rejected for waiting too long in queue");
+    assert.equal(busy[0].body.error.code, "BUSY");
+    assert.equal(notBusy.length, 1);
+    assert.equal(notBusy[0].body.error.code, "NO_DATA");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("two concurrent requests for the same uncached part number share one in-flight McMaster fetch", async () => {
+  let calls = 0;
+  const dedupeApp = buildApp({
+    fetchProductRecord: async () => {
+      calls++;
+      await new Promise((r) => setTimeout(r, 50));
+      return { raw: FIXTURE_RAW, json: parseFragment(FIXTURE_RAW) };
+    },
+  });
+  const server = dedupeApp.listen(0);
+  await new Promise((resolve) => server.once("listening", resolve));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const post = () =>
+    fetch(`${base}/api/xref`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ partNumber: "91251A540" }),
+    }).then(async (res) => ({ status: res.status, body: await res.json() }));
+
+  try {
+    const [a, b] = await Promise.all([post(), post()]);
+    assert.equal(calls, 1, "expected the second concurrent request to join the first's in-flight fetch, not start its own");
+    assert.equal(a.status, 200);
+    assert.equal(b.status, 200);
+    assert.deepEqual(a.body, b.body);
+    assert.equal(a.body.source, "mcmaster");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("a malformed JSON body reports 400 BAD_REQUEST with the full documented response shape", withServer(app, async ({ base }) => {
+  const res = await fetch(`${base}/api/xref`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: "{not valid json",
+  });
+  const body = await res.json();
+  assert.equal(res.status, 400);
+  assert.deepEqual(body, {
+    partNumber: null,
+    source: "none",
+    product: null,
+    classification: null,
+    queries: null,
+    links: [],
+    error: { code: "BAD_REQUEST", message: "Request body must be valid JSON." },
+  });
+}));

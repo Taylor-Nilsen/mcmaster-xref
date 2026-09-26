@@ -9,7 +9,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const path = require("path");
 
-const { parseFragment } = require("../lib/mcmaster");
+const { parseFragment, attemptFetch } = require("../lib/mcmaster");
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures", "mcmaster");
 
@@ -51,6 +51,29 @@ test("parseFragment falls back to balanced-brace scan when the length prefix is 
   const body = "0000000001" + JSON.stringify(obj) + "<div>trailing html</div>";
   const parsed = parseFragment(body);
   assert.equal(parsed.TitleTxt, "Test Part");
+});
+
+// ---------------------------------------------------------------------------
+// attemptFetch - context/page teardown, driven with a fake browser so no
+// real Chromium process is ever launched by this suite.
+// ---------------------------------------------------------------------------
+
+test("attemptFetch closes the context even when page creation itself throws (no context leak)", async () => {
+  let contextClosed = false;
+  const fakeCtx = {
+    newPage: async () => {
+      throw new Error("boom: simulated newPage failure");
+    },
+    close: async () => {
+      contextClosed = true;
+    },
+  };
+  const fakeBrowser = {
+    newContext: async () => fakeCtx,
+  };
+
+  await assert.rejects(() => attemptFetch("91251A540", 5000, fakeBrowser), /boom: simulated newPage failure/);
+  assert.equal(contextClosed, true, "the context created before the throw must still be closed");
 });
 
 test("parseFragment handles multi-byte characters in the length-prefixed JSON", () => {

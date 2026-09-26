@@ -260,11 +260,21 @@ function codedError(message, code) {
  * structural: never let two navigations start less than `spacingMs` apart,
  * and refuse to queue more than `maxDepth` requests behind whatever's
  * already waiting rather than let a burst pile up and make things worse.
+ *
+ * A request's time in this queue is NOT covered by HARD_TIMEOUT_MS (that
+ * applies only to the fetch itself, once it starts -- see
+ * resolveViaMcMaster) -- at maxDepth 5, a request queued behind several
+ * slow fetches could otherwise wait 60-120s for its turn and never even
+ * begin. Instead, a request that has waited more than `maxQueueWaitMs`
+ * without starting is rejected with BUSY on its own, so a caller finds out
+ * fast that the server is backed up rather than silently waiting out a
+ * queue that will die of a hard timeout anyway.
  */
 class SerialFetchQueue {
-  constructor({ maxDepth, spacingMs }) {
+  constructor({ maxDepth, spacingMs, maxQueueWaitMs }) {
     this.maxDepth = maxDepth;
     this.spacingMs = spacingMs;
+    this.maxQueueWaitMs = maxQueueWaitMs;
     this.queue = [];
     this.pumping = false;
     this.lastStart = 0;
@@ -279,7 +289,7 @@ class SerialFetchQueue {
       return Promise.reject(codedError("too many McMaster lookups already queued", "BUSY"));
     }
     return new Promise((resolve, reject) => {
-      this.queue.push({ fn, resolve, reject });
+      this.queue.push({ fn, resolve, reject, enqueuedAt: Date.now() });
       this._pump();
     });
   }
@@ -288,7 +298,15 @@ class SerialFetchQueue {
     if (this.pumping) return;
     this.pumping = true;
     while (this.queue.length) {
-      const { fn, resolve, reject } = this.queue.shift();
+      const { fn, resolve, reject, enqueuedAt } = this.queue.shift();
+      if (Date.now() - enqueuedAt > this.maxQueueWaitMs) {
+        reject(codedError("McMaster lookup queue wait exceeded", "BUSY"));
+        continue;
+      }
+      // The 3s navigation-spacing floor applies between the START of one
+      // fetch and the start of the next, regardless of how long the
+      // previous fetch took to finish -- lastStart is set below, right
+      // before fn() runs, not after it resolves.
       const wait = this.spacingMs - (Date.now() - this.lastStart);
       if (wait > 0) await new Promise((r) => setTimeout(r, wait));
       this.lastStart = Date.now();
@@ -305,10 +323,18 @@ class SerialFetchQueue {
 const QUEUE_MAX_DEPTH = 5;
 const QUEUE_SPACING_MS = 3000;
 
-// A failed lookup must answer fast and honestly (see file header) --
+// A request that has been sitting in the queue this long without its fetch
+// starting gets rejected with BUSY rather than keep waiting -- see the
+// SerialFetchQueue comment above.
+const QUEUE_MAX_WAIT_MS = 20000;
+
+// A failed fetch must answer fast and honestly (see file header) --
 // fetchProductRecord's own internal budget defaults to 30s, and this wraps
-// the whole queued call (queue wait + fetch) in a hard ceiling above that
-// so a stuck browser/navigation can never turn into the old ~80s hang.
+// just the fetch itself (started inside resolveViaMcMaster, once it's this
+// request's turn in the queue) in a hard ceiling above that so a stuck
+// browser/navigation can never turn into the old ~80s hang. It deliberately
+// does NOT cover time spent waiting in the queue -- see QUEUE_MAX_WAIT_MS
+// for that.
 const HARD_TIMEOUT_MS = 33000;
 
 function withHardTimeout(promise, ms) {
@@ -368,6 +394,7 @@ const NEGATIVE_TTL_MS = 5 * 60 * 1000;
  * @param {object} [options] test-only knobs, never used in production
  * @param {number} [options.queueMaxDepth]
  * @param {number} [options.queueSpacingMs]
+ * @param {number} [options.queueMaxWaitMs]
  */
 function buildApp(overrideDeps = {}, options = {}) {
   function defaultFetchProductRecord(partNumber, opts) {
@@ -388,6 +415,7 @@ function buildApp(overrideDeps = {}, options = {}) {
   const mcQueue = new SerialFetchQueue({
     maxDepth: options.queueMaxDepth || QUEUE_MAX_DEPTH,
     spacingMs: options.queueSpacingMs != null ? options.queueSpacingMs : QUEUE_SPACING_MS,
+    maxQueueWaitMs: options.queueMaxWaitMs != null ? options.queueMaxWaitMs : QUEUE_MAX_WAIT_MS,
   });
   // Best-effort signal for /api/health: lib/mcmaster.js keeps its warm
   // Chromium process behind a module-private variable it doesn't export,
@@ -398,31 +426,54 @@ function buildApp(overrideDeps = {}, options = {}) {
 
   loadFileCacheInto(positiveCache);
 
-  async function resolveViaMcMaster(partNumber) {
+  // Two concurrent requests for the same uncached part number must not
+  // queue two separate navigations -- the second caller joins the first
+  // one's in-flight promise instead. Cleared as soon as that promise
+  // settles (success or failure), so the next distinct request tries fresh.
+  const inFlight = new Map(); // partNumber -> Promise<jsonRecordObject>
+
+  function resolveViaMcMaster(partNumber) {
     const cached = positiveCache.get(partNumber);
-    if (cached) return cached.raw;
+    if (cached) return Promise.resolve(cached.raw);
 
     const negative = negativeCache.get(partNumber);
     if (negative && Date.now() - negative.ts < NEGATIVE_TTL_MS) {
-      throw codedError(negative.message, negative.code);
+      return Promise.reject(codedError(negative.message, negative.code));
     }
+
+    const existing = inFlight.get(partNumber);
+    if (existing) return existing;
 
     // Only the real (default, non-stubbed) fetch path ever touches an
     // actual Chromium process -- see the browserWarm comment above.
     if (deps.fetchProductRecord === defaultFetchProductRecord && process.env.XREF_NO_BROWSER !== "1") {
       browserWarm = true;
     }
-    try {
-      const { json } = await mcQueue.run(() => deps.fetchProductRecord(partNumber, { timeoutMs: 30000 }));
-      positiveCache.set(partNumber, { raw: json, ts: Date.now() });
-      persistFileCacheFrom(positiveCache);
-      return json;
-    } catch (err) {
-      if (err.code === "LOGIN_WALL" || err.code === "NO_DATA") {
-        negativeCache.set(partNumber, { code: err.code, message: err.message, ts: Date.now() });
+
+    const promise = (async () => {
+      try {
+        // The hard timeout wraps only the fetch itself, starting once this
+        // request reaches the front of mcQueue and fn() actually runs --
+        // not the time spent waiting in the queue (SerialFetchQueue caps
+        // that separately, with its own BUSY rejection).
+        const { json } = await mcQueue.run(() =>
+          withHardTimeout(deps.fetchProductRecord(partNumber, { timeoutMs: 30000 }), HARD_TIMEOUT_MS),
+        );
+        positiveCache.set(partNumber, { raw: json, ts: Date.now() });
+        persistFileCacheFrom(positiveCache);
+        return json;
+      } catch (err) {
+        if (err.code === "LOGIN_WALL" || err.code === "NO_DATA") {
+          negativeCache.set(partNumber, { code: err.code, message: err.message, ts: Date.now() });
+        }
+        throw err;
+      } finally {
+        inFlight.delete(partNumber);
       }
-      throw err;
-    }
+    })();
+
+    inFlight.set(partNumber, promise);
+    return promise;
   }
 
   const app = express();
@@ -462,7 +513,7 @@ function buildApp(overrideDeps = {}, options = {}) {
       source = "pasted";
     } else if (partNumberInput) {
       try {
-        const json = await withHardTimeout(resolveViaMcMaster(partNumberInput), HARD_TIMEOUT_MS);
+        const json = await resolveViaMcMaster(partNumberInput);
         product = parseProductRecord(json);
         source = "mcmaster";
       } catch (err) {
@@ -512,7 +563,18 @@ function buildApp(overrideDeps = {}, options = {}) {
   // this API's own contract) expects.
   app.use((err, _req, res, next) => {
     if (err && err.type === "entity.parse.failed") {
-      return res.status(400).json({ error: { code: "BAD_REQUEST", message: "Request body must be valid JSON." } });
+      // Full documented /api/xref response shape (see file header), not
+      // just `error` -- the frontend's error handling assumes every
+      // response, success or failure, has these keys.
+      return res.status(400).json({
+        partNumber: null,
+        source: "none",
+        product: null,
+        classification: null,
+        queries: null,
+        links: [],
+        error: { code: "BAD_REQUEST", message: "Request body must be valid JSON." },
+      });
     }
     return next(err);
   });

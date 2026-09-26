@@ -286,11 +286,24 @@ async function fetchProductRecord(partNumber, opts = {}) {
   throw lastErr || new McmasterError(`fetchProductRecord: exhausted attempts for ${partNumber}`, "NO_DATA");
 }
 
-async function attemptFetch(partNumber, budgetMs) {
-  const browser = await getBrowser();
-  const ctx = await browser.newContext(contextOptions());
-  const page = await ctx.newPage();
+/**
+ * @param {string} partNumber
+ * @param {number} budgetMs
+ * @param {object} [browserOverride] test-only: a fake browser (with a
+ *   `newContext` method) to drive instead of the real, shared Chromium
+ *   process from getBrowser() -- lets tests exercise this function's own
+ *   context/page setup and teardown without launching Playwright at all.
+ */
+async function attemptFetch(partNumber, budgetMs, browserOverride) {
+  const browser = browserOverride || (await getBrowser());
 
+  // ctx/page creation happens INSIDE the try below (not before it) so that
+  // a throw from newContext/newPage -- which can happen once the process is
+  // low on memory/handles, the exact time you most need cleanup -- still
+  // runs the finally block and closes whatever context did get created,
+  // instead of leaking it.
+  let ctx;
+  let page;
   let itmBody = null;
   const onResponse = async (resp) => {
     if (itmBody) return;
@@ -303,9 +316,12 @@ async function attemptFetch(partNumber, budgetMs) {
       /* response body unavailable (redirect/aborted) - ignore */
     }
   };
-  page.on("response", onResponse);
 
   try {
+    ctx = await browser.newContext(contextOptions());
+    page = await ctx.newPage();
+    page.on("response", onResponse);
+
     let navResp;
     try {
       navResp = await page.goto(urlForPart(partNumber), {
@@ -366,8 +382,8 @@ async function attemptFetch(partNumber, budgetMs) {
       "NO_DATA",
     );
   } finally {
-    page.off("response", onResponse);
-    await ctx.close().catch(() => {});
+    if (page) page.off("response", onResponse);
+    if (ctx) await ctx.close().catch(() => {});
   }
 }
 
@@ -377,4 +393,5 @@ module.exports = {
   browserLaunchOptions,
   closeBrowser,
   McmasterError,
+  attemptFetch, // exported for tests only (accepts a fake browser override)
 };
