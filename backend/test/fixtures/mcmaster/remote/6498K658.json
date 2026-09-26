@@ -1,0 +1,314 @@
+{
+  "partNumber": "6498K658",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6498K658",
+    "title": "Round Body Air Cylinder Mount, Double-Acting, Universal Mount, 1-1/16\" Bore, 6\" Stroke Length",
+    "family": "Air Cylinders",
+    "categoryPath": [
+      "Power Transmission",
+      "Actuators",
+      "Air Cylinders",
+      "Double-Acting Round Body Air Cylinders"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Mount Type",
+        "value": "Universal"
+      },
+      {
+        "group": null,
+        "name": "Bore Size",
+        "value": "1 1/16\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "1.12\""
+      },
+      {
+        "group": "Length",
+        "name": "Stroke",
+        "value": "6\""
+      },
+      {
+        "group": "Length",
+        "name": "Retracted",
+        "value": "10.62\""
+      },
+      {
+        "group": "Length",
+        "name": "Extended",
+        "value": "16.62\""
+      },
+      {
+        "group": "Force",
+        "name": "@ 50 psi",
+        "value": "45 lbf"
+      },
+      {
+        "group": "Force",
+        "name": "@ 100 psi",
+        "value": "90 lbf"
+      },
+      {
+        "group": "Force",
+        "name": "@ 150 psi",
+        "value": "135 lbf"
+      },
+      {
+        "group": "Force",
+        "name": "@ 200 psi",
+        "value": "180 lbf"
+      },
+      {
+        "group": null,
+        "name": "Sensor Ready",
+        "value": "Not Sensor Ready"
+      },
+      {
+        "group": null,
+        "name": "Cylinder Cushion Type",
+        "value": "None"
+      },
+      {
+        "group": null,
+        "name": "Body Material",
+        "value": "304 Stainless Steel"
+      },
+      {
+        "group": "Air Inlet",
+        "name": "Pipe Size",
+        "value": "1/8"
+      },
+      {
+        "group": "Air Inlet",
+        "name": "Thread Type",
+        "value": "NPT"
+      },
+      {
+        "group": "Air Inlet",
+        "name": "Gender",
+        "value": "Female"
+      },
+      {
+        "group": null,
+        "name": "Actuation",
+        "value": "Air"
+      },
+      {
+        "group": null,
+        "name": "Actuation Mechanism",
+        "value": "Air Extend/Air Retract"
+      },
+      {
+        "group": null,
+        "name": "Actuation Type",
+        "value": "Double Acting"
+      },
+      {
+        "group": null,
+        "name": "Air Actuator Type",
+        "value": "Air Cylinder"
+      },
+      {
+        "group": null,
+        "name": "Bearing Material",
+        "value": "Bronze"
+      },
+      {
+        "group": null,
+        "name": "Bearing Type",
+        "value": "Plain"
+      },
+      {
+        "group": null,
+        "name": "Components Included",
+        "value": "Mounting Nuts, Pivot Bushing, Pivot Pin, Retaining Rings"
+      },
+      {
+        "group": null,
+        "name": "Duty Cycle",
+        "value": "Continuous"
+      },
+      {
+        "group": null,
+        "name": "End Cap Material",
+        "value": "Aluminum"
+      },
+      {
+        "group": null,
+        "name": "Linear Air Cylinder Type",
+        "value": "Round Body"
+      },
+      {
+        "group": null,
+        "name": "Maximum Cycles",
+        "value": "15,840,000"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure",
+        "value": "250 psi"
+      },
+      {
+        "group": null,
+        "name": "Motion",
+        "value": "Linear"
+      },
+      {
+        "group": null,
+        "name": "Mounting Nut Material",
+        "value": "Zinc-Plated Carbon Steel, Zinc-Plated Steel"
+      },
+      {
+        "group": null,
+        "name": "Mounting Position",
+        "value": "Any Angle"
+      },
+      {
+        "group": null,
+        "name": "Nose Mount Thread Size",
+        "value": "5/8\"-18"
+      },
+      {
+        "group": null,
+        "name": "Number of Mounting Nuts Included",
+        "value": "2"
+      },
+      {
+        "group": null,
+        "name": "Pivot Mount Thread Size",
+        "value": "5/8\"-18"
+      },
+      {
+        "group": null,
+        "name": "Pivot Pin Diameter",
+        "value": "0.25\""
+      },
+      {
+        "group": null,
+        "name": "Plain Bearing Type",
+        "value": "Sleeve"
+      },
+      {
+        "group": null,
+        "name": "Repairable",
+        "value": "No"
+      },
+      {
+        "group": "Rod",
+        "name": "Material",
+        "value": "303 Stainless Steel"
+      },
+      {
+        "group": "Rod",
+        "name": "Diameter",
+        "value": "0.31\""
+      },
+      {
+        "group": "Rod",
+        "name": "End Type",
+        "value": "Threaded"
+      },
+      {
+        "group": "Rod",
+        "name": "Thread Size",
+        "value": "5/16\"-24"
+      },
+      {
+        "group": "Rod",
+        "name": "Style",
+        "value": "Rotating"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Temperature",
+        "value": "-20° F to 200° F"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant with Exemptions"
+      },
+      {
+        "group": null,
+        "name": "RoHS Exemptions",
+        "value": "6(b)-II"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "841231.0080"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "double-acting round body air cylinder",
+    "kind": "bearing"
+  },
+  "queries": {
+    "primary": "1.12\" OD double-acting round body air cylinder 303 Stainless Steel",
+    "alternates": [
+      "1.12\" OD double-acting round body air cylinder"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1.12%22%20OD%20double-acting%20round%20body%20air%20cylinder%20303%20Stainless%20Steel",
+      "query": "1.12\" OD double-acting round body air cylinder 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1.12%22+OD+double-acting+round+body+air+cylinder+303+Stainless+Steel",
+      "query": "1.12\" OD double-acting round body air cylinder 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=1.12%22%20OD%20double-acting%20round%20body%20air%20cylinder%20303%20Stainless%20Steel",
+      "query": "1.12\" OD double-acting round body air cylinder 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=1.12%22+OD+double-acting+round+body+air+cylinder+303+Stainless+Steel",
+      "query": "1.12\" OD double-acting round body air cylinder 303 Stainless Steel",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

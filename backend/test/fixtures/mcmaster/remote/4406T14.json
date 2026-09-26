@@ -1,0 +1,245 @@
+{
+  "partNumber": "4406T14",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "4406T14",
+    "title": "Stainless Steel High-Pressure Barbed Tube Fitting, for Air and Water, 1/4\" Tube ID x 10-32 UNF Male",
+    "family": "Tube Fittings",
+    "categoryPath": [
+      "Fluid Handling",
+      "Pipe, Tubing, Hose, and Fittings",
+      "Tube and Tube Fittings",
+      "Tube Fittings",
+      "Ultra-High-Temperature Barbed Tube Fittings for Air and Water"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Fitting Type",
+        "value": "Adapter"
+      },
+      {
+        "group": "Fitting Connection",
+        "name": "(A)",
+        "value": "Barbed, Clamp-On Barbed"
+      },
+      {
+        "group": "Fitting Connection",
+        "name": "(B)",
+        "value": "Threaded"
+      },
+      {
+        "group": "Connects To",
+        "name": "(A)",
+        "value": "Tube"
+      },
+      {
+        "group": "Connects To",
+        "name": "(B)",
+        "value": "Pipe"
+      },
+      {
+        "group": "Gender",
+        "name": "(A)",
+        "value": "Male"
+      },
+      {
+        "group": "Gender",
+        "name": "(B)",
+        "value": "Male"
+      },
+      {
+        "group": null,
+        "name": "Thread Type",
+        "value": "UN/UNF (SAE Straight)"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "303 Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "For Tube ID (A)",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Thread Size (B)",
+        "value": "10-32"
+      },
+      {
+        "group": null,
+        "name": "Number of Barbs",
+        "value": "Single"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "25/32\""
+      },
+      {
+        "group": null,
+        "name": "Gasket Material",
+        "value": "Viton® Fluoroelastomer"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure @ Temperature",
+        "value": "250 psi @ 72° F"
+      },
+      {
+        "group": null,
+        "name": "Temp. Range",
+        "value": "-40° F to 1,200° F"
+      },
+      {
+        "group": "For Tube",
+        "name": "Hardness",
+        "value": "Firm"
+      },
+      {
+        "group": "For Tube",
+        "name": "Material",
+        "value": "EVA, Polyethylene, Polypropylene, PVC"
+      },
+      {
+        "group": null,
+        "name": "Barb Style",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "For Tube Hardness",
+        "value": "Durometer 75A to Durometer 95A"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "Air, Water"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "1,200° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Vacuum @ Temperature",
+        "value": "27 in. Hg @ 72° F"
+      },
+      {
+        "group": null,
+        "name": "Minimum Temperature",
+        "value": "-40° F"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Chemical Resistant, Corrosion Resistant, Vacuum Rated"
+      },
+      {
+        "group": null,
+        "name": "Pressure Rating",
+        "value": "Low Pressure"
+      },
+      {
+        "group": null,
+        "name": "Relative Temperature",
+        "value": "Ultra High Temperature"
+      },
+      {
+        "group": null,
+        "name": "Relative Vacuum Rating",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Sterilize With",
+        "value": "Not Recommended"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "2B999"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "730729.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "ultra-high-temperature barbed tube fittings for air and water",
+    "kind": "fitting"
+  },
+  "queries": {
+    "primary": "ultra-high-temperature barbed tube fittings for air and water 303 Stainless Steel",
+    "alternates": [
+      "ultra-high-temperature barbed tube fittings for air and water"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=ultra-high-temperature%20barbed%20tube%20fittings%20for%20air%20and%20water%20303%20Stainless%20Steel",
+      "query": "ultra-high-temperature barbed tube fittings for air and water 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=ultra-high-temperature+barbed+tube+fittings+for+air+and+water+303+Stainless+Steel",
+      "query": "ultra-high-temperature barbed tube fittings for air and water 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=ultra-high-temperature%20barbed%20tube%20fittings%20for%20air%20and%20water%20303%20Stainless%20Steel",
+      "query": "ultra-high-temperature barbed tube fittings for air and water 303 Stainless Steel",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=ultra-high-temperature+barbed+tube+fittings+for+air+and+water+303+Stainless+Steel",
+      "query": "ultra-high-temperature barbed tube fittings for air and water 303 Stainless Steel",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

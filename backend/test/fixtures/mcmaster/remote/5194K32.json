@@ -1,0 +1,197 @@
+{
+  "partNumber": "5194K32",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5194K32",
+    "title": "Quick Turn Tube Coupling for Air, 316 Stainless Steel Socket with Round Body Connector",
+    "family": "Tube Fittings",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Fitting Type",
+        "value": "Connector"
+      },
+      {
+        "group": null,
+        "name": "Fitting Connection",
+        "value": "Luer Lock"
+      },
+      {
+        "group": null,
+        "name": "Connects To",
+        "value": "Tube"
+      },
+      {
+        "group": null,
+        "name": "Gender",
+        "value": "Female"
+      },
+      {
+        "group": null,
+        "name": "Coupling Component",
+        "value": "Socket"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "316 Stainless Steel"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure @ Temperature",
+        "value": "30 psi @ 72° F"
+      },
+      {
+        "group": null,
+        "name": "Temp. Range",
+        "value": "32° F to 300° F"
+      },
+      {
+        "group": null,
+        "name": "Locking Ring Included",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Body Shape",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "Flow Control Type",
+        "value": "Open"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "Air, Water"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1\""
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "300° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Vacuum @ Temperature",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Minimum Temperature",
+        "value": "32° F"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Highly Chemical Resistant, Highly Corrosion Resistant, Tight Space"
+      },
+      {
+        "group": null,
+        "name": "Pressure Rating",
+        "value": "Low Pressure"
+      },
+      {
+        "group": null,
+        "name": "Relative Temperature",
+        "value": "High Temperature"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "2B999"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/25/2025, 250 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "730729.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "tube fitting straight",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "316 tube fitting straight",
+    "alternates": [
+      "tube fitting straight",
+      "luer slip couplings fitting straight"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=316+tube+fitting+straight",
+      "query": "316 tube fitting straight",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=316+tube+fitting+straight",
+      "query": "316 tube fitting straight",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=316+tube+fitting+straight",
+      "query": "316 tube fitting straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=316%20tube%20fitting%20straight",
+      "query": "316 tube fitting straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=316%20tube%20fitting%20straight",
+      "query": "316 tube fitting straight",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

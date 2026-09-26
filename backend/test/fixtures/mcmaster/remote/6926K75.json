@@ -1,0 +1,214 @@
+{
+  "partNumber": "6926K75",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "6926K75",
+    "title": "Tin-Plated Copper Compression Lug, with 1 Hole, Single Crimp, for 6 Wire Gauge and 1/4\" Screw Size",
+    "family": "Terminals, Ferrules, and Lugs",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Number of Holes",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "For Wire Ga.",
+        "value": "6"
+      },
+      {
+        "group": "For Screw",
+        "name": "Size",
+        "value": "1/4\""
+      },
+      {
+        "group": "For Screw",
+        "name": "Decimal Equivalent",
+        "value": "0.250\""
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1.625\""
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "0.410\""
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "0.290\""
+      },
+      {
+        "group": null,
+        "name": "Thickness",
+        "value": "0.09\""
+      },
+      {
+        "group": null,
+        "name": "Stripe Color",
+        "value": "Blue"
+      },
+      {
+        "group": null,
+        "name": "For Wire Construction",
+        "value": "Stranded"
+      },
+      {
+        "group": null,
+        "name": "For Wire Material",
+        "value": "Copper"
+      },
+      {
+        "group": null,
+        "name": "Terminal Material",
+        "value": "Tin-Plated Copper"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "190° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Voltage",
+        "value": "600V AC"
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CSA Certified, UL Listed"
+      },
+      {
+        "group": null,
+        "name": "Barrel Type",
+        "value": "Closed"
+      },
+      {
+        "group": null,
+        "name": "Crimp Type",
+        "value": "Single"
+      },
+      {
+        "group": null,
+        "name": "Insulation",
+        "value": "Noninsulated"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Vibration Resistant"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Signal Type",
+        "value": "Power"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Terminal Type",
+        "value": "Compression Lug"
+      },
+      {
+        "group": null,
+        "name": "UL File Number",
+        "value": "E12822"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection Method",
+        "value": "Compression"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "853690.4000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "terminals, ferrules, and lug straight",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "0.09\" 0.410\" terminals, ferrules, and lug straight",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=0.09%22+0.410%22+terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "0.09\" 0.410\" terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=0.09%22%200.410%22%20terminals%2C%20ferrules%2C%20and%20lug%20straight",
+      "query": "0.09\" 0.410\" terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=terminals%2C%20ferrules%2C%20and%20lug%20straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

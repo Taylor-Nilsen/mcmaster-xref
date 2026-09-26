@@ -1,0 +1,202 @@
+{
+  "partNumber": "7527K46",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "7527K46",
+    "title": "300V AC/300V DC Terminal Block, Six 20A Circuits, 3/8\" Center-to-Center",
+    "family": "Terminal Blocks",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Voltage",
+        "value": "300V AC/300V DC"
+      },
+      {
+        "group": null,
+        "name": "Current per Circuit",
+        "value": "20 amp"
+      },
+      {
+        "group": null,
+        "name": "Number of Circuits",
+        "value": "6"
+      },
+      {
+        "group": null,
+        "name": "For Wire Ga.",
+        "value": "22 to 12"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection",
+        "value": "Screw Terminal"
+      },
+      {
+        "group": null,
+        "name": "Terminal Size",
+        "value": "No. 6"
+      },
+      {
+        "group": null,
+        "name": "Terminal Center-to-Center",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "2 15/16\""
+      },
+      {
+        "group": null,
+        "name": "Width",
+        "value": "7/8\""
+      },
+      {
+        "group": null,
+        "name": "Height",
+        "value": "1/2\""
+      },
+      {
+        "group": null,
+        "name": "Minimum Temperature",
+        "value": "-40° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "257° F"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Black"
+      },
+      {
+        "group": "Mounting Holes",
+        "name": "Diameter",
+        "value": "0.17\""
+      },
+      {
+        "group": "Mounting Holes",
+        "name": "Number of",
+        "value": "4"
+      },
+      {
+        "group": "Mounting Holes",
+        "name": "Center-to-Center Length",
+        "value": "2.63\""
+      },
+      {
+        "group": "Mounting Holes",
+        "name": "Center-to-Center Width",
+        "value": "0.31\""
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CE Marked, CSA Certified, UL Recognized Component"
+      },
+      {
+        "group": null,
+        "name": "Flammability Rating",
+        "value": "UL 94 V-0"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Name",
+        "value": "Marathon Special Products"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Model Number",
+        "value": "670A RZ 06 PSB"
+      },
+      {
+        "group": null,
+        "name": "Mounting Fasteners Included",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Mounting Location",
+        "value": "Surface"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Flame Retardant"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Mexico"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "853690.8085"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "terminal block",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "0.17\" x 2 15/16\" terminal block",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=0.17%22%20x%202%2015%2F16%22%20terminal%20block",
+      "query": "0.17\" x 2 15/16\" terminal block",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=0.17%22+x+2+15%2F16%22+terminal+block",
+      "query": "0.17\" x 2 15/16\" terminal block",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=0.17%22%20x%202%2015%2F16%22%20terminal%20block",
+      "query": "0.17\" x 2 15/16\" terminal block",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=0.17%22+x+2+15%2F16%22+terminal+block",
+      "query": "0.17\" x 2 15/16\" terminal block",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}
