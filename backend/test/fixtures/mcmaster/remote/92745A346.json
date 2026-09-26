@@ -1,0 +1,221 @@
+{
+  "partNumber": "92745A346",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "92745A346",
+    "title": "Male-Female Threaded Hex Standoff, Nylon 6/6, 1/4\" Hex Size, 1\" Long, 6-32 to 6-32 Size Thread",
+    "family": "Standoffs",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening",
+      "Standoffs",
+      "Male-Female Threaded Hex Plastic Standoffs"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Nylon 6/6"
+      },
+      {
+        "group": "Thread Size",
+        "name": "(A)",
+        "value": "6-32"
+      },
+      {
+        "group": "Thread Size",
+        "name": "(B)",
+        "value": "6-32"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1\""
+      },
+      {
+        "group": null,
+        "name": "Length Tolerance",
+        "value": "-0.015\" to 0.015\""
+      },
+      {
+        "group": null,
+        "name": "Hex Size",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Hex Size Tolerance",
+        "value": "-0.015\" to 0.015\""
+      },
+      {
+        "group": null,
+        "name": "Thread Lg. (A)",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Minimum Thread Length (B)",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-20° F to 155° F"
+      },
+      {
+        "group": null,
+        "name": "Flammability Rating",
+        "value": "UL 94 V-2"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "ASTM D4066, ASTM D6779"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Off-White"
+      },
+      {
+        "group": "Gender",
+        "name": "(A)",
+        "value": "Male"
+      },
+      {
+        "group": "Gender",
+        "name": "(B)",
+        "value": "Female"
+      },
+      {
+        "group": null,
+        "name": "Hardness",
+        "value": "Not Rated"
+      },
+      {
+        "group": "Mount Type",
+        "name": "(A)",
+        "value": "Threaded"
+      },
+      {
+        "group": "Mount Type",
+        "name": "(B)",
+        "value": "Threaded"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Lightweight, Wear Resistant, Flame Retardant"
+      },
+      {
+        "group": null,
+        "name": "Screw Size Decimal Equivalent (A)",
+        "value": "0.138\""
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Hex"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Tensile Strength",
+        "value": "Not Rated"
+      },
+      {
+        "group": "Thread Fit",
+        "name": "(A)",
+        "value": "Unified Standard Class 2A"
+      },
+      {
+        "group": "Thread Fit",
+        "name": "(B)",
+        "value": "Unified Standard Class 2B"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/25/2025, 250 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "392690.9988"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "standoff hex",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "6/6 standoff hex",
+    "alternates": [
+      "standoff hex"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=6%2F6+standoff+hex",
+      "query": "6/6 standoff hex",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=6%2F6+standoff+hex",
+      "query": "6/6 standoff hex",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=6%2F6+standoff+hex",
+      "query": "6/6 standoff hex",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=6%2F6%20standoff%20hex",
+      "query": "6/6 standoff hex",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=6%2F6%20standoff%20hex",
+      "query": "6/6 standoff hex",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

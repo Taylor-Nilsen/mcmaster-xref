@@ -1,0 +1,147 @@
+{
+  "partNumber": "2278N13",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "2278N13",
+    "title": "Precision Measuring Tool Oil, 0.8 FL. oz. Squeeze Bottle",
+    "family": "Oil",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Base Oil",
+        "value": "Synthetic Oil"
+      },
+      {
+        "group": "Viscosity Grade",
+        "name": "ISO",
+        "value": "320"
+      },
+      {
+        "group": "Viscosity Grade",
+        "name": "AGMA",
+        "value": "6"
+      },
+      {
+        "group": "Viscosity Grade",
+        "name": "SAE",
+        "value": "60"
+      },
+      {
+        "group": "Viscosity Grade",
+        "name": "SSU @ Temperature",
+        "value": "1,620 SSU @ 100° F"
+      },
+      {
+        "group": "Container",
+        "name": "Size",
+        "value": "0.8 fl. oz."
+      },
+      {
+        "group": "Container",
+        "name": "Type",
+        "value": "Squeeze Bottle"
+      },
+      {
+        "group": "Temperature",
+        "name": "Minimum",
+        "value": "-75° F"
+      },
+      {
+        "group": "Temperature",
+        "name": "Maximum",
+        "value": "445° F"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Clear"
+      },
+      {
+        "group": null,
+        "name": "With Detergent",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "For Use On",
+        "value": "Precision Measurement Tools"
+      },
+      {
+        "group": null,
+        "name": "Lubricant Type",
+        "value": "Oil"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (01/21/2025, 247 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "271019.9000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "oil",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "oil",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=oil",
+      "query": "oil",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=oil",
+      "query": "oil",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=oil",
+      "query": "oil",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=oil",
+      "query": "oil",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

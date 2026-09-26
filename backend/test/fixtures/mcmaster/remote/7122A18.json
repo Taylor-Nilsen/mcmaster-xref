@@ -1,0 +1,144 @@
+{
+  "partNumber": "7122A18",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "7122A18",
+    "title": "Black Alloy Steel Hex L-Key, 1/8\" Drive Size, 2 7/16\" Overall Length",
+    "family": "L-Keys",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Fastening Tools",
+      "Drivers and Bits",
+      "L-Keys"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Tip Style",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Driver Style",
+        "value": "L-Key"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Alloy Steel"
+      },
+      {
+        "group": null,
+        "name": "Drive Style",
+        "value": "Hex"
+      },
+      {
+        "group": null,
+        "name": "Drive Size",
+        "value": "1/8\""
+      },
+      {
+        "group": "Length",
+        "name": "Overall",
+        "value": "2 3/8\""
+      },
+      {
+        "group": "Length",
+        "name": "Relative",
+        "value": "Short"
+      },
+      {
+        "group": "Length",
+        "name": "Long Leg",
+        "value": "2 1/4\""
+      },
+      {
+        "group": "Length",
+        "name": "Short Leg",
+        "value": "3/4\""
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Black"
+      },
+      {
+        "group": null,
+        "name": "Finish",
+        "value": "Black Oxide"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "820411.0060"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "l-key",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "Alloy Steel l-key black oxide",
+    "alternates": [
+      "l-key"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=Alloy%20Steel%20l-key%20black%20oxide",
+      "query": "Alloy Steel l-key black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=Alloy+Steel+l-key+black+oxide",
+      "query": "Alloy Steel l-key black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=Alloy%20Steel%20l-key%20black%20oxide",
+      "query": "Alloy Steel l-key black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=Alloy+Steel+l-key+black+oxide",
+      "query": "Alloy Steel l-key black oxide",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

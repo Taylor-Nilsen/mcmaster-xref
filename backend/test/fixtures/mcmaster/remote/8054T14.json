@@ -1,0 +1,202 @@
+{
+  "partNumber": "8054T14",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "8054T14",
+    "title": "Stranded Lead Wire, 300V AC, 20 Wire Gauge",
+    "family": "Lead Wire",
+    "categoryPath": [
+      "Electrical Power, Networking, and Controlling",
+      "Wiring and Connecting",
+      "Wire, Cable, and Cords",
+      "Lead Wire"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Wire Construction",
+        "value": "Stranded"
+      },
+      {
+        "group": null,
+        "name": "Voltage",
+        "value": "300V AC"
+      },
+      {
+        "group": null,
+        "name": "American Wire Gauge (AWG)",
+        "value": "20"
+      },
+      {
+        "group": null,
+        "name": "Wire Strand Count",
+        "value": "10/30"
+      },
+      {
+        "group": null,
+        "name": "Current @ Temperature",
+        "value": "13 amp @ 86° F"
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "0.07\""
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-40° F to 220° F"
+      },
+      {
+        "group": null,
+        "name": "Outer Jacket Material",
+        "value": "PVC"
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CSA Certified, UL Recognized Component"
+      },
+      {
+        "group": null,
+        "name": "Flammability Rating",
+        "value": "UL 2556 VW-1"
+      },
+      {
+        "group": null,
+        "name": "AWM Style",
+        "value": "1007, 1569"
+      },
+      {
+        "group": null,
+        "name": "CSA File Number",
+        "value": "049714_0_000"
+      },
+      {
+        "group": null,
+        "name": "Flexibility",
+        "value": "Flexible"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Name",
+        "value": "Consolidated Electronic Wire & Cable"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Model Number",
+        "value": "820"
+      },
+      {
+        "group": null,
+        "name": "Number of Wires",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Flame Retardant"
+      },
+      {
+        "group": null,
+        "name": "Shielding",
+        "value": "Unshielded"
+      },
+      {
+        "group": null,
+        "name": "Signal Type",
+        "value": "Power"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "UL File Number",
+        "value": "E49701"
+      },
+      {
+        "group": null,
+        "name": "Wire and Cable Use",
+        "value": "Hook-Up and Lead"
+      },
+      {
+        "group": null,
+        "name": "Wire Material",
+        "value": "Tin-Plated Copper"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "Not Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "854449.3080"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "lead wire",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "lead wire 0.07\" OD",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=lead%20wire%200.07%22%20OD",
+      "query": "lead wire 0.07\" OD",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=lead+wire+0.07%22+OD",
+      "query": "lead wire 0.07\" OD",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=lead%20wire%200.07%22%20OD",
+      "query": "lead wire 0.07\" OD",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=lead+wire+0.07%22+OD",
+      "query": "lead wire 0.07\" OD",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

@@ -1,0 +1,202 @@
+{
+  "partNumber": "7610A17",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "7610A17",
+    "title": "High-Tack Spray Contact Adhesive, 3M Spray Contact Adhesive",
+    "family": "Contact Adhesives",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Manufacturer",
+        "value": "3M"
+      },
+      {
+        "group": null,
+        "name": "Manufacturer Model Number",
+        "value": "76"
+      },
+      {
+        "group": "Container",
+        "name": "Net Weight",
+        "value": "18.1 oz."
+      },
+      {
+        "group": "Container",
+        "name": "Type",
+        "value": "Aerosol Can"
+      },
+      {
+        "group": null,
+        "name": "Approximate Coverage @ Application Density",
+        "value": "28 ft² @ 2.5 g/ft²"
+      },
+      {
+        "group": null,
+        "name": "Begins to Harden",
+        "value": "60 sec."
+      },
+      {
+        "group": null,
+        "name": "Reaches Full Strength",
+        "value": "24 hr."
+      },
+      {
+        "group": null,
+        "name": "Shear Strength",
+        "value": "Not Rated"
+      },
+      {
+        "group": "Temperature",
+        "name": "Minimum",
+        "value": "Not Rated"
+      },
+      {
+        "group": "Temperature",
+        "name": "Maximum",
+        "value": "160° F"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "White"
+      },
+      {
+        "group": null,
+        "name": "For Joining",
+        "value": "Metal, Plastic, Wood"
+      },
+      {
+        "group": null,
+        "name": "Cannot Be Sold To",
+        "value": "California"
+      },
+      {
+        "group": null,
+        "name": "Adhesive Type",
+        "value": "Contact"
+      },
+      {
+        "group": null,
+        "name": "Certificate Form",
+        "value": "Digital"
+      },
+      {
+        "group": null,
+        "name": "Certificate Type",
+        "value": "Material Certificate with Traceable Lot Number and Product Shelf Life"
+      },
+      {
+        "group": null,
+        "name": "Clarity",
+        "value": "Semi-Clear"
+      },
+      {
+        "group": null,
+        "name": "Cure Type",
+        "value": "Room Temperature"
+      },
+      {
+        "group": null,
+        "name": "For Use On",
+        "value": "Polyethylene, Polypropylene, Aluminum, Brass, Bronze, Cast Iron, Copper, Stainless Steel, Steel, Titanium, Cork"
+      },
+      {
+        "group": null,
+        "name": "Form",
+        "value": "Aerosol"
+      },
+      {
+        "group": null,
+        "name": "Formulation",
+        "value": "Elastomer Rubber"
+      },
+      {
+        "group": null,
+        "name": "Mixing Required",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "High Tack"
+      },
+      {
+        "group": null,
+        "name": "Type",
+        "value": "Adhesive"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "350610.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "Yes"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "contact adhesive",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "contact adhesive",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=contact%20adhesive",
+      "query": "contact adhesive",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=contact+adhesive",
+      "query": "contact adhesive",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=contact%20adhesive",
+      "query": "contact adhesive",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=contact+adhesive",
+      "query": "contact adhesive",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

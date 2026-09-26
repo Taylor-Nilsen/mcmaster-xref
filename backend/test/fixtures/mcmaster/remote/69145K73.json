@@ -1,0 +1,204 @@
+{
+  "partNumber": "69145K73",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "69145K73",
+    "title": "Spade Terminals, Block, Vinyl Insulated, 16-14 Gauge, Number 6 Screw, 0.3\" Wide",
+    "family": "Terminals, Ferrules, and Lugs",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Insulation Material",
+        "value": "Vinyl Plastic"
+      },
+      {
+        "group": null,
+        "name": "For Wire Ga.",
+        "value": "16 to 14"
+      },
+      {
+        "group": "For Screw",
+        "name": "Size",
+        "value": "No. 6"
+      },
+      {
+        "group": "For Screw",
+        "name": "Decimal Equivalent",
+        "value": "0.138\""
+      },
+      {
+        "group": "Spade",
+        "name": "Width",
+        "value": "0.30\""
+      },
+      {
+        "group": "Spade",
+        "name": "Thickness",
+        "value": "0.03\""
+      },
+      {
+        "group": null,
+        "name": "For Wire Construction",
+        "value": "Stranded"
+      },
+      {
+        "group": null,
+        "name": "For Wire Material",
+        "value": "Copper"
+      },
+      {
+        "group": null,
+        "name": "Insulation Color",
+        "value": "Blue"
+      },
+      {
+        "group": null,
+        "name": "Terminal Material",
+        "value": "Tin-Plated Copper"
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "220° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Voltage",
+        "value": "600V AC"
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CSA Certified, UL Listed"
+      },
+      {
+        "group": null,
+        "name": "Barrel Type",
+        "value": "Closed"
+      },
+      {
+        "group": null,
+        "name": "Crimp Type",
+        "value": "Single"
+      },
+      {
+        "group": null,
+        "name": "CSA File Number",
+        "value": "022190_0_000"
+      },
+      {
+        "group": null,
+        "name": "Insulation",
+        "value": "Barrel Insulated"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Twist Resistant"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Signal Type",
+        "value": "Power"
+      },
+      {
+        "group": null,
+        "name": "Terminal Type",
+        "value": "Block Spade"
+      },
+      {
+        "group": null,
+        "name": "UL File Number",
+        "value": "E23438"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection Method",
+        "value": "Crimp On"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (01/21/2025, 247 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "853690.4000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "terminals, ferrules, and lug straight",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "0.03\" 0.30\" terminals, ferrules, and lug straight",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=0.03%22+0.30%22+terminals%2C+ferrules%2C+and+lug+straight",
+      "query": "0.03\" 0.30\" terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=0.03%22%200.30%22%20terminals%2C%20ferrules%2C%20and%20lug%20straight",
+      "query": "0.03\" 0.30\" terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=terminals%2C%20ferrules%2C%20and%20lug%20straight",
+      "query": "terminals, ferrules, and lug straight",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

@@ -1,0 +1,264 @@
+{
+  "partNumber": "5012K72",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5012K72",
+    "title": "Plastic Quick-Disconnect Tube Coupling for Air and Water, Plug, 1/4 Coupling Size, for 3/8\" Barbed Tube ID",
+    "family": "Tube Fittings",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Fitting Type",
+        "value": "Adapter"
+      },
+      {
+        "group": "Fitting Connection",
+        "name": "(A)",
+        "value": "Quick Disconnect"
+      },
+      {
+        "group": "Fitting Connection",
+        "name": "(B)",
+        "value": "Barbed, Clamp-On Barbed"
+      },
+      {
+        "group": "Connects To",
+        "name": "(A)",
+        "value": "Tube"
+      },
+      {
+        "group": "Connects To",
+        "name": "(B)",
+        "value": "Tube"
+      },
+      {
+        "group": "Gender",
+        "name": "(A)",
+        "value": "Male"
+      },
+      {
+        "group": "Gender",
+        "name": "(B)",
+        "value": "Male"
+      },
+      {
+        "group": null,
+        "name": "Coupling Component",
+        "value": "Plug"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "White"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Acetal"
+      },
+      {
+        "group": null,
+        "name": "Clarity",
+        "value": "Opaque"
+      },
+      {
+        "group": null,
+        "name": "Flow Control Type",
+        "value": "Open"
+      },
+      {
+        "group": null,
+        "name": "Coupling Size",
+        "value": "1/4"
+      },
+      {
+        "group": null,
+        "name": "Plug OD",
+        "value": "7/16\""
+      },
+      {
+        "group": null,
+        "name": "For Tube ID (B)",
+        "value": "3/8\""
+      },
+      {
+        "group": null,
+        "name": "Coupling Locking Type",
+        "value": "Press Latch"
+      },
+      {
+        "group": null,
+        "name": "Temp. Range",
+        "value": "-40° F to 180° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure @ Temperature",
+        "value": "100 psi @ 72° F"
+      },
+      {
+        "group": null,
+        "name": "Maximum Vacuum @ Temperature",
+        "value": "24 in. Hg @ 72° F"
+      },
+      {
+        "group": "For Tube",
+        "name": "Hardness",
+        "value": "Soft, Firm"
+      },
+      {
+        "group": "For Tube",
+        "name": "Material",
+        "value": "Polyurethane Rubber"
+      },
+      {
+        "group": null,
+        "name": "Barb Style",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "For Tube Hardness",
+        "value": "Durometer 70A to Durometer 85A"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "Air, Water"
+      },
+      {
+        "group": null,
+        "name": "Length",
+        "value": "1 3/8\""
+      },
+      {
+        "group": null,
+        "name": "Maximum Temperature",
+        "value": "180° F"
+      },
+      {
+        "group": null,
+        "name": "Minimum Temperature",
+        "value": "-40° F"
+      },
+      {
+        "group": null,
+        "name": "Number of Barbs",
+        "value": "Multiple"
+      },
+      {
+        "group": null,
+        "name": "O-Ring Material",
+        "value": "Buna-N"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Moisture Resistant, Vacuum Rated"
+      },
+      {
+        "group": null,
+        "name": "Pressure Rating",
+        "value": "Low Pressure"
+      },
+      {
+        "group": null,
+        "name": "Relative Vacuum Rating",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Sterilize With",
+        "value": "Chemicals"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/25/2025, 250 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "391740.0000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "tube fitting straight",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "tube fitting straight",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=tube+fitting+straight",
+      "query": "tube fitting straight",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=tube+fitting+straight",
+      "query": "tube fitting straight",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=tube+fitting+straight",
+      "query": "tube fitting straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=tube%20fitting%20straight",
+      "query": "tube fitting straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=tube%20fitting%20straight",
+      "query": "tube fitting straight",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

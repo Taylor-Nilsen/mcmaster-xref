@@ -1,0 +1,194 @@
+{
+  "partNumber": "57295K73",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "57295K73",
+    "title": "Alnico Disc Magnet, Magnetized Through Thickness, 1/4\" Thick, 1/4\" OD",
+    "family": "Magnets",
+    "categoryPath": [
+      "Fastening and Joining",
+      "Magnets, Electromagnets, and More",
+      "Magnets",
+      "Alnico Disc Magnets"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Mount Type",
+        "value": "Plain Back"
+      },
+      {
+        "group": null,
+        "name": "Thickness",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Thickness Tolerance",
+        "value": "-0.016\" to 0.016\""
+      },
+      {
+        "group": null,
+        "name": "OD",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "OD Tolerance",
+        "value": "-0.016\" to 0.016\""
+      },
+      {
+        "group": null,
+        "name": "Maximum Pull",
+        "value": "0.3 lbf"
+      },
+      {
+        "group": "Temperature",
+        "name": "Minimum",
+        "value": "Not Rated"
+      },
+      {
+        "group": "Temperature",
+        "name": "Maximum",
+        "value": "970° F"
+      },
+      {
+        "group": null,
+        "name": "Magnet Grade",
+        "value": "Alnico 8"
+      },
+      {
+        "group": null,
+        "name": "Direction of Magnetization",
+        "value": "Through Thickness"
+      },
+      {
+        "group": null,
+        "name": "Color",
+        "value": "Gray"
+      },
+      {
+        "group": null,
+        "name": "Fabrication",
+        "value": "Sintered"
+      },
+      {
+        "group": null,
+        "name": "Material",
+        "value": "Alnico"
+      },
+      {
+        "group": null,
+        "name": "Flux Density",
+        "value": "7,000 G"
+      },
+      {
+        "group": null,
+        "name": "Magnetic Pull Rating",
+        "value": "Super Light"
+      },
+      {
+        "group": null,
+        "name": "Maximum Energy Product",
+        "value": "40 kJ/m³"
+      },
+      {
+        "group": null,
+        "name": "Performance",
+        "value": "Conductive, Ultra High Temperature"
+      },
+      {
+        "group": null,
+        "name": "Sets of Poles",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Disc, Round"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Inch"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "China"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Not Specialty Metals Compliant"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "850511.9000"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "magnet disc, round",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "1/4\" OD magnet disc, round",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=magnet+disc%2C+round",
+      "query": "magnet disc, round",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=magnet+disc%2C+round",
+      "query": "magnet disc, round",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1%2F4%22+OD+magnet+disc%2C+round",
+      "query": "1/4\" OD magnet disc, round",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%2F4%22%20OD%20magnet%20disc%2C%20round",
+      "query": "1/4\" OD magnet disc, round",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=magnet%20disc%2C%20round",
+      "query": "magnet disc, round",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

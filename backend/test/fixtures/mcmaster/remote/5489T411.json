@@ -1,0 +1,314 @@
+{
+  "partNumber": "5489T411",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "5489T411",
+    "title": "Solenoid Valve with Push-to-Connect Fittings, Compact, 120V AC, for 1/4\" Tube OD, 120 Maximum PSI",
+    "family": "Solenoid On/Off Valves",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Body Material",
+        "value": "Polysulfone"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection",
+        "value": "Quick-Disconnect Terminal"
+      },
+      {
+        "group": null,
+        "name": "Valve Position",
+        "value": "Fail Closed"
+      },
+      {
+        "group": null,
+        "name": "Nominal Voltage",
+        "value": "120V AC"
+      },
+      {
+        "group": null,
+        "name": "For Tube OD",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Gender",
+        "value": "Female"
+      },
+      {
+        "group": null,
+        "name": "Flow Coefficient (Cv)",
+        "value": "0.228"
+      },
+      {
+        "group": null,
+        "name": "Maximum Pressure @ Temperature",
+        "value": "120 psi @ 70° F"
+      },
+      {
+        "group": null,
+        "name": "Valve Type",
+        "value": "Zero Pressure Drop, Solenoid"
+      },
+      {
+        "group": null,
+        "name": "Manual Override",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "Temperature Range",
+        "value": "-10° F to 100° F"
+      },
+      {
+        "group": null,
+        "name": "Seal Material",
+        "value": "Buna-N"
+      },
+      {
+        "group": null,
+        "name": "Valve Length",
+        "value": "2\""
+      },
+      {
+        "group": "Overall",
+        "name": "Length",
+        "value": "2\""
+      },
+      {
+        "group": "Overall",
+        "name": "Width",
+        "value": "1 13/16\""
+      },
+      {
+        "group": "Overall",
+        "name": "Height",
+        "value": "3\""
+      },
+      {
+        "group": null,
+        "name": "Quick-Disconnect Tab Width",
+        "value": "1/4\""
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CSA Certified"
+      },
+      {
+        "group": null,
+        "name": "Actuation",
+        "value": "Solenoid"
+      },
+      {
+        "group": "Actuator",
+        "name": "Length",
+        "value": "1\""
+      },
+      {
+        "group": "Actuator",
+        "name": "Width",
+        "value": "1 7/16\""
+      },
+      {
+        "group": null,
+        "name": "Actuator Housing Material",
+        "value": "Plastic"
+      },
+      {
+        "group": null,
+        "name": "Actuator Mount Location",
+        "value": "Direct"
+      },
+      {
+        "group": null,
+        "name": "Actuator Temperature",
+        "value": "-10° F to 100° F"
+      },
+      {
+        "group": null,
+        "name": "Chemical Resistance (Excellent)",
+        "value": "Air, Argon, Helium, Krypton, Neon, Water, Xenon"
+      },
+      {
+        "group": null,
+        "name": "Connects To",
+        "value": "Tube"
+      },
+      {
+        "group": null,
+        "name": "Duty Cycle",
+        "value": "Continuous"
+      },
+      {
+        "group": null,
+        "name": "Electrical Connection Type",
+        "value": "Hardwire"
+      },
+      {
+        "group": null,
+        "name": "Fitting Connection",
+        "value": "Push to Connect"
+      },
+      {
+        "group": null,
+        "name": "Fitting Type",
+        "value": "Connector"
+      },
+      {
+        "group": null,
+        "name": "For Use Outdoors",
+        "value": "No"
+      },
+      {
+        "group": null,
+        "name": "For Use With",
+        "value": "AirArgon Helium Krypton Neon Water Xenon"
+      },
+      {
+        "group": null,
+        "name": "Frequency",
+        "value": "60 Hz"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Name",
+        "value": "Norgren"
+      },
+      {
+        "group": "Manufacturer",
+        "name": "Model Number",
+        "value": "Q212315-0151B-120-60"
+      },
+      {
+        "group": null,
+        "name": "Maximum Current Draw",
+        "value": "0.09 amp"
+      },
+      {
+        "group": null,
+        "name": "Minimum Pressure Drop Required",
+        "value": "None"
+      },
+      {
+        "group": null,
+        "name": "Mounting Position",
+        "value": "Any Angle, Horizontal, Vertical"
+      },
+      {
+        "group": null,
+        "name": "Operating Voltage",
+        "value": "120V AC"
+      },
+      {
+        "group": null,
+        "name": "Relative Vacuum Rating",
+        "value": "Not Rated"
+      },
+      {
+        "group": null,
+        "name": "Seat Material",
+        "value": "Buna-N"
+      },
+      {
+        "group": null,
+        "name": "Shape",
+        "value": "Straight"
+      },
+      {
+        "group": null,
+        "name": "Valve Function",
+        "value": "On/Off"
+      },
+      {
+        "group": null,
+        "name": "Valve Width",
+        "value": "1\""
+      },
+      {
+        "group": null,
+        "name": "Warning Message",
+        "value": "Chemical compatibility must be determined by the customer based on the conditions in which the product is being used, including the presence of other chemicals, temperature, and consistency."
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (01/17/2023, 233 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "848180.9005"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "solenoid on/off valve straight",
+    "kind": "rawstock"
+  },
+  "queries": {
+    "primary": "1 13/16\" solenoid on/off valve straight",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Speedy Metals",
+      "url": "https://www.speedymetals.com/search.aspx?SearchTerm=1+solenoid+on%2Foff+valve+straight",
+      "query": "1 solenoid on/off valve straight",
+      "verified": "renders"
+    },
+    {
+      "supplier": "Metal Supermarkets",
+      "url": "https://www.metalsupermarkets.com/?s=1+solenoid+on%2Foff+valve+straight",
+      "query": "1 solenoid on/off valve straight",
+      "verified": "renders",
+      "note": "category page; pick a store for prices"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=1+13%2F16%22+solenoid+on%2Foff+valve+straight",
+      "query": "1 13/16\" solenoid on/off valve straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=1%2013%2F16%22%20solenoid%20on%2Foff%20valve%20straight",
+      "query": "1 13/16\" solenoid on/off valve straight",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Online Metals",
+      "url": "https://www.onlinemetals.com/en/search?q=1%20solenoid%20on%2Foff%20valve%20straight",
+      "query": "1 solenoid on/off valve straight",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

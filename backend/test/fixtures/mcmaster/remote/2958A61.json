@@ -1,0 +1,168 @@
+{
+  "partNumber": "2958A61",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "2958A61",
+    "title": "Black-Oxide High-Speed Steel Drill Bit, 3mm Size, 61mm Overall Length",
+    "family": "Drill Bits",
+    "categoryPath": [
+      "Fabricating and Machining",
+      "Drilling",
+      "Drill Bits"
+    ],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Material",
+        "value": "High-Speed Steel"
+      },
+      {
+        "group": null,
+        "name": "Length Class",
+        "value": "Jobbers"
+      },
+      {
+        "group": null,
+        "name": "Drill Bit Size",
+        "value": "3.0 mm"
+      },
+      {
+        "group": null,
+        "name": "Decimal Size Equivalent",
+        "value": "0.1181\""
+      },
+      {
+        "group": null,
+        "name": "Overall Length",
+        "value": "61 mm"
+      },
+      {
+        "group": null,
+        "name": "Maximum Drilling Depth",
+        "value": "27 mm"
+      },
+      {
+        "group": "Shank",
+        "name": "Size",
+        "value": "3 mm"
+      },
+      {
+        "group": "Shank",
+        "name": "Type",
+        "value": "Round"
+      },
+      {
+        "group": null,
+        "name": "Drill Bit Point Type",
+        "value": "Standard"
+      },
+      {
+        "group": null,
+        "name": "Bit Style",
+        "value": "Spiral Flute"
+      },
+      {
+        "group": null,
+        "name": "Finish",
+        "value": "Black Oxide"
+      },
+      {
+        "group": null,
+        "name": "Flute Direction",
+        "value": "Right Hand"
+      },
+      {
+        "group": null,
+        "name": "For Use On",
+        "value": "Iron, Stainless Steel, Steel"
+      },
+      {
+        "group": null,
+        "name": "Point Angle",
+        "value": "118°"
+      },
+      {
+        "group": null,
+        "name": "Specifications Met",
+        "value": "DIN 338"
+      },
+      {
+        "group": null,
+        "name": "System of Measurement",
+        "value": "Metric"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "Brazil"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "REACH Compliance",
+        "value": "REACH (EC 1907/2006) (06/10/2022, 224 SVHC) Compliant"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "820750.2055"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "drill bit",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "High-Speed Steel drill bit 61 mm black oxide",
+    "alternates": [
+      "drill bit 61 mm"
+    ]
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=High-Speed%20Steel%20drill%20bit%2061%20mm%20black%20oxide",
+      "query": "High-Speed Steel drill bit 61 mm black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=High-Speed+Steel+drill+bit+61+mm+black+oxide",
+      "query": "High-Speed Steel drill bit 61 mm black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=High-Speed%20Steel%20drill%20bit%2061%20mm%20black%20oxide",
+      "query": "High-Speed Steel drill bit 61 mm black oxide",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=High-Speed+Steel+drill+bit+61+mm+black+oxide",
+      "query": "High-Speed Steel drill bit 61 mm black oxide",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}

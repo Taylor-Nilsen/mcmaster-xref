@@ -1,0 +1,217 @@
+{
+  "partNumber": "8002K116",
+  "source": "mcmaster",
+  "product": {
+    "partNumber": "8002K116",
+    "title": "Wet-Environment Toggle Switch, 3 Positions, 1 Circuits, (On)-Off-(On) Designation",
+    "family": "Toggle Switches",
+    "categoryPath": [],
+    "attributes": [
+      {
+        "group": null,
+        "name": "Number of Positions",
+        "value": "3"
+      },
+      {
+        "group": null,
+        "name": "For Panel Cutout Diameter",
+        "value": "1/2\""
+      },
+      {
+        "group": null,
+        "name": "Number of Circuits Controlled",
+        "value": "1"
+      },
+      {
+        "group": null,
+        "name": "Switch Starting Position",
+        "value": "1 Off or 1 On"
+      },
+      {
+        "group": null,
+        "name": "Switch Action",
+        "value": "Momentary"
+      },
+      {
+        "group": null,
+        "name": "Number of Terminals",
+        "value": "3"
+      },
+      {
+        "group": null,
+        "name": "Switch Designation",
+        "value": "SPDT"
+      },
+      {
+        "group": null,
+        "name": "Position Designation",
+        "value": "(On)-Off-(On)"
+      },
+      {
+        "group": null,
+        "name": "Switching Current @ Voltage",
+        "value": "7 amp @ 125V AC, 10 amp @ 28V DC"
+      },
+      {
+        "group": null,
+        "name": "Maximum Voltage",
+        "value": "28V DC125V AC"
+      },
+      {
+        "group": null,
+        "name": "Depth Behind Panel",
+        "value": "1.16\""
+      },
+      {
+        "group": null,
+        "name": "Mounting Hardware Included",
+        "value": "Yes"
+      },
+      {
+        "group": null,
+        "name": "Wire Connection",
+        "value": "Screw Terminal"
+      },
+      {
+        "group": null,
+        "name": "Actuator Style",
+        "value": "Toggle Switch"
+      },
+      {
+        "group": null,
+        "name": "Certification",
+        "value": "CE Marked, CSA Certified, Mil. Spec., UL Recognized Component"
+      },
+      {
+        "group": null,
+        "name": "Environment",
+        "value": "Washdown"
+      },
+      {
+        "group": null,
+        "name": "For Maximum Panel Thickness",
+        "value": "0.2\""
+      },
+      {
+        "group": null,
+        "name": "Illumination",
+        "value": "Not Illuminated"
+      },
+      {
+        "group": null,
+        "name": "Military Specification",
+        "value": "MIL-S-3950"
+      },
+      {
+        "group": null,
+        "name": "Mounting Location",
+        "value": "Panel"
+      },
+      {
+        "group": "Mounting Thread",
+        "name": "Size",
+        "value": "15/32\"-32"
+      },
+      {
+        "group": "Mounting Thread",
+        "name": "Type",
+        "value": "UNS"
+      },
+      {
+        "group": null,
+        "name": "Seal Material",
+        "value": "Silicone Rubber"
+      },
+      {
+        "group": null,
+        "name": "Switch Type",
+        "value": "Manual"
+      },
+      {
+        "group": "Toggle",
+        "name": "Depth",
+        "value": "0.68\""
+      },
+      {
+        "group": "Toggle",
+        "name": "Diameter",
+        "value": "0.24\""
+      },
+      {
+        "group": null,
+        "name": "Toggle Type",
+        "value": "Rounded"
+      },
+      {
+        "group": null,
+        "name": "Country of Origin",
+        "value": "United States"
+      },
+      {
+        "group": null,
+        "name": "DFARS Compliance",
+        "value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "group": null,
+        "name": "Export Control Classification Number (ECCN)",
+        "value": "EAR99"
+      },
+      {
+        "group": null,
+        "name": "RoHS Compliance",
+        "value": "RoHS 3 (2015/863/EU) Compliant with Exemptions"
+      },
+      {
+        "group": null,
+        "name": "RoHS Exemptions",
+        "value": "6(c), 8(b)"
+      },
+      {
+        "group": null,
+        "name": "Schedule B Number",
+        "value": "853650.9065"
+      },
+      {
+        "group": null,
+        "name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "value": "No"
+      }
+    ]
+  },
+  "classification": {
+    "noun": "toggle switche",
+    "kind": "other"
+  },
+  "queries": {
+    "primary": "0.24\" toggle switche",
+    "alternates": []
+  },
+  "links": [
+    {
+      "supplier": "Grainger",
+      "url": "https://www.grainger.com/search?searchQuery=0.24%22%20toggle%20switche",
+      "query": "0.24\" toggle switche",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "MSC Direct",
+      "url": "https://www.mscdirect.com/browse/tn?searchterm=0.24%22+toggle+switche",
+      "query": "0.24\" toggle switche",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Zoro",
+      "url": "https://www.zoro.com/search?q=0.24%22%20toggle%20switche",
+      "query": "0.24\" toggle switche",
+      "verified": "browser-only"
+    },
+    {
+      "supplier": "Amazon",
+      "url": "https://www.amazon.com/s?k=0.24%22+toggle+switche",
+      "query": "0.24\" toggle switche",
+      "verified": "browser-only"
+    }
+  ],
+  "error": null
+}
