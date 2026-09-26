@@ -1,0 +1,677 @@
+{
+  "NewStyleIndicator": true,
+  "BlueprintId": "10000015364179",
+  "custDisableFdbkFrmAutoOpenPref": true,
+  "CtlgPgNbrs": [
+    3558,
+    3559,
+    3560,
+    3561,
+    3562,
+    3563,
+    3564,
+    3543,
+    3552,
+    3553,
+    3548,
+    3551,
+    3556
+  ],
+  "OptToCtlgPgInd": false,
+  "PartNbrTxt": "92196A106",
+  "ComponentPartNbrTxt": "",
+  "TitleTxt": "18-8 Stainless Steel Socket Head Screw, 4-40 Thread Size, 1/4\" Long, Fully Threaded",
+  "ComponentUrlUsrInp": {
+    "IntermediatePageAttrInps": [],
+    "InvalidatedUsrSelectionAttrId": 0,
+    "LandingPageAttrInps": [],
+    "LastDeselectedAttrId": 0,
+    "LastDeselectedPubAttrId": 0,
+    "LastDeselectedValId": 0,
+    "LastExplicitlyExpandedAttrId": 0,
+    "PreSlctdAttrIds": [],
+    "ProdAttrInps": [],
+    "SpecSrchAttrInps": [],
+    "SrchRsltIDs": [],
+    "TopLevelLandingPageProdAttrIds": [],
+    "UrlComponentPartNbr": "",
+    "AmbiguousSpecGroups": [],
+    "LastSelectedAttrInp": null,
+    "LastSelectedAttrValInp": null,
+    "LastSelectedAttrId": 0,
+    "LastSelectedPubAttrId": 0,
+    "LastSelectedValId": 0,
+    "LastSelectedPubValId": 0,
+    "AttemptsToFilterProductsInScope": false
+  },
+  "ComponentUrlLegacyAttrSelections": "",
+  "ComponentUrlLegacyValueSelections": "",
+  "CadDownloadInfo": {
+    "AvailableCAD": {
+      "TwoDDownloads": [
+        {
+          "DisplayName": "2-D DWG",
+          "FilePath": "/mvC/Library/CAD2/20260108/0E511816/92196A106_18-8 Stainless Steel Socket Head Screw.DWG"
+        },
+        {
+          "DisplayName": "2-D DXF",
+          "FilePath": "/mvC/Library/CAD2/20260108/E5134F93/92196A106_18-8 Stainless Steel Socket Head Screw.DXF"
+        },
+        {
+          "DisplayName": "2-D EDRW",
+          "FilePath": "/mvC/Library/CAD2/20260108/1437E659/92196A106_18-8 Stainless Steel Socket Head Screw.EDRW"
+        },
+        {
+          "DisplayName": "2-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260108/291FC233/92196A106_18-8 Stainless Steel Socket Head Screw.PDF"
+        },
+        {
+          "DisplayName": "2-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260108/555992F2/92196A106_18-8 Stainless Steel Socket Head Screw.SLDDRW"
+        }
+      ],
+      "ThreeDDownloads": [
+        {
+          "DisplayName": "3-D IGES",
+          "FilePath": "/mvC/Library/CAD2/20260108/41554E21/92196A106_18-8 Stainless Steel Socket Head Screw.IGS"
+        },
+        {
+          "DisplayName": "3-D Parasolid",
+          "FilePath": "/mvC/Library/CAD2/20260108/35205C81/92196A106_18-8 Stainless Steel Socket Head Screw.X_T"
+        },
+        {
+          "DisplayName": "3-D Parasolid no threads",
+          "FilePath": "/mvC/Library/CAD2/20260108/35205C81/92196A106_NO THREADS_18-8 Stainless Steel Socket Head Screw.X_T"
+        },
+        {
+          "DisplayName": "3-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260108/291FC233/92196A106_3D_18-8 Stainless Steel Socket Head Screw.PDF"
+        },
+        {
+          "DisplayName": "3-D SAT",
+          "FilePath": "/mvC/Library/CAD2/20260108/F3E260C5/92196A106_18-8 Stainless Steel Socket Head Screw.SAT"
+        },
+        {
+          "DisplayName": "3-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260108/1893C5BC/92196A106_18-8 Stainless Steel Socket Head Screw.SLDPRT"
+        },
+        {
+          "DisplayName": "3-D STEP",
+          "FilePath": "/mvC/Library/CAD2/20260108/81CA0F98/92196A106_18-8 Stainless Steel Socket Head Screw.STEP"
+        },
+        {
+          "DisplayName": "3-D STEP no threads",
+          "FilePath": "/mvC/Library/CAD2/20260108/81CA0F98/92196A106_NO THREADS_18-8 Stainless Steel Socket Head Screw.STEP"
+        }
+      ]
+    },
+    "DefaultPreference": "3-D Solidworks",
+    "DisplayControlsInd": true,
+    "DisableControlsInd": false,
+    "ErrorInd": false,
+    "ErrorMessage": "",
+    "PromptLoginInd": false
+  },
+  "ImageLayoutComponentDat": {
+    "ImageDataList": [
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/921/92196A106_e9ed2521-d062-4a37-98db-abb09384bc69@2x_1703016256.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 162,
+        "ImageSrcSmallWidth": 277,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/921/92196A106_e9ed2521-d062-4a37-98db-abb09384bc69@4x_1703016256.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/921/92196A106_e9ed2521-d062-4a37-98db-abb09384bc69@100p_1703016256.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Front orientation. 18-8 Stainless Steel Socket Head Screw, 4-40 Thread Size, 1/4\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/921/92196A106_e9ed2521-d062-4a37-98db-abb09384bc69@2x_1703016256.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/921/92196A106_e9ed2521-d062-4a37-98db-abb09384bc69@4x_1703016256.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/921/92196A106_5b910dca-47fa-40eb-8159-2ddc56e66c4d@2x_1703016065.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 160,
+        "ImageSrcSmallWidth": 282,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/921/92196A106_5b910dca-47fa-40eb-8159-2ddc56e66c4d@4x_1703016065.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/921/92196A106_5b910dca-47fa-40eb-8159-2ddc56e66c4d@100p_1703016065.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Back orientation. 18-8 Stainless Steel Socket Head Screw, 4-40 Thread Size, 1/4\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/921/92196A106_5b910dca-47fa-40eb-8159-2ddc56e66c4d@2x_1703016065.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/921/92196A106_5b910dca-47fa-40eb-8159-2ddc56e66c4d@4x_1703016065.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/921/92196A106_60c69c53-c6bf-453e-b6dd-16ad12b7979b@2x_1703018666.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 214,
+        "ImageSrcSmallWidth": 356,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/921/92196A106_60c69c53-c6bf-453e-b6dd-16ad12b7979b@4x_1703018666.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/921/92196A106_60c69c53-c6bf-453e-b6dd-16ad12b7979b@100p_1703018666.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Side1 orientation. Contains SizingReference. 18-8 Stainless Steel Socket Head Screw, 4-40 Thread Size, 1/4\" Long, Fully Threaded.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/921/92196A106_60c69c53-c6bf-453e-b6dd-16ad12b7979b@2x_1703018666.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/921/92196A106_60c69c53-c6bf-453e-b6dd-16ad12b7979b@4x_1703018666.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      }
+    ],
+    "CADImageCarouselData": {
+      "ThumbnailSrc": "/mvC/Library/CAD2/20260108/F8CCAA31/92196A106_18-8 Stainless Steel Socket Head ScrewS.GIF",
+      "CADImageDataList": [
+        {
+          "ImageSrcSmall": "/mvC/Library/CAD2/20260108/F8CCAA31/92196A106_18-8 Stainless Steel Socket Head ScrewX.GIF",
+          "ImageSrcLarge": "/mvC/Library/CAD2/20260108/F8CCAA31/92196A106_18-8 Stainless Steel Socket Head ScrewX.GIF",
+          "Download2DPDFPath": "/mvC/Library/CAD2/20260108/291FC233/92196A106_18-8 Stainless Steel Socket Head Screw.PDF",
+          "CADAltText": "Technical Drawing of 18-8 Stainless Steel Socket Head Screw, 4-40 Thread Size, 1/4\" Long, Fully Threaded."
+        }
+      ]
+    }
+  },
+  "CadAddInDownloadInfo": {
+    "VersionText": "2.4.0.0",
+    "DownloadUri": "/mv1790277924/Installers/SolidWorksAddIn/McMaster.SolidWorks.CustomerAddIn_2.4.0.0.msi"
+  },
+  "SpecIndustrialInfoQueries": [],
+  "TransferredPartNumberInd": true,
+  "ResolvedComponentPartNumber": null,
+  "SpecChoiceParameterIds": [],
+  "TargetPageMetadata": {
+    "Type": "product_detail_page",
+    "World": "new_world",
+    "ProductFamily": "Socket Head Screws",
+    "TargetPageConstituentPFs": null,
+    "ProductCount": 1,
+    "PresentationCount": 0,
+    "ProductFamilyCount": 1,
+    "EmphasisValueCount": 0
+  },
+  "ReactData": {
+    "AddToOrderMarkup": null,
+    "Copies": [
+      "These screws <span class=\"Wrd\">won't</span> rust or corrode when exposed to moisture and <span class=\"Wrd\">chemicals.</span> Their <span class=\"Wrd\">deep,</span> six-point socket keeps hex keys from slipping out and damaging the <span class=\"Wrd\">drive.</span>",
+      "Length is measured from under the <span class=\"Wrd\">head.</span>",
+      "<span class=\"Wrd\"><b>18</b><b>-</b><b>8</b></span> <b>Stainless</b> <span class=\"Wrd\"><b>Steel</b><b>—</b></span>The choice for wet and outdoor <span class=\"Wrd\">environments,</span> these screws <span class=\"Wrd\">won't</span> <span class=\"Wrd\">rust.</span> <span class=\"Wrd\">However,</span> they <span class=\"Wrd\">don't</span> hold up to the harsh chemicals that 316 stainless steel screws <span class=\"Wrd\">can.</span>"
+    ],
+    "Headers": {
+      "Primary": "18-8 Stainless Steel Socket Head Screw",
+      "Secondary": "4-40 Thread Size, 1/4\" Long, Fully Threaded"
+    },
+    "TableEntries": [
+      {
+        "AttrId": 0,
+        "AttrValId": 0,
+        "IsIndented": false,
+        "Name": "Thread",
+        "Type": "TableEntrySpec",
+        "Value": ""
+      },
+      {
+        "AttrId": 10000000008187,
+        "AttrValId": 10000000122836,
+        "IsIndented": true,
+        "Name": "Size",
+        "Type": "TableEntrySpec",
+        "Value": "4-40"
+      },
+      {
+        "AttrId": 10000000008200,
+        "AttrValId": 10000000153996,
+        "IsIndented": true,
+        "Name": "Spacing",
+        "Type": "TableEntrySpec",
+        "Value": "Coarse"
+      },
+      {
+        "AttrId": 10000000008205,
+        "AttrValId": 10000002102665,
+        "IsIndented": true,
+        "Name": "Type",
+        "Type": "TableEntrySpec",
+        "Value": "UNC"
+      },
+      {
+        "AttrId": 10000000008172,
+        "AttrValId": 10000000140849,
+        "IsIndented": true,
+        "Name": "Fit",
+        "Type": "TableEntrySpec",
+        "Value": "Unified Standard Class 3A"
+      },
+      {
+        "AttrId": 10000000008164,
+        "AttrValId": 10000000138654,
+        "IsIndented": true,
+        "Name": "Direction",
+        "Type": "TableEntrySpec",
+        "Value": "Right Hand"
+      },
+      {
+        "AttrId": 10000000003769,
+        "AttrValId": 10000000049797,
+        "IsIndented": false,
+        "Name": "Socket Head Profile",
+        "Type": "TableEntrySpec",
+        "Value": "Standard"
+      },
+      {
+        "AttrId": 10000001586066,
+        "AttrValId": 10000001629108,
+        "IsIndented": false,
+        "Name": "Fastener Head Type",
+        "Type": "TableEntrySpec",
+        "Value": "Socket"
+      },
+      {
+        "AttrId": 10000000002113,
+        "AttrValId": 10000000069575,
+        "IsIndented": false,
+        "Name": "Drive Style",
+        "Type": "TableEntrySpec",
+        "Value": "Hex"
+      },
+      {
+        "AttrId": 10000000007169,
+        "AttrValId": 10000001631075,
+        "IsIndented": false,
+        "Name": "Length",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">1/4</span>\""
+      },
+      {
+        "AttrId": 0,
+        "AttrValId": 0,
+        "IsIndented": false,
+        "Name": "Head",
+        "Type": "TableEntrySpec",
+        "Value": ""
+      },
+      {
+        "AttrId": 10000001474336,
+        "AttrValId": 10000001482828,
+        "IsIndented": true,
+        "Name": "Diameter",
+        "Type": "TableEntrySpec",
+        "Value": "0.183\""
+      },
+      {
+        "AttrId": 10000000006914,
+        "AttrValId": 10000001476394,
+        "IsIndented": true,
+        "Name": "Height",
+        "Type": "TableEntrySpec",
+        "Value": "0.112\""
+      },
+      {
+        "AttrId": 10000000008220,
+        "AttrValId": 10000000124223,
+        "IsIndented": false,
+        "Name": "Threading",
+        "Type": "TableEntrySpec",
+        "Value": "Fully Threaded"
+      },
+      {
+        "AttrId": 10000003479552,
+        "AttrValId": 10000003483053,
+        "IsIndented": false,
+        "Name": "Tensile Strength",
+        "Type": "TableEntrySpec",
+        "Value": "70,000 psi"
+      },
+      {
+        "AttrId": 10000006666239,
+        "AttrValId": 10000006731544,
+        "IsIndented": false,
+        "Name": "Certificate Form",
+        "Type": "TableEntrySpec",
+        "Value": "Digital"
+      },
+      {
+        "AttrId": 10000005274146,
+        "AttrValId": 10000005272246,
+        "IsIndented": false,
+        "Name": "Certificate Type",
+        "Type": "TableEntrySpec",
+        "Value": "Material Certificate with Traceable Lot Number"
+      },
+      {
+        "AttrId": 10000003488293,
+        "AttrValId": 10000003490047,
+        "IsIndented": false,
+        "Name": "Drive Size",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">3/32</span>\""
+      },
+      {
+        "AttrId": 10000000006908,
+        "AttrValId": 10000000134200,
+        "IsIndented": false,
+        "Name": "Hardness",
+        "Type": "TableEntrySpec",
+        "Value": "Rockwell B70"
+      },
+      {
+        "AttrId": 10000015890590,
+        "AttrValId": 10000015889183,
+        "IsIndented": false,
+        "Name": "Material",
+        "Type": "TableEntrySpec",
+        "Value": "18-8 Stainless Steel"
+      },
+      {
+        "AttrId": 10000002073452,
+        "AttrValId": 10000003150642,
+        "IsIndented": false,
+        "Name": "Performance",
+        "Type": "TableEntrySpec",
+        "Value": "Corrosion Resistant"
+      },
+      {
+        "AttrId": 10000000003413,
+        "AttrValId": 10000000073809,
+        "IsIndented": false,
+        "Name": "Screw Size Decimal Equivalent",
+        "Type": "TableEntrySpec",
+        "Value": "0.112\""
+      },
+      {
+        "AttrId": 10000002050714,
+        "AttrValId": 10000002091586,
+        "IsIndented": false,
+        "Name": "Specifications Met",
+        "Type": "TableEntrySpec",
+        "Value": "ASME B18.3"
+      },
+      {
+        "AttrId": 10000001492748,
+        "AttrValId": 10000001498016,
+        "IsIndented": false,
+        "Name": "System of Measurement",
+        "Type": "TableEntrySpec",
+        "Value": "Inch"
+      },
+      {
+        "AttrId": 10000002230283,
+        "AttrValId": 10000002269899,
+        "IsIndented": false,
+        "Name": "Tip Type",
+        "Type": "TableEntrySpec",
+        "Value": "Flat"
+      },
+      {
+        "AttrId": 10000000001633,
+        "AttrValId": 0,
+        "IsIndented": false,
+        "Name": "Country of Origin",
+        "Type": "TableEntrySpec",
+        "Value": "United States, China, Germany, India, Indonesia, Italy, Japan, Malaysia, Philippines, Taiwan, Thailand, United Arab Emirates"
+      },
+      {
+        "AttrId": 10000000001810,
+        "AttrValId": 10000001514390,
+        "IsIndented": false,
+        "Name": "DFARS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "Not Specialty Metals Compliant"
+      },
+      {
+        "AttrId": 10000000002136,
+        "AttrValId": 10000000147067,
+        "IsIndented": false,
+        "Name": "Export Control Classification Number (ECCN)",
+        "Type": "TableEntrySpec",
+        "Value": "EAR99"
+      },
+      {
+        "AttrId": 10000000003168,
+        "AttrValId": 10000020424063,
+        "IsIndented": false,
+        "Name": "REACH Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "AttrId": 10000000003321,
+        "AttrValId": 10000000084682,
+        "IsIndented": false,
+        "Name": "RoHS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "AttrId": 10000000003391,
+        "AttrValId": 10000002427201,
+        "IsIndented": false,
+        "Name": "Schedule B Number",
+        "Type": "TableEntrySpec",
+        "Value": "731815.9000"
+      },
+      {
+        "AttrId": 10000000008322,
+        "AttrValId": 10000000170571,
+        "IsIndented": false,
+        "Name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "Type": "TableEntrySpec",
+        "Value": "No"
+      }
+    ],
+    "VideoFilePaths": [],
+    "ProductOutlineEntryIds": [
+      10000001442353,
+      10000001484471,
+      10000001484468,
+      10000001484465,
+      10000004909879,
+      10000000171039
+    ],
+    "Breadcrumbs": [
+      {
+        "OutlineEntryId": 10000001484465,
+        "Name": "Fastening and Joining",
+        "Href": "/products/product-category~~fastening-and-joining~~2q3Rr7zd/",
+        "NodeType": "product-category"
+      },
+      {
+        "OutlineEntryId": 10000001484468,
+        "Name": "Fastening",
+        "Href": "/products/product-line~~fastening~~2q3Rr7zg/",
+        "NodeType": "product-line-1"
+      },
+      {
+        "OutlineEntryId": 10000001484471,
+        "Name": "Screws and Bolts",
+        "Href": "/products/product-line~~screws-and-bolts~~2q3Rr7zj/",
+        "NodeType": "product-line-2"
+      },
+      {
+        "OutlineEntryId": 10000001442353,
+        "Name": "Socket Head Screws",
+        "Href": "/products/product-family~~socket-head-screws~~2q3Rqx2P/",
+        "NodeType": "product-family"
+      },
+      {
+        "OutlineEntryId": -1,
+        "Name": "Stainless Steel Socket Head Screws",
+        "Href": "/products/92196A106/",
+        "NodeType": "presentation"
+      },
+      {
+        "OutlineEntryId": -1,
+        "Name": "92196A106",
+        "Href": "",
+        "NodeType": ""
+      }
+    ],
+    "IPVData": {
+      "FilePath": null,
+      "DisplayViewerInd": false,
+      "DisableViewerInd": false,
+      "ErrorMessage": null
+    }
+  },
+  "PinnedContentColl": null,
+  "IDTxt": "ItmPrsnttnWebPart_639259377805126386AALG",
+  "ServerTm": 22,
+  "ServerNm": "NAVEP1035C",
+  "ClsNm": "ItmPrsnttnWebPart",
+  "CntnrIDTxt": "MainContent",
+  "MarkupTxt": "",
+  "JSInclFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "JSInclSrcFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "CSSInclFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "CSSInclSrcFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "ChldWebParts": [
+    {
+      "Tools": [
+        "FwdLnkTool",
+        "PrintTool",
+        "HelpfulFeedbackTool",
+        "McmAiLnkPd",
+        "BreadcrumbTool"
+      ],
+      "Styles": [],
+      "NewStyleInd": false,
+      "IsHideWebToolkitEnabled": false,
+      "IDTxt": "WebToolsetWebPart_639259377805126549IDQS",
+      "ServerTm": 0,
+      "ServerNm": "NAVEP1035C",
+      "ClsNm": "WebToolsetWebPart",
+      "CntnrIDTxt": "WebToolset_ItmPrsnttnWebPart_639259377805126386AALG",
+      "MarkupTxt": "<div class=\"WebToolsetWebPart_Cntnr WebToolsetWebPart-border\"><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_forward\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='FwdLnkTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Forward</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCancelClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_FwdLnkTool_Form\"><div class=\"WebToolsetToolWebPart_Lbl\">Enter e-mail addresses in the fields below</div><div class=\"WebToolsetToolWebPart_ToAreaCntnr\"><label id= \"tolabel\"for=\"fwdTo\">To</label><input id=\"fwdTo\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_ToEmailInp\"/></div><div class=\"WebToolsetToolWebPart_FromAreaCntnr\"><label id=\"fromlabel\"for=\"fwdFrom\">From</label><input id=\"fwdFrom\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_Lbl\">Message</div><textarea cols=\"52\" rows=\"6\" id=\"messagetxt\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_LinkAreaCntnr\"><label id= \"linklabel\" for=\"fwdLink\">Link</label><input id=\"fwdLink\" type=\"text\" value=\"\" readonly class=\"WebToolsetToolWebPart_URLInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-forward-order forward-link\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-forward-link\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCloseCnfrmMsgClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_print\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='PrintTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Print</a></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_is-this-page-helpful\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='HelpfulFeedbackTool'  class=\"ai\">Is this page helpful?</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseBtn\" href=\"#\" Class= \"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_HelpfulFeedbackTool_Form\"><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"1\">Yes</input><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"2\">No</input><div class=\"WebToolsetToolWebPart_Lbl\">Comments</div><textarea cols=\"52\" rows=\"5\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_Lbl\">E-mail address (if you would like a response)</div><div><input type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-send-feedback-toolset send-helpful-feedback\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-send-helpful-feedback\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseCnfrmMsg\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_find-alternative-products-beta\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='McmAiLnkPd'  class=\"ai\">Find alternative products (beta)<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1em\" height=\"1em\" fill=\"currentColor\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\" style=\"vertical-align:middle;position:relative;top:-2px;left:3px;\"><path fill-rule=\"evenodd\" d=\"M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5\"/><path fill-rule=\"evenodd\" d=\"M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z\"/></svg></a></div><div id='BreadcrumbTool' class='WebToolsetToolWebPart_Aligned_LEFT'></div></div>",
+      "JSInclFilePaths": [],
+      "JSInclSrcFilePaths": [],
+      "CSSInclFilePaths": [],
+      "CSSInclSrcFilePaths": [],
+      "ChldWebParts": [
+        {
+          "Nm": "FwdLnkTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Forward this page",
+          "ToolTxt": "Forward",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "FrwLnkToolWebPart_639259377805126849VBOL",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1035C",
+          "ClsNm": "FrwLnkToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "PrintTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Print",
+          "ToolTxt": "Print",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259377805126815GJYM",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1035C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "HelpfulFeedbackTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Item presentation feedback",
+          "ToolTxt": "Is this page helpful?",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "HelpfulFeedbackToolWebPart_639259377805126792XAZH",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1035C",
+          "ClsNm": "HelpfulFeedbackToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "McmAiLnkPd",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "Find alternative products (beta)",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259377805126744EPDQ",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1035C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "BreadcrumbTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "",
+          "AlignPosnTxt": "LEFT",
+          "Styles": [],
+          "IDTxt": "BreadcrumbsToolWebPart_639259377805126688ZEVV",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1035C",
+          "ClsNm": "BreadcrumbsToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": true
+        }
+      ],
+      "LoadChldWebPartsInd": true,
+      "UnloadChldWebPartsInd": true,
+      "EmbeddedIntoShellInd": false
+    }
+  ],
+  "LoadChldWebPartsInd": true,
+  "UnloadChldWebPartsInd": true,
+  "EmbeddedIntoShellInd": false
+}

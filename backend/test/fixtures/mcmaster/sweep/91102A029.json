@@ -1,0 +1,525 @@
+{
+  "NewStyleIndicator": true,
+  "BlueprintId": "10000005809327",
+  "custDisableFdbkFrmAutoOpenPref": true,
+  "CtlgPgNbrs": [
+    3701,
+    3702,
+    3705,
+    3706
+  ],
+  "OptToCtlgPgInd": false,
+  "PartNbrTxt": "91102A029",
+  "ComponentPartNbrTxt": "",
+  "TitleTxt": "Zinc-Plated Steel Split Lock Washer, for 1/4\" Screw Size, 0.26\" ID, 0.487\" OD",
+  "ComponentUrlUsrInp": {
+    "IntermediatePageAttrInps": [],
+    "InvalidatedUsrSelectionAttrId": 0,
+    "LandingPageAttrInps": [],
+    "LastDeselectedAttrId": 0,
+    "LastDeselectedPubAttrId": 0,
+    "LastDeselectedValId": 0,
+    "LastExplicitlyExpandedAttrId": 0,
+    "PreSlctdAttrIds": [],
+    "ProdAttrInps": [],
+    "SpecSrchAttrInps": [],
+    "SrchRsltIDs": [],
+    "TopLevelLandingPageProdAttrIds": [],
+    "UrlComponentPartNbr": "",
+    "AmbiguousSpecGroups": [],
+    "LastSelectedAttrInp": null,
+    "LastSelectedAttrValInp": null,
+    "LastSelectedAttrId": 0,
+    "LastSelectedPubAttrId": 0,
+    "LastSelectedValId": 0,
+    "LastSelectedPubValId": 0,
+    "AttemptsToFilterProductsInScope": false
+  },
+  "ComponentUrlLegacyAttrSelections": "",
+  "ComponentUrlLegacyValueSelections": "",
+  "CadDownloadInfo": {
+    "AvailableCAD": {
+      "TwoDDownloads": [
+        {
+          "DisplayName": "2-D DWG",
+          "FilePath": "/mvC/Library/CAD2/20260519/AB6A2B31/91102A029_Zinc-Plated Steel Split Lock Washer.DWG"
+        },
+        {
+          "DisplayName": "2-D DXF",
+          "FilePath": "/mvC/Library/CAD2/20260519/1E80B345/91102A029_Zinc-Plated Steel Split Lock Washer.DXF"
+        },
+        {
+          "DisplayName": "2-D EDRW",
+          "FilePath": "/mvC/Library/CAD2/20260519/661948FA/91102A029_Zinc-Plated Steel Split Lock Washer.EDRW"
+        },
+        {
+          "DisplayName": "2-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260519/23ABE43C/91102A029_Zinc-Plated Steel Split Lock Washer.PDF"
+        },
+        {
+          "DisplayName": "2-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260519/4BB0D8FA/91102A029_Zinc-Plated Steel Split Lock Washer.SLDDRW"
+        }
+      ],
+      "ThreeDDownloads": [
+        {
+          "DisplayName": "3-D IGES",
+          "FilePath": "/mvC/Library/CAD2/20260519/05E83BC9/91102A029_Zinc-Plated Steel Split Lock Washer.IGS"
+        },
+        {
+          "DisplayName": "3-D Parasolid",
+          "FilePath": "/mvC/Library/CAD2/20260519/402A1DC5/91102A029_Zinc-Plated Steel Split Lock Washer.X_T"
+        },
+        {
+          "DisplayName": "3-D PDF",
+          "FilePath": "/mvC/Library/CAD2/20260519/23ABE43C/91102A029_3D_Zinc-Plated Steel Split Lock Washer.PDF"
+        },
+        {
+          "DisplayName": "3-D SAT",
+          "FilePath": "/mvC/Library/CAD2/20260519/95C742C4/91102A029_Zinc-Plated Steel Split Lock Washer.SAT"
+        },
+        {
+          "DisplayName": "3-D Solidworks",
+          "FilePath": "/mvC/Library/CAD2/20260519/762CAFC4/91102A029_Zinc-Plated Steel Split Lock Washer.SLDPRT"
+        },
+        {
+          "DisplayName": "3-D STEP",
+          "FilePath": "/mvC/Library/CAD2/20260519/980ACC95/91102A029_Zinc-Plated Steel Split Lock Washer.STEP"
+        }
+      ]
+    },
+    "DefaultPreference": "3-D Solidworks",
+    "DisplayControlsInd": true,
+    "DisableControlsInd": false,
+    "ErrorInd": false,
+    "ErrorMessage": "",
+    "PromptLoginInd": false
+  },
+  "ImageLayoutComponentDat": {
+    "ImageDataList": [
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/911/91102A029_2f742b60-2f66-4fa7-b290-55994a6247bf1763411684@2x_dbms1_1763411687.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 120,
+        "ImageSrcSmallWidth": 229,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/911/91102A029_2f742b60-2f66-4fa7-b290-55994a6247bf1763411684@4x_dbms1_1763411687.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/911/91102A029_2f742b60-2f66-4fa7-b290-55994a6247bf1763411684@100p_dbms1_1763411687.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Bottom orientation. Zinc-Plated Steel Split Lock Washer, for 1/4\" Screw Size, 0.26\" ID, 0.487\" OD.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/911/91102A029_2f742b60-2f66-4fa7-b290-55994a6247bf1763411684@2x_dbms1_1763411687.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/911/91102A029_2f742b60-2f66-4fa7-b290-55994a6247bf1763411684@4x_dbms1_1763411687.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      },
+      {
+        "ImageSrcSmall": "/mvC/Contents/gfx/ImageCache/911/91102A029_51b6b525-b271-438a-a6d3-991cd0b65a551763411669@2x_ob01d_1763411673.png?ver=ImageNotFound",
+        "ImageSrcSmallHeight": 286,
+        "ImageSrcSmallWidth": 357,
+        "ImageSrcLarge": "/mvC/Contents/gfx/ImageCache/911/91102A029_51b6b525-b271-438a-a6d3-991cd0b65a551763411669@4x_ob01d_1763411673.png?ver=ImageNotFound",
+        "ThumbnailSrc": "/mvC/Contents/gfx/ImageCache/911/91102A029_51b6b525-b271-438a-a6d3-991cd0b65a551763411669@100p_ob01d_1763411673.png?ver=ImageNotFound",
+        "ImageCaption": "",
+        "ImageAltTxt": "Image of Product. Side1 orientation. Contains SizingReference. Zinc-Plated Steel Split Lock Washer, for 1/4\" Screw Size, 0.26\" ID, 0.487\" OD.",
+        "ImgSrcSetSmall": {
+          "1x": "/mvC/Contents/gfx/ImageCache/911/91102A029_51b6b525-b271-438a-a6d3-991cd0b65a551763411669@2x_ob01d_1763411673.png?ver=ImageNotFound",
+          "2x": "/mvC/Contents/gfx/ImageCache/911/91102A029_51b6b525-b271-438a-a6d3-991cd0b65a551763411669@4x_ob01d_1763411673.png?ver=ImageNotFound"
+        },
+        "ShowHelpfulFeedbackForm": false,
+        "ImageId": null
+      }
+    ],
+    "CADImageCarouselData": {
+      "ThumbnailSrc": "/mvC/Library/CAD2/20260519/56DE036B/91102A029_Zinc-Plated Steel Split Lock WasherS.GIF",
+      "CADImageDataList": [
+        {
+          "ImageSrcSmall": "/mvC/Library/CAD2/20260519/56DE036B/91102A029_Zinc-Plated Steel Split Lock WasherX.GIF",
+          "ImageSrcLarge": "/mvC/Library/CAD2/20260519/56DE036B/91102A029_Zinc-Plated Steel Split Lock WasherX.GIF",
+          "Download2DPDFPath": "/mvC/Library/CAD2/20260519/23ABE43C/91102A029_Zinc-Plated Steel Split Lock Washer.PDF",
+          "CADAltText": "Technical Drawing of Zinc-Plated Steel Split Lock Washer, for 1/4\" Screw Size, 0.26\" ID, 0.487\" OD."
+        }
+      ]
+    }
+  },
+  "CadAddInDownloadInfo": {
+    "VersionText": "2.4.0.0",
+    "DownloadUri": "/mv1790277924/Installers/SolidWorksAddIn/McMaster.SolidWorks.CustomerAddIn_2.4.0.0.msi"
+  },
+  "SpecIndustrialInfoQueries": [],
+  "TransferredPartNumberInd": true,
+  "ResolvedComponentPartNumber": null,
+  "SpecChoiceParameterIds": [],
+  "TargetPageMetadata": {
+    "Type": "product_detail_page",
+    "World": "new_world",
+    "ProductFamily": "Lock Washers",
+    "TargetPageConstituentPFs": null,
+    "ProductCount": 1,
+    "PresentationCount": 0,
+    "ProductFamilyCount": 1,
+    "EmphasisValueCount": 0
+  },
+  "ReactData": {
+    "AddToOrderMarkup": null,
+    "Copies": [
+      "Stop nuts and screws from loosening due to mild <span class=\"Wrd\">vibration.</span> As you <span class=\"Wrd\">tighten,</span> the uneven ends bite into the nut or screw so it <span class=\"Wrd\">won't</span> back <span class=\"Wrd\">out.</span> While <span class=\"Wrd\">they're</span> not as vibration resistant as other lock <span class=\"Wrd\">washers,</span> they are a great fit for electrical <span class=\"Wrd\">panels,</span> light <span class=\"Wrd\">fixtures,</span> and other light duty <span class=\"Wrd\">assemblies.</span> Split lock washers are not <span class=\"Wrd\">reusable,</span> and they only work with fasteners that have right-hand <span class=\"Wrd\">threads.</span> ",
+      "<b>Zinc</b><b>-</b><b>Plated</b> <span class=\"Wrd\"><b>Steel</b><b>—</b></span>A common choice for areas with occasional exposure to <span class=\"Wrd\">moisture.</span>  ",
+      "<b>Large</b> <span class=\"Wrd\"><b>Pack</b><b>—</b></span>Priced at least <span class=\"Wrd\">30%</span> lower per washer than small <span class=\"Wrd\">packs.</span>"
+    ],
+    "Headers": {
+      "Primary": "Zinc-Plated Steel Split Lock Washer",
+      "Secondary": "for 1/4\" Screw Size, 0.26\" ID, 0.487\" OD"
+    },
+    "TableEntries": [
+      {
+        "AttrId": 10000000006658,
+        "AttrValId": 10000000154585,
+        "IsIndented": false,
+        "Name": "For Screw Size",
+        "Type": "TableEntrySpec",
+        "Value": "<span class=\"af\">1/4</span>\""
+      },
+      {
+        "AttrId": 10000001492710,
+        "AttrValId": 10000001499887,
+        "IsIndented": false,
+        "Name": "ID",
+        "Type": "TableEntrySpec",
+        "Value": "0.260\""
+      },
+      {
+        "AttrId": 10000000007808,
+        "AttrValId": 10000000072981,
+        "IsIndented": false,
+        "Name": "OD",
+        "Type": "TableEntrySpec",
+        "Value": "0.487\""
+      },
+      {
+        "AttrId": 10000001454805,
+        "AttrValId": 10000001457137,
+        "IsIndented": false,
+        "Name": "Thickness",
+        "Type": "TableEntrySpec",
+        "Value": "0.062\""
+      },
+      {
+        "AttrId": 10000000002463,
+        "AttrValId": 10000001542944,
+        "IsIndented": false,
+        "Name": "Finish",
+        "Type": "TableEntrySpec",
+        "Value": "Zinc Plated"
+      },
+      {
+        "AttrId": 10000000006908,
+        "AttrValId": 10000002321058,
+        "IsIndented": false,
+        "Name": "Hardness",
+        "Type": "TableEntrySpec",
+        "Value": "Rockwell C38"
+      },
+      {
+        "AttrId": 10000000007257,
+        "AttrValId": 10000001511437,
+        "IsIndented": false,
+        "Name": "Material",
+        "Type": "TableEntrySpec",
+        "Value": "Steel"
+      },
+      {
+        "AttrId": 10000002050714,
+        "AttrValId": 10000002151750,
+        "IsIndented": false,
+        "Name": "Specifications Met",
+        "Type": "TableEntrySpec",
+        "Value": "ASME B18.21.1"
+      },
+      {
+        "AttrId": 10000001492748,
+        "AttrValId": 10000001498016,
+        "IsIndented": false,
+        "Name": "System of Measurement",
+        "Type": "TableEntrySpec",
+        "Value": "Inch"
+      },
+      {
+        "AttrId": 10000001972997,
+        "AttrValId": 10000001979359,
+        "IsIndented": false,
+        "Name": "Washer Type",
+        "Type": "TableEntrySpec",
+        "Value": "Split"
+      },
+      {
+        "AttrId": 10000000001633,
+        "AttrValId": 10000002422972,
+        "IsIndented": false,
+        "Name": "Country of Origin",
+        "Type": "TableEntrySpec",
+        "Value": "United States"
+      },
+      {
+        "AttrId": 10000000001810,
+        "AttrValId": 10000000157190,
+        "IsIndented": false,
+        "Name": "DFARS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "Specialty Metals COTS-Exempt"
+      },
+      {
+        "AttrId": 10000000002136,
+        "AttrValId": 10000000147067,
+        "IsIndented": false,
+        "Name": "Export Control Classification Number (ECCN)",
+        "Type": "TableEntrySpec",
+        "Value": "EAR99"
+      },
+      {
+        "AttrId": 10000000003168,
+        "AttrValId": 10000020424063,
+        "IsIndented": false,
+        "Name": "REACH Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "REACH (EC 1907/2006) (02/04/2026, 253 SVHC) Compliant"
+      },
+      {
+        "AttrId": 10000000003321,
+        "AttrValId": 10000000084682,
+        "IsIndented": false,
+        "Name": "RoHS Compliance",
+        "Type": "TableEntrySpec",
+        "Value": "RoHS 3 (2015/863/EU) Compliant"
+      },
+      {
+        "AttrId": 10000000003391,
+        "AttrValId": 10000002424414,
+        "IsIndented": false,
+        "Name": "Schedule B Number",
+        "Type": "TableEntrySpec",
+        "Value": "731821.0000"
+      },
+      {
+        "AttrId": 10000000008322,
+        "AttrValId": 10000000170571,
+        "IsIndented": false,
+        "Name": "U.S.–Mexico–Canada Agreement (USMCA) Qualifying",
+        "Type": "TableEntrySpec",
+        "Value": "No"
+      }
+    ],
+    "VideoFilePaths": [],
+    "ProductOutlineEntryIds": [
+      10000005443119,
+      10000005442838,
+      10000001484468,
+      10000001484465,
+      10000004909879,
+      10000000171039
+    ],
+    "Breadcrumbs": [
+      {
+        "OutlineEntryId": 10000001484465,
+        "Name": "Fastening and Joining",
+        "Href": "/products/product-category~~fastening-and-joining~~2q3Rr7zd/",
+        "NodeType": "product-category"
+      },
+      {
+        "OutlineEntryId": 10000001484468,
+        "Name": "Fastening",
+        "Href": "/products/product-line~~fastening~~2q3Rr7zg/",
+        "NodeType": "product-line-1"
+      },
+      {
+        "OutlineEntryId": 10000005442838,
+        "Name": "Washers",
+        "Href": "/products/product-line~~washers~~2q3S7jkM/",
+        "NodeType": "product-line-2"
+      },
+      {
+        "OutlineEntryId": 10000005443119,
+        "Name": "Lock Washers",
+        "Href": "/products/product-family~~lock-washers~~2q3S7jot/",
+        "NodeType": "product-family"
+      },
+      {
+        "OutlineEntryId": -1,
+        "Name": "Split Lock Washers",
+        "Href": "/products/91102A029/",
+        "NodeType": "presentation"
+      },
+      {
+        "OutlineEntryId": -1,
+        "Name": "91102A029",
+        "Href": "",
+        "NodeType": ""
+      }
+    ],
+    "IPVData": {
+      "FilePath": null,
+      "DisplayViewerInd": false,
+      "DisableViewerInd": false,
+      "ErrorMessage": null
+    }
+  },
+  "PinnedContentColl": null,
+  "IDTxt": "ItmPrsnttnWebPart_639259048548955454OINL",
+  "ServerTm": 12,
+  "ServerNm": "NAVEP1037C",
+  "ClsNm": "ItmPrsnttnWebPart",
+  "CntnrIDTxt": "MainContent",
+  "MarkupTxt": "",
+  "JSInclFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "JSInclSrcFilePaths": [
+    "/mv1790277924/include/WebToolsetWebPart.js?ver=1790070688"
+  ],
+  "CSSInclFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "CSSInclSrcFilePaths": [
+    "/mv1790277924/css/WebToolsetWebPartLayout.css?ver=1790070762"
+  ],
+  "ChldWebParts": [
+    {
+      "Tools": [
+        "FwdLnkTool",
+        "PrintTool",
+        "HelpfulFeedbackTool",
+        "McmAiLnkPd",
+        "BreadcrumbTool"
+      ],
+      "Styles": [],
+      "NewStyleInd": false,
+      "IsHideWebToolkitEnabled": false,
+      "IDTxt": "WebToolsetWebPart_639259048548955607MNIF",
+      "ServerTm": 0,
+      "ServerNm": "NAVEP1037C",
+      "ClsNm": "WebToolsetWebPart",
+      "CntnrIDTxt": "WebToolset_ItmPrsnttnWebPart_639259048548955454OINL",
+      "MarkupTxt": "<div class=\"WebToolsetWebPart_Cntnr WebToolsetWebPart-border\"><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_forward\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='FwdLnkTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Forward</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCancelClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_FwdLnkTool_Form\"><div class=\"WebToolsetToolWebPart_Lbl\">Enter e-mail addresses in the fields below</div><div class=\"WebToolsetToolWebPart_ToAreaCntnr\"><label id= \"tolabel\"for=\"fwdTo\">To</label><input id=\"fwdTo\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_ToEmailInp\"/></div><div class=\"WebToolsetToolWebPart_FromAreaCntnr\"><label id=\"fromlabel\"for=\"fwdFrom\">From</label><input id=\"fwdFrom\" type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_Lbl\">Message</div><textarea cols=\"52\" rows=\"6\" id=\"messagetxt\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_LinkAreaCntnr\"><label id= \"linklabel\" for=\"fwdLink\">Link</label><input id=\"fwdLink\" type=\"text\" value=\"\" readonly class=\"WebToolsetToolWebPart_URLInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-forward-order forward-link\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-forward-link\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_LeftBorder\"> </div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"FrwLnkCloseCnfrmMsgClick\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_print\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='PrintTool'  class=\"ai\" itmPrsnttnWebPartToolsetInd=\"True\">Print</a></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_is-this-page-helpful\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='HelpfulFeedbackTool'  class=\"ai\">Is this page helpful?</a></div><div class=\"WebToolsetToolWebPart_FormCntnr\"><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseBtn\" href=\"#\" Class= \"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div><form action=\"#\" class=\"WebToolsetToolWebPart_HelpfulFeedbackTool_Form\"><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"1\">Yes</input><div class=\"WebToolsetToolWebPart_HelpfulnessVal\"></div><input type=\"radio\" name=\"HelpfulnessReply\" class=\"HelpReply\" value=\"2\">No</input><div class=\"WebToolsetToolWebPart_Lbl\">Comments</div><textarea cols=\"52\" rows=\"5\" class=\"WebToolsetToolWebPart_MsgInp\"></textarea><div class=\"WebToolsetToolWebPart_Lbl\">E-mail address (if you would like a response)</div><div><input type=\"text\" value=\"\" maxlength=\"50\" class=\"WebToolsetToolWebPart_FrmEmailInp\"/></div><div class=\"WebToolsetToolWebPart_ErrMsgCntnr\"></div><div class=\"WebToolsetToolWebPart_Btns\"><button class=\"button-send-feedback-toolset send-helpful-feedback\"><span class=\"button-reset--IE\">Send</span></button><a class=\"link-undo cancel-send-helpful-feedback\" title=\"\">Cancel</a><div style='clear: both;'></div></div></form></div><div class=\"WebToolsetToolWebPart_ConfirmationMsg\"><div class=\"WebToolsetToolWebPart_ConfirmationMsgTxt\"></div><div class=\"WebToolsetToolWebPart_CloseBtn\"><a id=\"HelpfulFeedbackToolCloseCnfrmMsg\" href=\"#\" class=\"ai\" style=\"background-image: url(/mvC/gfx/HomePageImages.png?ver=ImageNotFound);\"></a></div></div><div class=\"WebToolsetToolWebPart_Cntnr WebToolsetToolWebPart_Aligned_RIGHT WebToolsetToolWebPart_find-alternative-products-beta\"><a href=\"#\" data-mcm-webtoolset-identifier=\"true\" data-mcm-tool-name='McmAiLnkPd'  class=\"ai\">Find alternative products (beta)<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1em\" height=\"1em\" fill=\"currentColor\" viewBox=\"0 0 16 16\" aria-hidden=\"true\" focusable=\"false\" style=\"vertical-align:middle;position:relative;top:-2px;left:3px;\"><path fill-rule=\"evenodd\" d=\"M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5\"/><path fill-rule=\"evenodd\" d=\"M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z\"/></svg></a></div><div id='BreadcrumbTool' class='WebToolsetToolWebPart_Aligned_LEFT'></div></div>",
+      "JSInclFilePaths": [],
+      "JSInclSrcFilePaths": [],
+      "CSSInclFilePaths": [],
+      "CSSInclSrcFilePaths": [],
+      "ChldWebParts": [
+        {
+          "Nm": "FwdLnkTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Forward this page",
+          "ToolTxt": "Forward",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "FrwLnkToolWebPart_639259048548955894KBZX",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1037C",
+          "ClsNm": "FrwLnkToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "PrintTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Print",
+          "ToolTxt": "Print",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259048548955870KVCJ",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1037C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "HelpfulFeedbackTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "Item presentation feedback",
+          "ToolTxt": "Is this page helpful?",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "HelpfulFeedbackToolWebPart_639259048548955847CNLV",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1037C",
+          "ClsNm": "HelpfulFeedbackToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "McmAiLnkPd",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "Find alternative products (beta)",
+          "AlignPosnTxt": "RIGHT",
+          "Styles": [],
+          "IDTxt": "WebToolsetToolWebPart_639259048548955809TUSP",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1037C",
+          "ClsNm": "WebToolsetToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": false
+        },
+        {
+          "Nm": "BreadcrumbTool",
+          "ToolTyp": "TXT_LNK",
+          "AltTxt": "",
+          "ToolTxt": "",
+          "AlignPosnTxt": "LEFT",
+          "Styles": [],
+          "IDTxt": "BreadcrumbsToolWebPart_639259048548955743TXXE",
+          "ServerTm": 0,
+          "ServerNm": "NAVEP1037C",
+          "ClsNm": "BreadcrumbsToolWebPart",
+          "CntnrIDTxt": "",
+          "MarkupTxt": "",
+          "JSInclFilePaths": [],
+          "JSInclSrcFilePaths": [],
+          "CSSInclFilePaths": [],
+          "CSSInclSrcFilePaths": [],
+          "ChldWebParts": [],
+          "LoadChldWebPartsInd": true,
+          "UnloadChldWebPartsInd": true,
+          "EmbeddedIntoShellInd": true
+        }
+      ],
+      "LoadChldWebPartsInd": true,
+      "UnloadChldWebPartsInd": true,
+      "EmbeddedIntoShellInd": false
+    }
+  ],
+  "LoadChldWebPartsInd": true,
+  "UnloadChldWebPartsInd": true,
+  "EmbeddedIntoShellInd": false
+}
