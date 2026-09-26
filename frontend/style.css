@@ -91,6 +91,7 @@ button {
   font-size: 1rem;
   min-height: 44px;
   cursor: pointer;
+  margin: 0.25rem 0.5rem 0.25rem 0;
 }
 
 button:hover {
@@ -178,4 +179,200 @@ footer {
   font-size: 0.8rem;
   text-align: center;
   margin-top: 2rem;
+}
+
+/* ---------------------------------------------------------------------
+   Fallback panel: shown when a server lookup fails/times out. Points at
+   the bookmarklet, which works for every part with no server involved.
+   --------------------------------------------------------------------- */
+
+.fallback {
+  border-color: var(--accent);
+}
+
+.fallback h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.fallback-actions {
+  margin-bottom: 0.5rem;
+}
+
+.bookmarklet-row {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* A bookmarklet link must look and behave like a normal link (draggable,
+   plain anchor) rather than a button, or dragging it to the bookmarks bar
+   doesn't work the way people expect. */
+.bookmarklet-link {
+  display: inline-block;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  border-radius: 6px;
+  min-height: 44px;
+  line-height: 1.6rem;
+  cursor: grab;
+}
+
+.bookmarklet-row .hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0.6rem 0 0;
+  line-height: 1.4;
+}
+
+#installPanel summary {
+  font-size: 0.95rem;
+}
+
+/* ---------------------------------------------------------------------
+   Results panel
+   --------------------------------------------------------------------- */
+
+.result-header h2 {
+  margin: 0 0 0.15rem;
+  font-size: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0.15rem 0;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+}
+
+#resultMeta {
+  margin: 0.4rem 0 0.9rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0 1.1rem;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  min-height: 36px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+h3 {
+  font-size: 1rem;
+  margin: 1.1rem 0 0.4rem;
+}
+
+.spec-group {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin: 0.9rem 0 0.2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2rem;
+}
+
+#specsDetails {
+  margin-top: 1.1rem;
+}
+
+#specsDetails summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+/* ---------------------------------------------------------------------
+   Recent
+   --------------------------------------------------------------------- */
+
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recent-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  min-height: 44px;
+  text-align: left;
+  cursor: pointer;
+  margin: 0;
+}
+
+.recent-item:hover {
+  border-color: var(--accent);
+}
+
+.recent-part {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.recent-desc {
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------------
+   Phone width: keep every panel and its contents inside the viewport --
+   long spec values, URLs and titles all get to wrap instead of forcing
+   horizontal scroll.
+   --------------------------------------------------------------------- */
+
+.spec-row span,
+.links a,
+#resultCategory,
+#resultTitle {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 420px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
